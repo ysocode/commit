@@ -13,8 +13,8 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Process\Process;
 use YSOCode\Commit\Actions\GetCommitFromGitDiff;
 use YSOCode\Commit\Actions\GetGitDiff;
+use YSOCode\Commit\Domain\Enums\AI;
 use YSOCode\Commit\Domain\Types\Error;
-use YSOCode\Commit\Enums\AI;
 
 #[AsCommand(
     name: 'generate',

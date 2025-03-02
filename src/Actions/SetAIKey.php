@@ -2,8 +2,8 @@
 
 namespace YSOCode\Commit\Actions;
 
+use YSOCode\Commit\Domain\Enums\AI;
 use YSOCode\Commit\Domain\Types\Error;
-use YSOCode\Commit\Enums\AI;
 use YSOCode\Commit\Support\EnvFileManager;
 
 readonly class SetAIKey implements Action

@@ -1,6 +1,6 @@
 <?php
 
-namespace YSOCode\Commit\Enums;
+namespace YSOCode\Commit\Domain\Enums;
 
 enum AI: string
 {

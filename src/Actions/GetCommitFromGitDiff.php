@@ -4,8 +4,8 @@ namespace YSOCode\Commit\Actions;
 
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Factory;
+use YSOCode\Commit\Domain\Enums\AI;
 use YSOCode\Commit\Domain\Types\Error;
-use YSOCode\Commit\Enums\AI;
 
 readonly class GetCommitFromGitDiff implements Action
 {
