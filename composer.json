@@ -25,9 +25,17 @@
     },
     "require-dev": {
         "phpstan/phpstan": "^2.1",
-        "laravel/pint": "^1.21"
+        "laravel/pint": "^1.21",
+        "captainhook/captainhook": "^5.25",
+        "captainhook/hook-installer": "^1.0",
+        "ramsey/conventional-commits": "^1.6"
     },
     "bin": [
         "bin/commit"
-    ]
+    ],
+    "config": {
+        "allow-plugins": {
+            "captainhook/hook-installer": true
+        }
+    }
 }
