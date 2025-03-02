@@ -124,10 +124,13 @@ class Generate extends Command
         $commitMessage = $content['text'];
 
         $output->writeln('<info>Generated Commit Message:</info>');
-        $output->writeln($commitMessage);
+        $output->writeln([
+            $commitMessage,
+            '',
+        ]);
 
         $helper = $this->getHelper('question');
-        $question = new ConfirmationQuestion('Do you want to create a commit with this message? (y/n)', false);
+        $question = new ConfirmationQuestion('<question>Do you want to create a commit with this message? [y/N]</question>', false);
 
         if (! $helper->ask($input, $output, $question)) {
             $output->writeln('<info>No commit made</info>');
