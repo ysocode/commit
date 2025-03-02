@@ -8,6 +8,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use YSOCode\Commit\Actions\GetAIKey;
 use YSOCode\Commit\Actions\SetAIKey;
 use YSOCode\Commit\Domain\Error;
 use YSOCode\Commit\Enums\AI;
@@ -82,33 +83,14 @@ class Key extends Command
 
     private function getKey(OutputInterface $output): int
     {
-        $homeDir = getenv('HOME');
-
-        if (! $homeDir) {
-            $output->writeln("<error>Error: Unable to determine the user's home directory</error>");
-
-            return Command::FAILURE;
-        }
-
-        $configDir = "{$homeDir}/.ysocode/commit";
-        $configFile = "{$configDir}/.env";
-
-        if (! file_exists($configFile)) {
-            $output->writeln("<error>Error: Configuration file .env not found at {$configFile}</error>");
+        $actionResponse = (new GetAIKey(AI::COHERE))->execute();
+        if ($actionResponse instanceof Error) {
+            $output->writeln("<error>Error: $actionResponse</error>");
 
             return Command::FAILURE;
         }
 
-        $envManager = new EnvFileManager($configFile);
-        $key = $envManager->get('COHERE_KEY');
-
-        if (! $key) {
-            $output->writeln('<error>Error: No Cohere API key found</error>');
-
-            return Command::FAILURE;
-        }
-
-        $output->writeln("<info>Your Cohere API key is: {$key}</info>");
+        $output->writeln("<info>Your Cohere API key is: {$actionResponse}</info>");
 
         return Command::SUCCESS;
     }
