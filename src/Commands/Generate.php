@@ -3,15 +3,18 @@
 namespace YSOCode\Commit\Commands;
 
 use Dotenv\Dotenv;
-use Illuminate\Http\Client\Factory;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Process\Process;
+use YSOCode\Commit\Actions\GetCommitFromGitDiff;
+use YSOCode\Commit\Actions\GetGitDiff;
+use YSOCode\Commit\Domain\Error;
+use YSOCode\Commit\Enums\AI;
 
 #[AsCommand(
     name: 'generate',
@@ -45,6 +48,8 @@ class Generate extends Command
 
         if (! file_exists($configFile)) {
             $output->writeln("<error>Error: Configuration file .env not found at {$configFile}</error>");
+
+            return;
         }
 
         $dotenv = Dotenv::createImmutable($configDir);
@@ -53,126 +58,34 @@ class Generate extends Command
 
     public function execute(InputInterface $input, OutputInterface $output): int
     {
-        $process = new Process(['git', 'diff', '--staged']);
-        $process->run();
-
-        if (! $process->isSuccessful()) {
-            $output->writeln('<error>Error: Unable to retrieve the Git diff</error>');
+        $gitDiff = (new GetGitDiff)->execute();
+        if ($gitDiff instanceof Error) {
+            $output->writeln("<error>Error: $gitDiff</error>");
 
             return Command::FAILURE;
         }
 
-        $gitDiff = $process->getOutput();
-
-        if (! $gitDiff) {
-            $output->writeln('<error>Error: No changes found in the Git diff</error>');
-
-            return Command::FAILURE;
-        }
-
-        $ai = $input->getOption('ai') ?? 'cohere';
-
-        $allowedAIList = ['cohere', 'openai'];
-
-        if (! is_string($ai) || ! in_array($ai, $allowedAIList)) {
-            $allowedAIListAsString = $this->formatArrayToString($allowedAIList);
-
-            $output->writeln("<error>Error: Invalid AI model. Use one of the following: $allowedAIListAsString</error>");
+        $ai = getenv('SELECTED_AI');
+        if (! $ai) {
+            $output->writeln(<<<'MESSAGE'
+            <error>Error: AI has not been selected yet. To define the AI, use the command: "ai --set"</error>
+            MESSAGE);
 
             return Command::FAILURE;
         }
 
-        $endPointList = [
-            'cohere' => 'https://api.cohere.com/v2/chat',
-            'openai' => 'https://api.openai.com/v1/chat/completions',
-        ];
+        $aiAsEnum = AI::from($ai);
 
-        $tokenVariableList = [
-            'cohere' => 'COHERE_KEY',
-            'openai' => 'OPENAI_KEY',
-        ];
-
-        $endPoint = $endPointList[$ai];
-        $tokenVariable = $tokenVariableList[$ai];
-
-        $tokenVariableValue = getenv($tokenVariable);
-        if (! $tokenVariableValue) {
-            $output->writeln("<error>Error: API key for $ai not found in the configuration file</error>");
-
-            return Command::FAILURE;
-        }
-
-        $token = getenv($tokenVariable);
-
-        if (! $token) {
-            $output->writeln("<error>Error: Unable to determine the API key for $ai</error>");
-
-            return Command::FAILURE;
-        }
-
-        $http = new Factory;
-        $response = $http->accept('application/json')
-            ->withToken($token)
-            ->post($endPoint, [
-                'model' => 'command-r-plus-08-2024',
-                'messages' => [
-                    [
-                        'role' => 'system',
-                        'content' => 'You are a Git commit message generator. Generate a conventional commit message based on the provided git diff.',
-                    ],
-                    [
-                        'role' => 'user',
-                        'content' => $gitDiff,
-                    ],
-                ],
-                'temperature' => 0.7,
-            ]);
-
-        $responseDecoded = json_decode($response->getBody(), true);
-        if (! $responseDecoded || ! is_array($responseDecoded)) {
-            $output->writeln('<error>Error: Unable to decode the response from the AI model</error>');
-
-            return Command::FAILURE;
-        }
-
-        $message = $responseDecoded['message'] ?? null;
-        if (! $message || ! is_array($message)) {
-            $output->writeln('<error>Error: Unable to retrieve the message from the AI model</error>');
-
-            return Command::FAILURE;
-        }
-
-        $content = $message['content'] ?? null;
-        if (! $content || ! is_array($content)) {
-            $output->writeln('<error>Error: Unable to retrieve the commit message from the AI model</error>');
-
-            return Command::FAILURE;
-        }
-
-        $contentFirstItem = $content[0] ?? null;
-        if (! $contentFirstItem || ! is_array($contentFirstItem)) {
-            $output->writeln('<error>Error: Unable to retrieve the first item of the commit message from the AI model</error>');
-
-            return Command::FAILURE;
-        }
-
-        $commitMessage = $contentFirstItem['text'] ?? null;
-        if (! $commitMessage || ! is_string($commitMessage)) {
-            $output->writeln('<error>Error: Unable to retrieve the text of the commit message from the AI model</error>');
-
-            return Command::FAILURE;
-        }
-
-        $output->writeln('<info>Generated Commit Message:</info>');
-        $output->writeln([
-            $commitMessage,
-            '',
-        ]);
+        $commitFromGitDiff = new GetCommitFromGitDiff($aiAsEnum, $gitDiff);
 
         /** @var QuestionHelper $helper */
         $helper = $this->getHelper('question');
 
-        $question = new ConfirmationQuestion('<question>Do you want to create a commit with this message? [y/N]</question>', false);
+        $question = new ChoiceQuestion(
+            '<question>Do you want to create a commit with this message?</question>',
+            ['yes', 'no'],
+            0
+        );
 
         if (! $helper->ask($input, $output, $question)) {
             $output->writeln('<info>No commit made</info>');
@@ -180,11 +93,11 @@ class Generate extends Command
             return Command::SUCCESS;
         }
 
-        $commitProcess = new Process(['git', 'commit', '-m', $commitMessage]);
+        $commitProcess = new Process(['git', 'commit', '-m', $commitFromGitDiff]);
         $commitProcess->run();
 
         if (! $commitProcess->isSuccessful()) {
-            $output->writeln('<error>Error: Unable to create commit</error>');
+            $output->writeln("<error>Error: {$commitProcess->getErrorOutput()}</error>");
 
             return Command::FAILURE;
         }
@@ -192,23 +105,5 @@ class Generate extends Command
         $output->writeln('<info>Commit created successfully!</info>');
 
         return Command::SUCCESS;
-    }
-
-    /**
-     * @param  array<string>  $allowedAIList
-     */
-    private function formatArrayToString(array $allowedAIList): string
-    {
-        $count = count($allowedAIList);
-
-        if ($count > 1) {
-            $lastItem = array_pop($allowedAIList);
-
-            return $count > 2
-                ? implode(', ', $allowedAIList).' e '.$lastItem
-                : implode(' ou ', [$allowedAIList[0], $lastItem]);
-        }
-
-        return $allowedAIList[0];
     }
 }

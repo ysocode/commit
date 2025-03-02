@@ -16,4 +16,12 @@ enum AI: string
     {
         return self::FORMATTED_AI_NAMES[$this->value];
     }
+
+    /**
+     * @return array<string>
+     */
+    public static function values(): array
+    {
+        return array_map(fn ($enum) => $enum->value, self::cases());
+    }
 }
