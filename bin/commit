@@ -5,7 +5,8 @@ require_once dirname(__DIR__).'/vendor/autoload.php';
 
 use Symfony\Component\Console\Application;
 use YSOCode\Commit\Commands\Generate;
-use YSOCode\Commit\Commands\OpenAI\Key;
+use YSOCode\Commit\Commands\Cohere\Key as CohereKey;
+use YSOCode\Commit\Commands\OpenAI\Key as OpenAIKey;
 
 $application = new Application();
 
@@ -18,9 +19,14 @@ $application->add($generateCommand);
 $application->setDefaultCommand($generateCommand->getName());
 
 /**
+ * Cohere
+ */
+$application->add(new CohereKey());
+
+/**
  * OpenAI
  */
-$application->add(new Key());
+$application->add(new OpenAIKey());
 
 $application->run();
 
