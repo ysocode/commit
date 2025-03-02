@@ -1,6 +1,6 @@
 <?php
 
-namespace YSOCode\Commit\Domain;
+namespace YSOCode\Commit\Domain\Types;
 
 use DomainException;
 

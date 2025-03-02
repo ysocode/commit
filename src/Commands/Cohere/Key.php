@@ -10,7 +10,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use YSOCode\Commit\Actions\GetAIKey;
 use YSOCode\Commit\Actions\SetAIKey;
-use YSOCode\Commit\Domain\Error;
+use YSOCode\Commit\Domain\Types\Error;
 use YSOCode\Commit\Enums\AI;
 
 #[AsCommand(

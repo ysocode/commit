@@ -2,7 +2,7 @@
 
 namespace YSOCode\Commit\Actions;
 
-use YSOCode\Commit\Domain\Error;
+use YSOCode\Commit\Domain\Types\Error;
 use YSOCode\Commit\Enums\AI;
 use YSOCode\Commit\Support\EnvFileManager;
 
