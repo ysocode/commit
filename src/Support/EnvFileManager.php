@@ -2,8 +2,13 @@
 
 namespace YSOCode\Commit\Support;
 
+use RuntimeException;
+
 class EnvFileManager
 {
+    /**
+     * @var array<string, string>
+     */
     private array $envVars = [];
 
     public function __construct(private readonly string $filePath)
@@ -16,6 +21,10 @@ class EnvFileManager
     private function loadEnv(): void
     {
         $content = file_get_contents($this->filePath);
+        if (! $content && ! is_string($content)) {
+            throw new RuntimeException('Failed to read the .env file');
+        }
+
         $lines = explode(PHP_EOL, $content);
 
         foreach ($lines as $line) {
@@ -51,7 +60,7 @@ class EnvFileManager
 
     private function sanitize(string $value): string
     {
-        return trim(preg_replace('/[\r\n]+/', '', $value), " \t\n\r\x0B\"");
+        return trim(preg_replace('/[\r\n]+/', '', $value) ?? '', " \t\n\r\x0B\"");
     }
 
     private function quoteIfNeeded(string $value): string

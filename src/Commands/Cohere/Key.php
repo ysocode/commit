@@ -59,7 +59,7 @@ class Key extends Command
     {
         $key = $input->getArgument('key');
 
-        if (! $key) {
+        if (! $key || ! is_string($key)) {
             $output->writeln('<error>Error: No API key provided. Use --set <your-api-key></error>');
 
             return Command::FAILURE;
@@ -67,7 +67,7 @@ class Key extends Command
 
         $homeDir = env('HOME');
 
-        if (! $homeDir) {
+        if (! $homeDir || ! is_string($homeDir)) {
             $output->writeln("<error>Error: Unable to determine the user's home directory</error>");
 
             return Command::FAILURE;
@@ -110,7 +110,7 @@ class Key extends Command
     {
         $homeDir = env('HOME');
 
-        if (! $homeDir) {
+        if (! $homeDir || ! is_string($homeDir)) {
             $output->writeln("<error>Error: Unable to determine the user's home directory</error>");
 
             return Command::FAILURE;

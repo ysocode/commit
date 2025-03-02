@@ -6,6 +6,7 @@ use Dotenv\Dotenv;
 use Illuminate\Http\Client\Factory;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -33,8 +34,10 @@ class Generate extends Command
     {
         $homeDir = env('HOME');
 
-        if (! $homeDir) {
+        if (! $homeDir || ! is_string($homeDir)) {
             $output->writeln("<error>Error: Unable to determine the user's home directory</error>");
+
+            return;
         }
 
         $configDir = "{$homeDir}/.ysocode/commit";
@@ -71,7 +74,7 @@ class Generate extends Command
 
         $allowedAIList = ['cohere', 'openai'];
 
-        if (! in_array($ai, $allowedAIList)) {
+        if (! is_string($ai) || ! in_array($ai, $allowedAIList)) {
             $allowedAIListAsString = $this->formatArrayToString($allowedAIList);
 
             $output->writeln("<error>Error: Invalid AI model. Use one of the following: $allowedAIListAsString</error>");
@@ -93,15 +96,23 @@ class Generate extends Command
         $tokenVariable = $tokenVariableList[$ai];
 
         $tokenVariableValue = env($tokenVariable);
-        if (! $tokenVariableValue) {
+        if (! $tokenVariableValue || ! is_string($tokenVariableValue)) {
             $output->writeln("<error>Error: API key for $ai not found in the configuration file</error>");
+
+            return Command::FAILURE;
+        }
+
+        $token = env($tokenVariable);
+
+        if (! $token || ! is_string($token)) {
+            $output->writeln("<error>Error: Unable to determine the API key for $ai</error>");
 
             return Command::FAILURE;
         }
 
         $http = new Factory;
         $response = $http->accept('application/json')
-            ->withToken(env($tokenVariable))
+            ->withToken($token)
             ->post($endPoint, [
                 'model' => 'command-r-plus-08-2024',
                 'messages' => [
@@ -118,10 +129,39 @@ class Generate extends Command
             ]);
 
         $responseDecoded = json_decode($response->getBody(), true);
+        if (! $responseDecoded || ! is_array($responseDecoded)) {
+            $output->writeln('<error>Error: Unable to decode the response from the AI model</error>');
 
-        [$content] = $responseDecoded['message']['content'];
+            return Command::FAILURE;
+        }
 
-        $commitMessage = $content['text'];
+        $message = $responseDecoded['message'] ?? null;
+        if (! $message || ! is_array($message)) {
+            $output->writeln('<error>Error: Unable to retrieve the message from the AI model</error>');
+
+            return Command::FAILURE;
+        }
+
+        $content = $message['content'] ?? null;
+        if (! $content || ! is_array($content)) {
+            $output->writeln('<error>Error: Unable to retrieve the commit message from the AI model</error>');
+
+            return Command::FAILURE;
+        }
+
+        $contentFirstItem = $content[0] ?? null;
+        if (! $contentFirstItem || ! is_array($contentFirstItem)) {
+            $output->writeln('<error>Error: Unable to retrieve the first item of the commit message from the AI model</error>');
+
+            return Command::FAILURE;
+        }
+
+        $commitMessage = $contentFirstItem['text'] ?? null;
+        if (! $commitMessage || ! is_string($commitMessage)) {
+            $output->writeln('<error>Error: Unable to retrieve the text of the commit message from the AI model</error>');
+
+            return Command::FAILURE;
+        }
 
         $output->writeln('<info>Generated Commit Message:</info>');
         $output->writeln([
@@ -129,7 +169,9 @@ class Generate extends Command
             '',
         ]);
 
+        /** @var QuestionHelper $helper */
         $helper = $this->getHelper('question');
+
         $question = new ConfirmationQuestion('<question>Do you want to create a commit with this message? [y/N]</question>', false);
 
         if (! $helper->ask($input, $output, $question)) {
@@ -152,18 +194,21 @@ class Generate extends Command
         return Command::SUCCESS;
     }
 
-    private function formatArrayToString(array $allowedAIs): string
+    /**
+     * @param  array<string>  $allowedAIList
+     */
+    private function formatArrayToString(array $allowedAIList): string
     {
-        $count = count($allowedAIs);
+        $count = count($allowedAIList);
 
         if ($count > 1) {
-            $lastItem = array_pop($allowedAIs);
+            $lastItem = array_pop($allowedAIList);
 
             return $count > 2
-                ? implode(', ', $allowedAIs).' e '.$lastItem
-                : implode(' ou ', [$allowedAIs[0], $lastItem]);
+                ? implode(', ', $allowedAIList).' e '.$lastItem
+                : implode(' ou ', [$allowedAIList[0], $lastItem]);
         }
 
-        return $allowedAIs[0];
+        return $allowedAIList[0];
     }
 }
