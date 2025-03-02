@@ -12,7 +12,6 @@ use YSOCode\Commit\Actions\GetAIKey;
 use YSOCode\Commit\Actions\SetAIKey;
 use YSOCode\Commit\Domain\Error;
 use YSOCode\Commit\Enums\AI;
-use YSOCode\Commit\Support\EnvFileManager;
 
 #[AsCommand(
     name: 'cohere:key',
