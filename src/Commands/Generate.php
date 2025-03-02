@@ -32,9 +32,9 @@ class Generate extends Command
 
     protected function initialize(InputInterface $input, OutputInterface $output): void
     {
-        $homeDir = env('HOME');
+        $homeDir = getenv('HOME');
 
-        if (! $homeDir || ! is_string($homeDir)) {
+        if (! $homeDir) {
             $output->writeln("<error>Error: Unable to determine the user's home directory</error>");
 
             return;
@@ -95,16 +95,16 @@ class Generate extends Command
         $endPoint = $endPointList[$ai];
         $tokenVariable = $tokenVariableList[$ai];
 
-        $tokenVariableValue = env($tokenVariable);
-        if (! $tokenVariableValue || ! is_string($tokenVariableValue)) {
+        $tokenVariableValue = getenv($tokenVariable);
+        if (! $tokenVariableValue) {
             $output->writeln("<error>Error: API key for $ai not found in the configuration file</error>");
 
             return Command::FAILURE;
         }
 
-        $token = env($tokenVariable);
+        $token = getenv($tokenVariable);
 
-        if (! $token || ! is_string($token)) {
+        if (! $token) {
             $output->writeln("<error>Error: Unable to determine the API key for $ai</error>");
 
             return Command::FAILURE;

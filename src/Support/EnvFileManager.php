@@ -42,9 +42,11 @@ class EnvFileManager
         return $this->envVars[$key] ?? $default;
     }
 
-    public function set(string $key, string $value): void
+    public function set(string $key, string $value): self
     {
         $this->envVars[$key] = $value;
+
+        return $this;
     }
 
     public function save(): bool

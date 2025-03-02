@@ -8,6 +8,9 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use YSOCode\Commit\Actions\SetAIKey;
+use YSOCode\Commit\Domain\Error;
+use YSOCode\Commit\Enums\AI;
 use YSOCode\Commit\Support\EnvFileManager;
 
 #[AsCommand(
@@ -65,41 +68,12 @@ class Key extends Command
             return Command::FAILURE;
         }
 
-        $homeDir = env('HOME');
-
-        if (! $homeDir || ! is_string($homeDir)) {
-            $output->writeln("<error>Error: Unable to determine the user's home directory</error>");
-
-            return Command::FAILURE;
-        }
-
-        $configDir = "{$homeDir}/.ysocode/commit";
-        $configFile = "{$configDir}/.env";
-        $stubFile = dirname(__DIR__, 3).'/stubs/.env.stub';
-
-        if (! is_dir($configDir) && ! mkdir($configDir, 0755, true)) {
-            $output->writeln('<error>Error: Failed to create config directory</error>');
+        $actionResponse = (new SetAIKey(AI::OPENAI, $key))->execute();
+        if ($actionResponse instanceof Error) {
+            $output->writeln("<error>Error: $actionResponse</error>");
 
             return Command::FAILURE;
         }
-
-        if (! file_exists($configFile)) {
-            if (! file_exists($stubFile)) {
-                $output->writeln("<error>Error: Stub file not found at {$stubFile}</error>");
-
-                return Command::FAILURE;
-            }
-
-            if (! copy($stubFile, $configFile)) {
-                $output->writeln('<error>Error: Failed to copy stub file to configuration directory</error>');
-
-                return Command::FAILURE;
-            }
-        }
-
-        $envManager = new EnvFileManager($configFile);
-        $envManager->set('OPENAI_KEY', $key);
-        $envManager->save();
 
         $output->writeln('<info>Success: OpenAI API key has been saved</info>');
 
@@ -108,9 +82,9 @@ class Key extends Command
 
     private function getKey(OutputInterface $output): int
     {
-        $homeDir = env('HOME');
+        $homeDir = getenv('HOME');
 
-        if (! $homeDir || ! is_string($homeDir)) {
+        if (! $homeDir) {
             $output->writeln("<error>Error: Unable to determine the user's home directory</error>");
 
             return Command::FAILURE;
