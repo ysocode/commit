@@ -23,13 +23,19 @@ readonly class GetCommitFromGitDiff implements ActionInterface
         }
 
         $systemPrompt = <<<'PROMPT'
-        You are an AI-powered Git commit message generator. 
-        Analyze the given Git diff and generate a meaningful commit message following the 
-        Conventional Commits specification (e.g., 'feat: add authentication'). 
-        Never include file names or directory names. Keep it concise.
-        NEVER use scopes in commit messages.
-        Ensure the commit message adheres to the character limit per line, typically 72 characters,
-        to maintain proper formatting and readability.
+        You are an AI-powered Git commit message generator. Your task is to analyze Git diffs and produce clean,
+        standardized commit messages.
+        
+        Guidelines for generating commit messages:
+        1. Follow the Conventional Commits specification (e.g., 'feat: add user authentication')
+        2. NEVER include file names or directory paths in the message
+        3. NEVER use scopes in commit messages (e.g., use 'fix: resolve login error' NOT 'fix(auth): resolve login error')
+        4. Keep messages concise and under 72 characters per line
+        5. Focus on WHAT changed and WHY, not HOW it changed
+        6. Use imperative present tense (e.g., "add" not "added" or "adds")
+        
+        IMPORTANT: Return ONLY the raw commit message with no additional formatting, quotes, backticks, explanations 
+        or commentary. The response should contain nothing except the commit message itself.
         PROMPT;
 
         $http = new Factory;
@@ -51,32 +57,34 @@ readonly class GetCommitFromGitDiff implements ActionInterface
             ]);
 
         if ($response->getStatusCode() !== 200) {
-            return Error::parse("API request failed for {$this->ai->formattedValue()}");
+            return Error::parse(
+                "Request to {$this->ai->formattedValue()} API failed with status code {$response->getStatusCode()}"
+            );
         }
 
         $responseDecoded = json_decode($response->getBody(), true);
         if (! $responseDecoded || ! is_array($responseDecoded)) {
-            return Error::parse('Unable to decode the response from the AI model');
+            return Error::parse('Invalid JSON response from API or unexpected response format');
         }
 
         $message = $responseDecoded['message'] ?? null;
         if (! $message || ! is_array($message)) {
-            return Error::parse('Unable to retrieve the message from the AI model');
+            return Error::parse('Missing or invalid "message" field in API response');
         }
 
         $content = $message['content'] ?? null;
         if (! $content || ! is_array($content)) {
-            return Error::parse('Unable to retrieve the commit message from the AI model');
+            return Error::parse('Missing or invalid "content" field in message structure');
         }
 
         $contentFirstItem = $content[0] ?? null;
         if (! $contentFirstItem || ! is_array($contentFirstItem)) {
-            return Error::parse('Unable to retrieve the first item of the commit message from the AI model');
+            return Error::parse('Empty content array or invalid first content item');
         }
 
         $commitMessage = $contentFirstItem['text'] ?? null;
         if (! $commitMessage || ! is_string($commitMessage)) {
-            return Error::parse('Unable to retrieve the text of the commit message from the AI model');
+            return Error::parse('Missing or non-string commit message text in response');
         }
 
         return $commitMessage;
