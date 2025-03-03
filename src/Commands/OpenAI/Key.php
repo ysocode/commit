@@ -43,11 +43,11 @@ class Key extends Command
 
     public function execute(InputInterface $input, OutputInterface $output): int
     {
-        if ($input->getOption('set')) {
+        if ($input->getOption('set') && ! $input->getOption('get')) {
             return $this->setKey($input, $output);
         }
 
-        if ($input->getOption('get')) {
+        if ($input->getOption('get') && ! $input->getOption('set')) {
             return $this->getKey($output);
         }
 
