@@ -2,7 +2,6 @@
 
 namespace YSOCode\Commit\Actions;
 
-use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Factory;
 use YSOCode\Commit\Domain\Enums\AI;
 use YSOCode\Commit\Domain\Types\Error;
@@ -14,9 +13,6 @@ readonly class GetCommitFromGitDiff implements ActionInterface
         private string $gitDiff
     ) {}
 
-    /**
-     * @throws ConnectionException
-     */
     public function execute(): string|Error
     {
         $envName = strtoupper($this->ai->value).'_KEY';

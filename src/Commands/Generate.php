@@ -2,13 +2,14 @@
 
 namespace YSOCode\Commit\Commands;
 
+use Dotenv\Dotenv;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ChoiceQuestion;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Process\Process;
 use YSOCode\Commit\Actions\GetCommitFromGitDiff;
 use YSOCode\Commit\Actions\GetGitDiff;
@@ -21,6 +22,8 @@ use YSOCode\Commit\Domain\Types\Error;
 )]
 class Generate extends Command
 {
+    use CommandTrait;
+
     protected function configure(): void
     {
         $helperMessage = <<<'HELP'
@@ -34,6 +37,15 @@ class Generate extends Command
 
     public function execute(InputInterface $input, OutputInterface $output): int
     {
+        $checkConfigFileExistence = $this->checkConfigFileExistence();
+        if ($checkConfigFileExistence instanceof Error) {
+            $output->writeln("<error>Error: {$checkConfigFileExistence}</error>");
+
+            return Command::FAILURE;
+        }
+
+        Dotenv::createImmutable($this->getConfigDirPath())->load();
+
         $gitDiff = (new GetGitDiff)->execute();
         if ($gitDiff instanceof Error) {
             $output->writeln("<error>Error: $gitDiff</error>");
@@ -52,15 +64,25 @@ class Generate extends Command
 
         $aiAsEnum = AI::from($ai);
 
-        $commitFromGitDiff = new GetCommitFromGitDiff($aiAsEnum, $gitDiff);
+        $commitFromGitDiff = (new GetCommitFromGitDiff($aiAsEnum, $gitDiff))->execute();
+        if ($commitFromGitDiff instanceof Error) {
+            $output->writeln("<error>Error: {$commitFromGitDiff}</error>");
+
+            return Command::FAILURE;
+        }
+
+        $output->writeln([
+            '<info>Below is the generated commit:</info>',
+            '',
+            "<fg=yellow>{$commitFromGitDiff}</fg=yellow>",
+            '',
+        ]);
 
         /** @var QuestionHelper $helper */
         $helper = $this->getHelper('question');
 
-        $question = new ChoiceQuestion(
-            '<question>Do you want to create a commit with this message?</question>',
-            ['yes', 'no'],
-            0
+        $question = new ConfirmationQuestion(
+            '<question>Do you want to create a commit with this message? [Y/n]</question>'
         );
 
         if (! $helper->ask($input, $output, $question)) {
