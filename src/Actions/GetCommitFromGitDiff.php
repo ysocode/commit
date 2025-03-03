@@ -38,6 +38,8 @@ readonly class GetCommitFromGitDiff implements Action
         Conventional Commits specification (e.g., 'feat: add authentication'). 
         Never include file names or directory names. Keep it concise.
         NEVER use scopes in commit messages.
+        Ensure the commit message adheres to the character limit per line, typically 72 characters,
+        to maintain proper formatting and readability.
         PROMPT;
 
         $http = new Factory;
