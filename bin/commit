@@ -8,16 +8,22 @@ if (file_exists(__DIR__.'/../../../autoload.php')) {
 }
 
 use Symfony\Component\Console\Application;
-use YSOCode\Commit\Commands\Generate;
 use YSOCode\Commit\Commands\Cohere\Key as CohereKey;
+use YSOCode\Commit\Commands\Generate;
+use YSOCode\Commit\Commands\Init;
 use YSOCode\Commit\Commands\OpenAI\Key as OpenAIKey;
 
-$application = new Application();
+$application = new Application('YSO Code Commit', '1.0.5');
+
+/**
+ * Config
+ */
+$application->add(new Init);
 
 /**
  * Main
  */
-$generateCommand = new Generate();
+$generateCommand = new Generate;
 $application->add($generateCommand);
 
 $application->setDefaultCommand($generateCommand->getName());
@@ -25,12 +31,11 @@ $application->setDefaultCommand($generateCommand->getName());
 /**
  * Cohere
  */
-$application->add(new CohereKey());
+$application->add(new CohereKey);
 
 /**
  * OpenAI
  */
-$application->add(new OpenAIKey());
+$application->add(new OpenAIKey);
 
 $application->run();
-

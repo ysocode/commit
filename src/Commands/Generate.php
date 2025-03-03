@@ -2,7 +2,6 @@
 
 namespace YSOCode\Commit\Commands;
 
-use Dotenv\Dotenv;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
@@ -31,29 +30,6 @@ class Generate extends Command
 
         $this->setHelp($helperMessage)
             ->addOption('ai', 'a', InputOption::VALUE_OPTIONAL, 'Decide which AI model to use');
-    }
-
-    protected function initialize(InputInterface $input, OutputInterface $output): void
-    {
-        $homeDir = getenv('HOME');
-
-        if (! $homeDir) {
-            $output->writeln("<error>Error: Unable to determine the user's home directory</error>");
-
-            return;
-        }
-
-        $configDir = "{$homeDir}/.ysocode/commit";
-        $configFile = "{$configDir}/.env";
-
-        if (! file_exists($configFile)) {
-            $output->writeln("<error>Error: Configuration file .env not found at {$configFile}</error>");
-
-            return;
-        }
-
-        $dotenv = Dotenv::createImmutable($configDir);
-        $dotenv->load();
     }
 
     public function execute(InputInterface $input, OutputInterface $output): int
