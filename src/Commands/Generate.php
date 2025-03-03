@@ -86,7 +86,7 @@ class Generate extends Command
         );
 
         if (! $helper->ask($input, $output, $question)) {
-            $output->writeln('<info>No commit made</info>');
+            $output->writeln('<info>Success: No commit made</info>');
 
             return Command::SUCCESS;
         }
@@ -100,7 +100,7 @@ class Generate extends Command
             return Command::FAILURE;
         }
 
-        $output->writeln('<info>Commit created successfully!</info>');
+        $output->writeln('<info>Success: Commit created successfully!</info>');
 
         return Command::SUCCESS;
     }

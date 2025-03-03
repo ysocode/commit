@@ -89,7 +89,7 @@ class Key extends Command
             return Command::FAILURE;
         }
 
-        $output->writeln("<info>Your OpenAI API key is: {$actionResponse}</info>");
+        $output->writeln("<info>Success: Your OpenAI API key is: {$actionResponse}</info>");
 
         return Command::SUCCESS;
     }

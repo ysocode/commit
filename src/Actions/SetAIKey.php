@@ -25,7 +25,7 @@ readonly class SetAIKey implements ActionInterface
         $envName = strtoupper($this->ai->value).'_KEY';
 
         if (! (new EnvFileManager($this->getConfigFilePath()))->set($envName, $this->key)->save()) {
-            return Error::parse("Failed to update environment variables for {$this->ai->formattedValue()}");
+            return Error::parse("Failed to update \"{$envName}\" environment variables for {$this->ai->formattedValue()}");
         }
 
         return true;

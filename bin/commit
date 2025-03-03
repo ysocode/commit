@@ -8,6 +8,7 @@ if (file_exists(__DIR__.'/../../../autoload.php')) {
 }
 
 use Symfony\Component\Console\Application;
+use YSOCode\Commit\Commands\AI;
 use YSOCode\Commit\Commands\Cohere\Key as CohereKey;
 use YSOCode\Commit\Commands\Generate;
 use YSOCode\Commit\Commands\Init;
@@ -27,6 +28,11 @@ $generateCommand = new Generate;
 $application->add($generateCommand);
 
 $application->setDefaultCommand($generateCommand->getName());
+
+/**
+ * AI
+ */
+$application->add(new AI());
 
 /**
  * Cohere

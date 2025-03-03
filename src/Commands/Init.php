@@ -48,7 +48,7 @@ class Init extends Command
             }
         }
 
-        $output->writeln('<info>Configuration initialized successfully!</info>');
+        $output->writeln('<info>Success: Configuration initialized successfully!</info>');
 
         return Command::SUCCESS;
     }
