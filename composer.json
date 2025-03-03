@@ -6,7 +6,10 @@
     "autoload": {
         "psr-4": {
             "YSOCode\\Commit\\": "src/"
-        }
+        },
+        "files": [
+            "src/Support/helpers.php"
+        ]
     },
     "authors": [
         {
