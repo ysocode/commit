@@ -5,7 +5,7 @@ namespace YSOCode\Commit\Actions;
 use Symfony\Component\Process\Process;
 use YSOCode\Commit\Domain\Types\Error;
 
-class GetGitDiff implements Action
+class GetGitDiff implements ActionInterface
 {
     public function execute(): string|Error
     {

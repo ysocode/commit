@@ -2,7 +2,7 @@
 
 namespace YSOCode\Commit\Actions;
 
-interface Action
+interface ActionInterface
 {
     public function execute(): mixed;
 }

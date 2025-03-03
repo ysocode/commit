@@ -7,7 +7,7 @@ use Illuminate\Http\Client\Factory;
 use YSOCode\Commit\Domain\Enums\AI;
 use YSOCode\Commit\Domain\Types\Error;
 
-readonly class GetCommitFromGitDiff implements Action
+readonly class GetCommitFromGitDiff implements ActionInterface
 {
     public function __construct(
         private AI $ai,

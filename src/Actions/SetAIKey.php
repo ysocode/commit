@@ -6,7 +6,7 @@ use YSOCode\Commit\Domain\Enums\AI;
 use YSOCode\Commit\Domain\Types\Error;
 use YSOCode\Commit\Support\EnvFileManager;
 
-readonly class SetAIKey implements Action
+readonly class SetAIKey implements ActionInterface
 {
     public function __construct(
         private AI $ai,
