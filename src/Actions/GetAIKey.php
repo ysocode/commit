@@ -8,26 +8,22 @@ use YSOCode\Commit\Support\EnvFileManager;
 
 readonly class GetAIKey implements ActionInterface
 {
+    use ActionTrait;
+
     public function __construct(
         private AI $ai,
     ) {}
 
     public function execute(): string|Error
     {
-        $homeDir = config('app.home_dir');
-        $masterDir = config('app.master_dir');
-        $configDir = config('app.config_dir');
-
-        $configDir = "{$homeDir}/{$masterDir}/{$configDir}";
-        $configFile = "{$configDir}/.env";
-
-        if (! file_exists($configFile)) {
-            return Error::parse('Unable to locate configuration file');
+        $checkConfigFileExistence = $this->checkConfigFileExistence();
+        if ($checkConfigFileExistence instanceof Error) {
+            return $checkConfigFileExistence;
         }
 
         $envName = strtoupper($this->ai->value).'_KEY';
 
-        $key = (new EnvFileManager($configFile))->get($envName);
+        $key = (new EnvFileManager($this->getConfigFilePath()))->get($envName);
 
         if (! $key) {
             return Error::parse("No {$this->ai->formattedValue()} API key found");
