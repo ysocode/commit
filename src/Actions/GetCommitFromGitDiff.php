@@ -9,11 +9,6 @@ use YSOCode\Commit\Domain\Types\Error;
 
 readonly class GetCommitFromGitDiff implements Action
 {
-    const array AI_API_URLS = [
-        'cohere' => 'https://api.cohere.com/v2/chat',
-        'openai' => 'https://api.openai.com/v1/chat/completions',
-    ];
-
     public function __construct(
         private AI $ai,
         private string $gitDiff
@@ -24,11 +19,10 @@ readonly class GetCommitFromGitDiff implements Action
      */
     public function execute(): string|Error
     {
-        $apiUrl = self::AI_API_URLS[$this->ai->value];
         $envName = strtoupper($this->ai->value).'_KEY';
 
-        $apiKey = getenv($envName);
-        if (! $apiKey) {
+        $apiKey = $_ENV[$envName];
+        if (! $apiKey || ! is_string($apiKey)) {
             return Error::parse("API key for {$this->ai->formattedValue()} not found in the configuration file");
         }
 
@@ -45,7 +39,7 @@ readonly class GetCommitFromGitDiff implements Action
         $http = new Factory;
         $response = $http->accept('application/json')
             ->withToken($apiKey)
-            ->post($apiUrl, [
+            ->post($this->ai->apiUrl(), [
                 'model' => 'command-r-plus-08-2024',
                 'messages' => [
                     [

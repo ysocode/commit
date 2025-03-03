@@ -17,6 +17,14 @@ enum AI: string
         return self::FORMATTED_AI_NAMES[$this->value];
     }
 
+    public function apiUrl(): string
+    {
+        return match ($this) {
+            AI::COHERE => 'https://api.cohere.com/v2/chat',
+            AI::OPENAI => 'https://api.openai.com/v1/chat/completions',
+        };
+    }
+
     /**
      * @return array<string>
      */

@@ -41,8 +41,8 @@ class Generate extends Command
             return Command::FAILURE;
         }
 
-        $ai = getenv('SELECTED_AI');
-        if (! $ai) {
+        $ai = $_ENV['SELECTED_AI'];
+        if (! $ai || ! is_string($ai)) {
             $output->writeln(<<<'MESSAGE'
             <error>Error: AI has not been selected yet. To define the AI, use the command: "ai --set"</error>
             MESSAGE);
