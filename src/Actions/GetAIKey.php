@@ -21,7 +21,7 @@ readonly class GetAIKey implements ActionInterface
             return $checkConfigFileExistence;
         }
 
-        $envName = strtoupper($this->ai->value).'_KEY';
+        $envName = strtoupper($this->ai->value).'_API_KEY';
 
         $key = (new EnvFileManager($this->getConfigFilePath()))->get($envName);
 

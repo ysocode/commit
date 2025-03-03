@@ -15,11 +15,11 @@ readonly class GetCommitFromGitDiff implements ActionInterface
 
     public function execute(): string|Error
     {
-        $envName = strtoupper($this->ai->value).'_KEY';
+        $envName = strtoupper($this->ai->value).'_API_KEY';
 
         $apiKey = $_ENV[$envName];
         if (! $apiKey || ! is_string($apiKey)) {
-            return Error::parse("API key for {$this->ai->formattedValue()} not found in the configuration file");
+            return Error::parse("No {$this->ai->formattedValue()} API key found");
         }
 
         $systemPrompt = <<<'PROMPT'
