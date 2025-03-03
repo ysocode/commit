@@ -17,11 +17,20 @@ enum AI: string
         return self::FORMATTED_AI_NAMES[$this->value];
     }
 
-    public function apiUrl(): string
+    /**
+     * @return array{url: string, model: string}
+     */
+    public function apiConfig(): array
     {
         return match ($this) {
-            AI::COHERE => 'https://api.cohere.com/v2/chat',
-            AI::OPENAI => 'https://api.openai.com/v1/chat/completions',
+            AI::COHERE => [
+                'url' => 'https://api.cohere.com/v2/chat',
+                'model' => 'command-r-plus-08-2024',
+            ],
+            AI::OPENAI => [
+                'url' => 'https://api.openai.com/v1/chat/completions',
+                'model' => 'gpt-4o-mini',
+            ],
         };
     }
 

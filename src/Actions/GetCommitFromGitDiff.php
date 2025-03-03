@@ -38,11 +38,13 @@ readonly class GetCommitFromGitDiff implements ActionInterface
         or commentary. The response should contain nothing except the commit message itself.
         PROMPT;
 
+        ['url' => $url, 'model' => $model] = $this->ai->apiConfig();
+
         $http = new Factory;
         $response = $http->accept('application/json')
             ->withToken($apiKey)
-            ->post($this->ai->apiUrl(), [
-                'model' => 'command-r-plus-08-2024',
+            ->post($url, [
+                'model' => $model,
                 'messages' => [
                     [
                         'role' => 'system',
