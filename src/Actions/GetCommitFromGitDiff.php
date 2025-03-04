@@ -3,6 +3,7 @@
 namespace YSOCode\Commit\Actions;
 
 use Illuminate\Http\Client\Factory;
+use Symfony\Component\Process\Process;
 use YSOCode\Commit\Domain\Enums\AI;
 use YSOCode\Commit\Domain\Enums\Lang;
 use YSOCode\Commit\Domain\Types\Error;
@@ -17,9 +18,17 @@ readonly class GetCommitFromGitDiff implements ActionInterface
 
     public function execute(): string|Error
     {
-        $envName = strtoupper($this->ai->value).'_API_KEY';
+        $aiProviderMethod = "execute{$this->ai->formattedValue()}";
+        if (method_exists($this, $aiProviderMethod)) {
+            $aiProviderMethodReturn = $this->{$aiProviderMethod}();
+            if (! is_string($aiProviderMethodReturn) && ! $aiProviderMethodReturn instanceof Error) {
+                return Error::parse('AI method returned an invalid value');
+            }
 
-        $apiKey = $_ENV[$envName];
+            return $aiProviderMethodReturn;
+        }
+
+        $apiKey = $_ENV[$this->ai->apiKeyEnvVar()];
         if (! $apiKey || ! is_string($apiKey)) {
             return Error::parse("No {$this->ai->formattedValue()} API key found");
         }
@@ -106,5 +115,62 @@ readonly class GetCommitFromGitDiff implements ActionInterface
         }
 
         return $commitMessage;
+    }
+
+    private function executeSourcegraph(): string|Error
+    {
+        /** @var string $sourcegraphEndpoint */
+        $sourcegraphEndpoint = $_ENV['SOURCEGRAPH_API_ENDPOINT'];
+
+        $apiKey = $_ENV[$this->ai->apiKeyEnvVar()];
+        if (! $apiKey || ! is_string($apiKey)) {
+            return Error::parse("No {$this->ai->formattedValue()} API key found");
+        }
+
+        $systemPrompt = <<<'PROMPT'
+        Write a commit message for this diff following Conventional Commits specification:
+        
+        IMPORTANT GUIDELINES:
+        - ALWAYS wrap the entire commit message between ``` delimiters
+        - Do NOT use scopes 
+        - EACH line must not exceed 72 characters
+        - Use imperative present tense
+        PROMPT;
+
+        $command = ['cody', 'chat', '--stdin', '-m', $systemPrompt];
+
+        $codyProcess = new Process(
+            $command,
+            null,
+            [
+                'SRC_ENDPOINT' => $sourcegraphEndpoint,
+                'SRC_ACCESS_TOKEN' => $apiKey,
+            ],
+            $this->gitDiff
+        );
+        $codyProcess->run();
+
+        if (! $codyProcess->isSuccessful()) {
+            return Error::parse('Unable to retrieve the commit from Git diff');
+        }
+
+        return $this->extractCommitMessage($codyProcess->getOutput());
+    }
+
+    private function extractCommitMessage(string $commitMessage): string|Error
+    {
+        $pattern = '/```(.*?)```/s';
+
+        if (preg_match($pattern, $commitMessage, $matches)) {
+            $commitMessage = trim($matches[1]);
+
+            if (empty($commitMessage)) {
+                return Error::parse('Extracted commit message is empty');
+            }
+
+            return $commitMessage;
+        }
+
+        return Error::parse('Unable to extract commit message');
     }
 }

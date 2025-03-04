@@ -9,14 +9,14 @@ class GetGitDiff implements ActionInterface
 {
     public function execute(): string|Error
     {
-        $process = new Process(['git', 'diff', '--staged']);
-        $process->run();
+        $gitDiffProcess = new Process(['git', 'diff', '--staged']);
+        $gitDiffProcess->run();
 
-        if (! $process->isSuccessful()) {
+        if (! $gitDiffProcess->isSuccessful()) {
             return Error::parse('Unable to retrieve the Git diff');
         }
 
-        $gitDiff = $process->getOutput();
+        $gitDiff = $gitDiffProcess->getOutput();
 
         if (! $gitDiff) {
             return Error::parse('No changes found in the Git diff');

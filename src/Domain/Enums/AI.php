@@ -8,11 +8,13 @@ enum AI: string
         'cohere' => 'Cohere',
         'openai' => 'OpenAI',
         'deepseek' => 'DeepSeek',
+        'sourcegraph' => 'Sourcegraph',
     ];
 
     case COHERE = 'cohere';
     case OPENAI = 'openai';
     case DEEPSEEK = 'deepseek';
+    case SOURCEGRAPH = 'sourcegraph';
 
     public function formattedValue(): string
     {
@@ -36,7 +38,11 @@ enum AI: string
             AI::DEEPSEEK => [
                 'url' => 'https://api.deepseek.com/chat/completions',
                 'model' => 'deepseek-chat',
-            ]
+            ],
+            AI::SOURCEGRAPH => [
+                'url' => '',
+                'model' => '',
+            ],
         };
     }
 

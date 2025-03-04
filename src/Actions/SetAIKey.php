@@ -22,9 +22,7 @@ readonly class SetAIKey implements ActionInterface
             return $checkConfigFileExistence;
         }
 
-        $envName = strtoupper($this->ai->value).'_API_KEY';
-
-        if (! (new EnvFileManager($this->getConfigFilePath()))->set($envName, $this->key)->save()) {
+        if (! (new EnvFileManager($this->getConfigFilePath()))->set($this->ai->apiKeyEnvVar(), $this->key)->save()) {
             return Error::parse("Failed to update {$this->ai->formattedValue()} API key");
         }
 

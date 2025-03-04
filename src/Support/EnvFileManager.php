@@ -28,11 +28,16 @@ class EnvFileManager
         $lines = explode(PHP_EOL, $content);
 
         foreach ($lines as $line) {
-            if (empty($line) || str_starts_with($line, '#')) {
+            if (! $line || str_starts_with($line, '#')) {
                 continue;
             }
 
-            [$key, $value] = explode('=', $line, 2);
+            [$key, $value] = explode('=', $line, 2) + [null, null];
+
+            if (! is_string($key) || ! is_string($value)) {
+                continue;
+            }
+
             $this->envVars[$this->sanitize($key)] = $this->sanitize($value);
         }
     }
