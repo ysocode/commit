@@ -7,10 +7,12 @@ enum AI: string
     const array FORMATTED_AI_NAMES = [
         'cohere' => 'Cohere',
         'openai' => 'OpenAI',
+        'deepseek' => 'DeepSeek',
     ];
 
     case COHERE = 'cohere';
     case OPENAI = 'openai';
+    case DEEPSEEK = 'deepseek';
 
     public function formattedValue(): string
     {
@@ -31,7 +33,16 @@ enum AI: string
                 'url' => 'https://api.openai.com/v1/chat/completions',
                 'model' => 'gpt-4o-mini',
             ],
+            AI::DEEPSEEK => [
+                'url' => 'https://api.deepseek.com/chat/completions',
+                'model' => 'deepseek-chat',
+            ]
         };
+    }
+
+    public function apiKeyEnvVar(): string
+    {
+        return strtoupper("{$this->value}_API_KEY");
     }
 
     /**

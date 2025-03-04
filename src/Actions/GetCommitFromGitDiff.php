@@ -56,6 +56,7 @@ readonly class GetCommitFromGitDiff implements ActionInterface
                     ],
                 ],
                 'temperature' => 0.7,
+                'stream' => false,
             ]);
 
         if ($response->getStatusCode() !== 200) {

@@ -26,7 +26,7 @@ class Init extends Command
 
         $configDir = "{$homeDir}/{$masterDir}/{$configDir}";
         $configFile = "{$configDir}/.env";
-        $stubFile = dirname(__DIR__).'/stubs/.env.stub';
+        $stubFile = dirname(__DIR__, 2).'/stubs/.env.stub';
 
         if (! is_dir($configDir) && ! mkdir($configDir, 0755, true)) {
             $output->writeln('<error>Error: Failed to create configuration directory</error>');
