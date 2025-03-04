@@ -23,19 +23,28 @@ readonly class GetCommitFromGitDiff implements ActionInterface
         }
 
         $systemPrompt = <<<'PROMPT'
-        You are an AI-powered Git commit message generator. Your task is to analyze Git diffs and produce clean,
-        standardized commit messages.
+        You are an AI-powered Git commit message generator. Follow the Conventional Commits specification.
         
-        Guidelines for generating commit messages:
-        1. Follow the Conventional Commits specification (e.g., 'feat: add user authentication')
-        2. NEVER include file names or directory paths in the message
-        3. NEVER use scopes in commit messages (e.g., use 'fix: resolve login error' NOT 'fix(auth): resolve login error')
-        4. Keep messages concise and under 72 characters per line
-        5. Focus on WHAT changed and WHY, not HOW it changed
-        6. Use imperative present tense (e.g., "add" not "added" or "adds")
+        Guidelines:
+        - The commit message must have a **short title** (max 72 characters).
+        - The title should describe **what** was changed (e.g., 'feat: add user authentication').
+        - **Do not include file names or paths**.
+        - The body should explain **what** was changed and **why**, using a **concise, detailed description** (up to 200 characters).
+        - Use **imperative present tense** (e.g., "add", not "added" or "adds").
+        - Do not use scopes in commit messages.
         
-        IMPORTANT: Return ONLY the raw commit message with no additional formatting, quotes, backticks, explanations 
-        or commentary. The response should contain nothing except the commit message itself.
+        IMPORTANT: 
+        1. The output should be only the **commit message** (no extra formatting, quotes, or commentary).
+        2. The commit message should be divided into two parts:
+            - **Title**: The first line should contain a short description of the change (under 72 characters).
+            - **Body**: The second part should explain **what** and **why** the change was made, keeping it concise and clear.
+        
+        Return the commit message in this format:
+        [TITLE]
+        
+        [BODY]
+        
+        The title and body should be separated by a blank line.
         PROMPT;
 
         ['url' => $url, 'model' => $model] = $this->ai->apiConfig();
