@@ -45,22 +45,6 @@ To retrieve the current AI provider:
 commit ai:provider --get
 ```
 
-##### Generate a Commit Message
-
-To automatically generate a Conventional Commit message based on the current Git diff:
-
-```shell
-commit
-```
-
-or
-
-```shell
-commit generate
-```
-
-This will display the generated commit message for your confirmation before finalizing the commit.
-
 #### Managing API Keys
 
 ##### Set your API key for a specific AI provider
@@ -97,6 +81,43 @@ commit ai:key --get
 
 If you don't specify a provider, an interactive prompt will appear with a list of available
 AIs for you to select from.
+
+#### Main functionality
+
+##### Generate a Commit Message
+
+To automatically generate a Conventional Commit message based on the current Git diff:
+
+```shell
+commit
+```
+
+or
+
+```shell
+commit generate
+```
+
+This will display the generated commit message for your confirmation before finalizing the commit.
+
+##### Using options to customize the commit
+
+Use the `--provider` option to select the AI provider:
+
+```shell
+commit --provider=openai
+```
+
+Use the --lang option to specify the language for the commit message:
+
+```shell
+commit --lang=pt_br
+```
+
+Available languages:
+
+- `pt_br` for Portuguese (Brazil)
+- `en` for English
 
 ## License
 
