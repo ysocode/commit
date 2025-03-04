@@ -6,7 +6,8 @@
 ## Introduction
 
 Commit is a PHP package that automates the generation of Conventional Commit messages using AI.  
-By analyzing the `git diff`, it generates clear, structured commit messages that follow the Conventional Commit standard.
+By analyzing the `git diff`, it generates clear, structured commit messages that adhere to the
+Conventional Commit standard.
 
 ## Official Documentation
 
@@ -19,55 +20,83 @@ composer global require ysocode/commit
 ##### Initialize Configuration
 
 To initialize the necessary configuration files:
+
 ```shell
 commit init
 ```
 
 #### Manage AI Provider
 
-##### Set default AI provider
+##### Set the AI provider
 
-To define which AI provider should be used by default:
+To define which AI provider should be used:
+
 ```shell
-commit ai --set
+commit ai:provider --set
 ```
 
-##### Get default AI provider
+An interactive prompt will appear, allowing you to select the desired AI provider.
 
-To check the currently selected AI provider:
+##### Get the current AI provider
+
+To retrieve the current AI provider:
+
 ```shell
-commit ai --get
+commit ai:provider --get
 ```
 
 ##### Generate a Commit Message
 
 To automatically generate a Conventional Commit message based on the current Git diff:
+
 ```shell
 commit
 ```
+
 or
+
 ```shell
 commit generate
 ```
-This will display the generated commit message for confirmation before finalizing the commit.
+
+This will display the generated commit message for your confirmation before finalizing the commit.
 
 #### Managing API Keys
 
 ##### Set your API key for a specific AI provider
 
-Commit allows you to set and manage API keys for the AI providers you choose.
-To set or manage your API key for the selected provider, use the following command:
+Commit allows you to set your API keys for the AI providers you choose.
+To set your API key for an AI provider, use the following commands:
+
 ```shell
-commit <provider>:key --set YOUR_API_KEY
+commit ai:key --set YOUR_API_KEY --provider=openai
 ```
+
+or
+
+```shell
+commit ai:key --set YOUR_API_KEY
+```
+
+If you don't specify a provider, an interactive prompt will appear with a list of available
+AIs for you to select from.
 
 ##### Get the current API key for a specific AI provider
 
 Retrieve the currently stored API key for the specified AI provider:
+
 ```shell
-commit <provider>:key --get
+commit ai:key --get --provider=openai
 ```
-This command retrieves the currently stored API key for the specified AI provider.
+
+or
+
+```shell
+commit ai:key --get
+```
+
+If you don't specify a provider, an interactive prompt will appear with a list of available
+AIs for you to select from.
 
 ## License
 
