@@ -4,12 +4,14 @@ namespace YSOCode\Commit\Actions;
 
 use Illuminate\Http\Client\Factory;
 use YSOCode\Commit\Domain\Enums\AI;
+use YSOCode\Commit\Domain\Enums\Lang;
 use YSOCode\Commit\Domain\Types\Error;
 
 readonly class GetCommitFromGitDiff implements ActionInterface
 {
     public function __construct(
         private AI $ai,
+        private Lang $lang,
         private string $gitDiff
     ) {}
 
@@ -22,7 +24,7 @@ readonly class GetCommitFromGitDiff implements ActionInterface
             return Error::parse("No {$this->ai->formattedValue()} API key found");
         }
 
-        $systemPrompt = <<<'PROMPT'
+        $systemPrompt = <<<PROMPT
         You are an AI-powered Git commit message generator. Follow the Conventional Commits specification.
         
         Guidelines:
@@ -34,6 +36,8 @@ readonly class GetCommitFromGitDiff implements ActionInterface
         - Do not use scopes in commit messages.
         
         Types of commits: feat, fix, docs, style, refactor, perf, test, chore.
+        
+        **Language**: {$this->lang->formattedValue()}
         
         IMPORTANT: 
         1. The output should be only the **commit message** (no extra formatting, quotes, or commentary).

@@ -14,6 +14,7 @@ use Symfony\Component\Process\Process;
 use YSOCode\Commit\Actions\GetCommitFromGitDiff;
 use YSOCode\Commit\Actions\GetGitDiff;
 use YSOCode\Commit\Domain\Enums\AI;
+use YSOCode\Commit\Domain\Enums\Lang;
 use YSOCode\Commit\Domain\Types\Error;
 
 #[AsCommand(
@@ -27,12 +28,20 @@ class Generate extends Command
     protected function configure(): void
     {
         $helperMessage = <<<'HELP'
-        This command generates a conventional commit message by analyzing the provided Git diff
-        and using AI to create a message that adheres to the conventional commit standards.
+        This command automatically generates a Conventional Commit message based on the provided Git diff.
+        It uses AI to analyze the changes and create a commit message that adheres to the Conventional Commit standards.
+        
+        You can customize the AI provider with the --provider option to choose from available AI options.
+        Additionally, you can specify the language for the generated commit message using the --lang option (e.g., 'en' for English, 'pt' for Portuguese).
+        
+        Examples:
+            --provider=openai        Specify the AI provider to use.
+            --lang=en                Generate the commit message in English.
         HELP;
 
         $this->setHelp($helperMessage)
-            ->addOption('ai', 'a', InputOption::VALUE_OPTIONAL, 'Decide which AI model to use');
+            ->addOption('provider', 'p', InputOption::VALUE_REQUIRED, 'AI provider')
+            ->addOption('lang', 'l', InputOption::VALUE_REQUIRED, 'Language of the commit message (e.g., en, pt)');
     }
 
     public function execute(InputInterface $input, OutputInterface $output): int
@@ -53,16 +62,25 @@ class Generate extends Command
             return Command::FAILURE;
         }
 
-        $ai = $_ENV['SELECTED_AI'];
-        if (! $ai || ! is_string($ai)) {
-            $output->writeln('<error>Error: AI has not been selected yet</error>');
+        $aiProvider = $input->getOption('provider');
+        if (! $aiProvider || ! is_string($aiProvider) || ! in_array($aiProvider, AI::values())) {
+            $aiProvider = $_ENV['SELECTED_AI'];
+            if (! $aiProvider || ! is_string($aiProvider)) {
+                $output->writeln('<error>Error: Default AI provider has not been selected yet</error>');
 
-            return Command::FAILURE;
+                return Command::FAILURE;
+            }
         }
 
-        $aiAsEnum = AI::from($ai);
+        $lang = $input->getOption('lang');
+        if (! $lang || ! is_string($lang) || ! in_array($lang, Lang::values())) {
+            $lang = 'en';
+        }
 
-        $commitFromGitDiff = (new GetCommitFromGitDiff($aiAsEnum, $gitDiff))->execute();
+        $aiProviderAsEnum = AI::from($aiProvider);
+        $langAsEnum = Lang::from($lang);
+
+        $commitFromGitDiff = (new GetCommitFromGitDiff($aiProviderAsEnum, $langAsEnum, $gitDiff))->execute();
         if ($commitFromGitDiff instanceof Error) {
             $output->writeln("<error>Error: {$commitFromGitDiff}</error>");
 
