@@ -18,7 +18,7 @@ use YSOCode\Commit\Domain\Types\Error;
 
 #[AsCommand(
     name: 'generate',
-    description: 'Generate a conventional Git commit message using AI based on a Git diff.'
+    description: 'Generate a conventional Git commit message using AI based on a Git diff'
 )]
 class Generate extends Command
 {

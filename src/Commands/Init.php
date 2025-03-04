@@ -9,7 +9,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(
     name: 'init',
-    description: 'Initialize the configuration.'
+    description: 'Initialize the configuration'
 )]
 class Init extends Command
 {
