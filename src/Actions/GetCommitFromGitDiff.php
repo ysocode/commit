@@ -33,6 +33,8 @@ readonly class GetCommitFromGitDiff implements ActionInterface
         - Use **imperative present tense** (e.g., "add", not "added" or "adds").
         - Do not use scopes in commit messages.
         
+        Types of commits: feat, fix, docs, style, refactor, perf, test, chore.
+        
         IMPORTANT: 
         1. The output should be only the **commit message** (no extra formatting, quotes, or commentary).
         2. The commit message should be divided into two parts:
