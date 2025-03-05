@@ -10,11 +10,25 @@ use YSOCode\Commit\Domain\Types\Error;
 
 readonly class GetCommitFromGitDiff implements ActionInterface
 {
+    private string $systemPrompt;
+
     public function __construct(
         private AI $ai,
         private Lang $lang,
         private string $gitDiff
-    ) {}
+    ) {
+        $this->systemPrompt = <<<PROMPT
+        Write a commit message for this diff following Conventional Commits specification.
+        ALWAYS wrap the entire commit message between ``` delimiters.
+        Do NOT use scopes. 
+        EACH line must not exceed 72 characters.
+        Write the commit message in {$this->lang->formattedValue()} language.
+        If there are multiple modifications, write the body using the list format.
+        DO NOT add a period at the end of each list item, as in the following example:
+        - Add a new feature
+        - Fix a bug
+        PROMPT;
+    }
 
     public function execute(): string|Error
     {
@@ -33,35 +47,6 @@ readonly class GetCommitFromGitDiff implements ActionInterface
             return Error::parse("No {$this->ai->formattedValue()} API key found");
         }
 
-        $systemPrompt = <<<PROMPT
-        You are an AI-powered Git commit message generator. Follow the Conventional Commits specification.
-        
-        Guidelines:
-        - The commit message must have a **short title** (max 72 characters).
-        - The title should describe **what** was changed (e.g., 'feat: add user authentication').
-        - **Do not include file names or paths**.
-        - The body should explain **what** was changed and **why**, using a **concise, detailed description** (up to 200 characters).
-        - Use **imperative present tense** (e.g., "add", not "added" or "adds").
-        - Do not use scopes in commit messages.
-        
-        Types of commits: feat, fix, docs, style, refactor, perf, test, chore.
-        
-        **Language**: {$this->lang->formattedValue()}
-        
-        IMPORTANT: 
-        1. The output should be only the **commit message** (no extra formatting, quotes, or commentary).
-        2. The commit message should be divided into two parts:
-            - **Title**: The first line should contain a short description of the change (under 72 characters).
-            - **Body**: The second part should explain **what** and **why** the change was made, keeping it concise and clear.
-        
-        Return the commit message in this format:
-        [TITLE]
-        
-        [BODY]
-        
-        The title and body should be separated by a blank line.
-        PROMPT;
-
         ['url' => $url, 'model' => $model] = $this->ai->apiConfig();
 
         $http = new Factory;
@@ -72,7 +57,7 @@ readonly class GetCommitFromGitDiff implements ActionInterface
                 'messages' => [
                     [
                         'role' => 'system',
-                        'content' => $systemPrompt,
+                        'content' => $this->systemPrompt,
                     ],
                     [
                         'role' => 'user',
@@ -114,7 +99,7 @@ readonly class GetCommitFromGitDiff implements ActionInterface
             return Error::parse('Missing or non-string commit message text in response');
         }
 
-        return $commitMessage;
+        return $this->extractCommitMessage($commitMessage);
     }
 
     private function executeSourcegraph(): string|Error
@@ -127,17 +112,7 @@ readonly class GetCommitFromGitDiff implements ActionInterface
             return Error::parse("No {$this->ai->formattedValue()} API key found");
         }
 
-        $systemPrompt = <<<'PROMPT'
-        Write a commit message for this diff following Conventional Commits specification:
-        
-        IMPORTANT GUIDELINES:
-        - ALWAYS wrap the entire commit message between ``` delimiters
-        - Do NOT use scopes 
-        - EACH line must not exceed 72 characters
-        - Use imperative present tense
-        PROMPT;
-
-        $command = ['cody', 'chat', '--stdin', '-m', $systemPrompt];
+        $command = ['cody', 'chat', '--stdin', '-m', $this->systemPrompt];
 
         $codyProcess = new Process(
             $command,
