@@ -82,6 +82,27 @@ commit ai:key --get
 If you don't specify a provider, an interactive prompt will appear with a list of available
 AIs for you to select from.
 
+##### Sourcegraph Provider
+
+Sourcegraph is available as an AI provider in our list of supported services.
+To use Sourcegraph, you must first install the Cody CLI:
+
+```shell
+npm install -g @sourcegraph/cody
+```
+
+For a comprehensive guide on Cody CLI installation and configuration, visit the
+[Cody CLI documentation](https://sourcegraph.com/docs/cody/clients/install-cli).
+
+Now that you have the Cody CLI available, you can follow the same process as other
+AI providers by setting your key, and ysocode/commit will handle the rest for you:
+
+```shell
+commit ai:key --set YOUR_API_KEY --provider=sourcegraph
+```
+
+The key you set here corresponds directly to the SRC_ACCESS_TOKEN used by the Cody CLI.
+
 #### Main functionality
 
 ##### Generate a Commit Message
