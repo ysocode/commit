@@ -22,7 +22,7 @@ readonly class GetCommitFromGitDiff implements ActionInterface
         ALWAYS wrap the entire commit message between ``` delimiters.
         Do NOT use scopes. 
         EACH line must not exceed 72 characters.
-        Write the commit message in {$this->lang->formattedValue()} language.
+        Write the commit message in {$this->lang->formattedValue()} language without any accents.
         If there are multiple modifications, write the body using the list format.
         DO NOT add a period at the end of each list item, as in the following example:
         - Add a new feature
