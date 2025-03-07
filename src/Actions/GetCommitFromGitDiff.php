@@ -35,13 +35,19 @@ class GetCommitFromGitDiff implements ActionInterface
 
     public function execute(): string|Error
     {
-        return match ($this->ai) {
+        $this->notifyProgress(Status::STARTED);
+
+        $commitFromGitDiff = match ($this->ai) {
             default => Error::parse('Unsupported AI provider'),
             AI::COHERE => $this->executeCohere(),
             // AI::OPENAI => $this->executeOpenAI(),
             // AI::DEEPSEEK => $this->executeDeepSeek(),
             AI::SOURCEGRAPH => $this->executeSourcegraph(),
         };
+
+        $this->notifyProgress(Status::FINISHED);
+
+        return $commitFromGitDiff;
     }
 
     private function executeCohere(): string|Error
@@ -90,11 +96,6 @@ class GetCommitFromGitDiff implements ActionInterface
 
     private function executeSourcegraph(): string|Error
     {
-        $this->notifyProgress(Status::STARTED);
-
-        /** @var string $sourcegraphEndpoint */
-        $sourcegraphEndpoint = $_ENV['SOURCEGRAPH_API_ENDPOINT'];
-
         $apiKey = $_ENV[apiKeyEnvVar($this->ai)];
         if (! $apiKey || ! is_string($apiKey)) {
             return Error::parse("No {$this->ai->formattedValue()} API key found");
@@ -106,7 +107,7 @@ class GetCommitFromGitDiff implements ActionInterface
             $command,
             null,
             [
-                'SRC_ENDPOINT' => $sourcegraphEndpoint,
+                'SRC_ENDPOINT' => 'https://sourcegraph.com',
                 'SRC_ACCESS_TOKEN' => $apiKey,
             ],
             $this->gitDiff
@@ -127,8 +128,6 @@ class GetCommitFromGitDiff implements ActionInterface
 
             return Error::parse('Unable to retrieve the commit from Git diff');
         }
-
-        $this->notifyProgress(Status::FINISHED);
 
         return $this->extractCommitMessage($codyProcess->getOutput());
     }
