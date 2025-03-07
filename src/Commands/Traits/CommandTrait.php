@@ -1,6 +1,6 @@
 <?php
 
-namespace YSOCode\Commit\Commands;
+namespace YSOCode\Commit\Commands\Traits;
 
 use YSOCode\Commit\Domain\Types\Error;
 

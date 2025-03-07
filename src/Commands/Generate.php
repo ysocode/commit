@@ -14,6 +14,7 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Process\Process;
 use YSOCode\Commit\Actions\GetCommitFromGitDiff;
 use YSOCode\Commit\Actions\GetGitDiff;
+use YSOCode\Commit\Commands\Traits\CommandTrait;
 use YSOCode\Commit\Domain\Enums\AI;
 use YSOCode\Commit\Domain\Enums\Lang;
 use YSOCode\Commit\Domain\Enums\Status;
