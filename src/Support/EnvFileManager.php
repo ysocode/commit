@@ -2,7 +2,7 @@
 
 namespace YSOCode\Commit\Support;
 
-use RuntimeException;
+use YSOCode\Commit\Domain\Types\Error;
 
 class EnvFileManager
 {
@@ -11,18 +11,25 @@ class EnvFileManager
      */
     private array $envVars = [];
 
-    public function __construct(private readonly string $filePath)
+    public function __construct(private readonly string $filePath) {}
+
+    public static function create(string $filePath): self|Error
     {
-        if (file_exists($this->filePath)) {
-            $this->loadEnv();
+        $fileManager = new self($filePath);
+        $loadReturn = $fileManager->load();
+
+        if ($loadReturn instanceof Error) {
+            return $loadReturn;
         }
+
+        return $fileManager;
     }
 
-    private function loadEnv(): void
+    private function load(): true|Error
     {
         $content = file_get_contents($this->filePath);
         if (! $content && ! is_string($content)) {
-            throw new RuntimeException('Failed to read the .env file');
+            return Error::parse('Failed to read the .env file');
         }
 
         $lines = explode(PHP_EOL, $content);
@@ -32,14 +39,16 @@ class EnvFileManager
                 continue;
             }
 
-            [$key, $value] = explode('=', $line, 2) + [null, null];
+            [$key, $value] = explode('=', $line, 2) + ['', ''];
 
-            if (! is_string($key) || ! is_string($value)) {
+            if (! $key) {
                 continue;
             }
 
             $this->envVars[$this->sanitize($key)] = $this->sanitize($value);
         }
+
+        return true;
     }
 
     public function get(string $key, ?string $default = null): ?string

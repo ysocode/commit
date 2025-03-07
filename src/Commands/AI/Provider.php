@@ -85,7 +85,15 @@ class Provider extends Command
 
         $selectedAI = AI::from($questionResponse);
 
-        if (! (new EnvFileManager($this->getConfigFilePath()))->set('SELECTED_AI', $selectedAI->value)->save()) {
+        $envFileManager = EnvFileManager::create($this->getConfigFilePath());
+
+        if ($envFileManager instanceof Error) {
+            $output->writeln("<error>Error: {$envFileManager}</error>");
+
+            return Command::FAILURE;
+        }
+
+        if (! $envFileManager->set('SELECTED_AI', $selectedAI->value)->save()) {
             $output->writeln(<<<MESSAGE
             <error>Error: Failed to update "SELECTED_AI" environment variables for {$selectedAI->formattedValue()}</error>
             MESSAGE);
@@ -107,7 +115,15 @@ class Provider extends Command
             return Command::FAILURE;
         }
 
-        $selectedAI = (new EnvFileManager($this->getConfigFilePath()))->get('SELECTED_AI');
+        $envFileManager = EnvFileManager::create($this->getConfigFilePath());
+
+        if ($envFileManager instanceof Error) {
+            $output->writeln("<error>Error: {$envFileManager}</error>");
+
+            return Command::FAILURE;
+        }
+
+        $selectedAI = $envFileManager->get('SELECTED_AI');
         if (! $selectedAI) {
             $output->writeln(<<<'MESSAGE'
             <error>Error: No AI has been selected as the default. Please set a default AI first</error>

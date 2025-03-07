@@ -23,7 +23,13 @@ readonly class GetAIKey implements ActionInterface
             return $checkConfigFileExistence;
         }
 
-        $key = (new EnvFileManager($this->getConfigFilePath()))->get(apiKeyEnvVar($this->ai));
+        $envFileManager = EnvFileManager::create($this->getConfigFilePath());
+
+        if ($envFileManager instanceof Error) {
+            return $envFileManager;
+        }
+
+        $key = $envFileManager->get(apiKeyEnvVar($this->ai));
 
         if (! $key) {
             return Error::parse("No {$this->ai->formattedValue()} API key found");

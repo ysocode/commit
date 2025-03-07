@@ -24,7 +24,13 @@ readonly class SetAIKey implements ActionInterface
             return $checkConfigFileExistence;
         }
 
-        if (! (new EnvFileManager($this->getConfigFilePath()))->set(apiKeyEnvVar($this->ai), $this->key)->save()) {
+        $envFileManager = EnvFileManager::create($this->getConfigFilePath());
+
+        if ($envFileManager instanceof Error) {
+            return $envFileManager;
+        }
+
+        if (! $envFileManager->set(apiKeyEnvVar($this->ai), $this->key)->save()) {
             return Error::parse("Failed to update {$this->ai->formattedValue()} API key");
         }
 
