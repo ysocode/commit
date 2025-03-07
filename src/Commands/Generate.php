@@ -5,6 +5,7 @@ namespace YSOCode\Commit\Commands;
 use Dotenv\Dotenv;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\ProgressIndicator;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -15,6 +16,7 @@ use YSOCode\Commit\Actions\GetCommitFromGitDiff;
 use YSOCode\Commit\Actions\GetGitDiff;
 use YSOCode\Commit\Domain\Enums\AI;
 use YSOCode\Commit\Domain\Enums\Lang;
+use YSOCode\Commit\Domain\Enums\Status;
 use YSOCode\Commit\Domain\Types\Error;
 
 #[AsCommand(
@@ -80,7 +82,24 @@ class Generate extends Command
         $aiProviderAsEnum = AI::from($aiProvider);
         $langAsEnum = Lang::from($lang);
 
-        $commitFromGitDiff = (new GetCommitFromGitDiff($aiProviderAsEnum, $langAsEnum, $gitDiff))->execute();
+        $progressIndicator = new ProgressIndicator(
+            $output,
+            'verbose',
+            100,
+            ['⠏', '⠛', '⠹', '⢸', '⣰', '⣤', '⣆', '⡇']
+        );
+        $getCommitFromGitDiff = new GetCommitFromGitDiff($aiProviderAsEnum, $langAsEnum, $gitDiff);
+
+        $getCommitFromGitDiff->subscribe(function (Status $status) use ($progressIndicator, $aiProviderAsEnum) {
+            match ($status) {
+                Status::STARTED => $progressIndicator->start("Processing with {$aiProviderAsEnum->formattedValue()}..."),
+                Status::RUNNING => $progressIndicator->advance(),
+                Status::FAILED => $progressIndicator->finish('Failed'),
+                Status::FINISHED => $progressIndicator->finish('Finished'),
+            };
+        });
+
+        $commitFromGitDiff = $getCommitFromGitDiff->execute();
         if ($commitFromGitDiff instanceof Error) {
             $output->writeln("<error>Error: {$commitFromGitDiff}</error>");
 

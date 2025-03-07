@@ -6,16 +6,19 @@ use Illuminate\Http\Client\Factory;
 use Symfony\Component\Process\Process;
 use YSOCode\Commit\Domain\Enums\AI;
 use YSOCode\Commit\Domain\Enums\Lang;
+use YSOCode\Commit\Domain\Enums\Status;
 use YSOCode\Commit\Domain\Types\Error;
 
-readonly class GetCommitFromGitDiff implements ActionInterface
+class GetCommitFromGitDiff implements ActionInterface
 {
+    use HasObservers;
+
     private string $systemPrompt;
 
     public function __construct(
-        private AI $ai,
-        private Lang $lang,
-        private string $gitDiff
+        readonly private AI $ai,
+        readonly private Lang $lang,
+        readonly private string $gitDiff
     ) {
         $this->systemPrompt = <<<PROMPT
         Write a commit message for this diff following Conventional Commits specification.
@@ -87,6 +90,8 @@ readonly class GetCommitFromGitDiff implements ActionInterface
 
     private function executeSourcegraph(): string|Error
     {
+        $this->notifyProgress(Status::STARTED);
+
         /** @var string $sourcegraphEndpoint */
         $sourcegraphEndpoint = $_ENV['SOURCEGRAPH_API_ENDPOINT'];
 
@@ -106,11 +111,24 @@ readonly class GetCommitFromGitDiff implements ActionInterface
             ],
             $this->gitDiff
         );
-        $codyProcess->run();
+
+        $codyProcess->start();
+
+        while ($codyProcess->isRunning()) {
+            $this->notifyProgress(Status::RUNNING);
+
+            usleep(100000);
+        }
+
+        $codyProcess->wait();
 
         if (! $codyProcess->isSuccessful()) {
+            $this->notifyProgress(Status::FAILED);
+
             return Error::parse('Unable to retrieve the commit from Git diff');
         }
+
+        $this->notifyProgress(Status::FINISHED);
 
         return $this->extractCommitMessage($codyProcess->getOutput());
     }
