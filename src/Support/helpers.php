@@ -1,5 +1,7 @@
 <?php
 
+use YSOCode\Commit\Domain\Enums\AI;
+
 if (! function_exists('config')) {
     function config(string $key, ?string $default = null): ?string
     {
@@ -30,5 +32,22 @@ if (! function_exists('config')) {
         }
 
         return is_string($currentValue) ? $currentValue : $default;
+    }
+}
+
+if (! function_exists('hasOnlyStringKeys')) {
+    /**
+     * @param  array<mixed>  $array
+     */
+    function hasOnlyStringKeys(array $array): bool
+    {
+        return array_keys($array) === array_filter(array_keys($array), 'is_string');
+    }
+}
+
+if (! function_exists('apiKeyEnvVar')) {
+    function apiKeyEnvVar(AI $ai): string
+    {
+        return strtoupper("{$ai->value}_API_KEY");
     }
 }

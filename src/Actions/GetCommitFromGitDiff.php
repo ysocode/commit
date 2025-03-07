@@ -32,23 +32,94 @@ readonly class GetCommitFromGitDiff implements ActionInterface
 
     public function execute(): string|Error
     {
-        $aiProviderMethod = "execute{$this->ai->formattedValue()}";
-        if (method_exists($this, $aiProviderMethod)) {
-            $aiProviderMethodReturn = $this->{$aiProviderMethod}();
-            if (! is_string($aiProviderMethodReturn) && ! $aiProviderMethodReturn instanceof Error) {
-                return Error::parse('AI method returned an invalid value');
-            }
+        return match ($this->ai) {
+            default => Error::parse('Unsupported AI provider'),
+            AI::COHERE => $this->executeCohere(),
+            // AI::OPENAI => $this->executeOpenAI(),
+            // AI::DEEPSEEK => $this->executeDeepSeek(),
+            AI::SOURCEGRAPH => $this->executeSourcegraph(),
+        };
+    }
 
-            return $aiProviderMethodReturn;
-        }
-
-        $apiKey = $_ENV[$this->ai->apiKeyEnvVar()];
+    private function executeCohere(): string|Error
+    {
+        $apiKey = $_ENV[apiKeyEnvVar($this->ai)];
         if (! $apiKey || ! is_string($apiKey)) {
             return Error::parse("No {$this->ai->formattedValue()} API key found");
         }
 
-        ['url' => $url, 'model' => $model] = $this->ai->apiConfig();
+        $response = $this->requestApi(
+            'https://api.cohere.com/v2/chat',
+            'command-r-plus-08-2024',
+            $apiKey
+        );
 
+        if ($response instanceof Error) {
+            return $response;
+        }
+
+        $message = $response['message'] ?? null;
+        if (! $message || ! is_array($message)) {
+            return Error::parse('Missing or invalid "message" field in API response');
+        }
+
+        $content = $message['content'] ?? null;
+        if (! $content || ! is_array($content)) {
+            return Error::parse('Missing or invalid "content" field in message structure');
+        }
+
+        $contentFirstItem = $content[0] ?? null;
+        if (! $contentFirstItem || ! is_array($contentFirstItem)) {
+            return Error::parse('Empty content array or invalid first content item');
+        }
+
+        $commitMessage = $contentFirstItem['text'] ?? null;
+        if (! $commitMessage || ! is_string($commitMessage)) {
+            return Error::parse('Missing or non-string commit message text in response');
+        }
+
+        return $this->extractCommitMessage($commitMessage);
+    }
+
+    // private function executeOpenAI(): string|Error {}
+
+    // private function executeDeepSeek(): string|Error {}
+
+    private function executeSourcegraph(): string|Error
+    {
+        /** @var string $sourcegraphEndpoint */
+        $sourcegraphEndpoint = $_ENV['SOURCEGRAPH_API_ENDPOINT'];
+
+        $apiKey = $_ENV[apiKeyEnvVar($this->ai)];
+        if (! $apiKey || ! is_string($apiKey)) {
+            return Error::parse("No {$this->ai->formattedValue()} API key found");
+        }
+
+        $command = ['cody', 'chat', '--stdin', '-m', $this->systemPrompt];
+
+        $codyProcess = new Process(
+            $command,
+            null,
+            [
+                'SRC_ENDPOINT' => $sourcegraphEndpoint,
+                'SRC_ACCESS_TOKEN' => $apiKey,
+            ],
+            $this->gitDiff
+        );
+        $codyProcess->run();
+
+        if (! $codyProcess->isSuccessful()) {
+            return Error::parse('Unable to retrieve the commit from Git diff');
+        }
+
+        return $this->extractCommitMessage($codyProcess->getOutput());
+    }
+
+    /**
+     * @return array<string, mixed>|Error
+     */
+    private function requestApi(string $url, string $model, string $apiKey): array|Error
+    {
         $http = new Factory;
         $response = $http->accept('application/json')
             ->withToken($apiKey)
@@ -75,61 +146,12 @@ readonly class GetCommitFromGitDiff implements ActionInterface
         }
 
         $responseDecoded = json_decode($response->getBody(), true);
-        if (! $responseDecoded || ! is_array($responseDecoded)) {
+        if (! $responseDecoded || ! is_array($responseDecoded) || ! hasOnlyStringKeys($responseDecoded)) {
             return Error::parse('Invalid JSON response from API or unexpected response format');
         }
 
-        $message = $responseDecoded['message'] ?? null;
-        if (! $message || ! is_array($message)) {
-            return Error::parse('Missing or invalid "message" field in API response');
-        }
-
-        $content = $message['content'] ?? null;
-        if (! $content || ! is_array($content)) {
-            return Error::parse('Missing or invalid "content" field in message structure');
-        }
-
-        $contentFirstItem = $content[0] ?? null;
-        if (! $contentFirstItem || ! is_array($contentFirstItem)) {
-            return Error::parse('Empty content array or invalid first content item');
-        }
-
-        $commitMessage = $contentFirstItem['text'] ?? null;
-        if (! $commitMessage || ! is_string($commitMessage)) {
-            return Error::parse('Missing or non-string commit message text in response');
-        }
-
-        return $this->extractCommitMessage($commitMessage);
-    }
-
-    private function executeSourcegraph(): string|Error
-    {
-        /** @var string $sourcegraphEndpoint */
-        $sourcegraphEndpoint = $_ENV['SOURCEGRAPH_API_ENDPOINT'];
-
-        $apiKey = $_ENV[$this->ai->apiKeyEnvVar()];
-        if (! $apiKey || ! is_string($apiKey)) {
-            return Error::parse("No {$this->ai->formattedValue()} API key found");
-        }
-
-        $command = ['cody', 'chat', '--stdin', '-m', $this->systemPrompt];
-
-        $codyProcess = new Process(
-            $command,
-            null,
-            [
-                'SRC_ENDPOINT' => $sourcegraphEndpoint,
-                'SRC_ACCESS_TOKEN' => $apiKey,
-            ],
-            $this->gitDiff
-        );
-        $codyProcess->run();
-
-        if (! $codyProcess->isSuccessful()) {
-            return Error::parse('Unable to retrieve the commit from Git diff');
-        }
-
-        return $this->extractCommitMessage($codyProcess->getOutput());
+        /** @var array<string, mixed> $responseDecoded */
+        return $responseDecoded;
     }
 
     private function extractCommitMessage(string $commitMessage): string|Error

@@ -22,36 +22,6 @@ enum AI: string
     }
 
     /**
-     * @return array{url: string, model: string}
-     */
-    public function apiConfig(): array
-    {
-        return match ($this) {
-            AI::COHERE => [
-                'url' => 'https://api.cohere.com/v2/chat',
-                'model' => 'command-r-plus-08-2024',
-            ],
-            AI::OPENAI => [
-                'url' => 'https://api.openai.com/v1/chat/completions',
-                'model' => 'gpt-4o-mini',
-            ],
-            AI::DEEPSEEK => [
-                'url' => 'https://api.deepseek.com/chat/completions',
-                'model' => 'deepseek-chat',
-            ],
-            AI::SOURCEGRAPH => [
-                'url' => '',
-                'model' => '',
-            ],
-        };
-    }
-
-    public function apiKeyEnvVar(): string
-    {
-        return strtoupper("{$this->value}_API_KEY");
-    }
-
-    /**
      * @return array<string>
      */
     public static function values(): array
