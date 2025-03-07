@@ -13,7 +13,7 @@ use YSOCode\Commit\Commands\AI\Provider;
 use YSOCode\Commit\Commands\Generate;
 use YSOCode\Commit\Commands\Init;
 
-$application = new Application('YSO Code Commit', '2.1.0');
+$application = new Application('YSO Code Commit', '2.1.3');
 
 /**
  * Config
