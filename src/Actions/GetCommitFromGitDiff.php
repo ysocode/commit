@@ -2,12 +2,12 @@
 
 namespace YSOCode\Commit\Actions;
 
-use Illuminate\Http\Client\Factory;
 use Symfony\Component\Process\Process;
 use YSOCode\Commit\Domain\Enums\AI;
 use YSOCode\Commit\Domain\Enums\Lang;
 use YSOCode\Commit\Domain\Enums\Status;
 use YSOCode\Commit\Domain\Types\Error;
+use YSOCode\Commit\Support\Http;
 
 class GetCommitFromGitDiff implements ActionInterface
 {
@@ -57,11 +57,30 @@ class GetCommitFromGitDiff implements ActionInterface
             return Error::parse("No {$this->ai->formattedValue()} API key found");
         }
 
-        $response = $this->requestApi(
-            'https://api.cohere.com/v2/chat',
-            'command-r-plus-08-2024',
-            $apiKey
-        );
+        $response = Http::create($apiKey)
+            ->post(
+                'https://api.cohere.com/v2/chat',
+                [
+                    'model' => 'command-r-plus-08-2024',
+                    'messages' => [
+                        [
+                            'role' => 'system',
+                            'content' => $this->systemPrompt,
+                        ],
+                        [
+                            'role' => 'user',
+                            'content' => $this->gitDiff,
+                        ],
+                    ],
+                    'temperature' => 0.7,
+                    'stream' => false,
+                ],
+                function () {
+                    $this->notifyProgress(Status::RUNNING);
+
+                    usleep(100000);
+                }
+            );
 
         if ($response instanceof Error) {
             return $response;
@@ -130,45 +149,6 @@ class GetCommitFromGitDiff implements ActionInterface
         }
 
         return $this->extractCommitMessage($codyProcess->getOutput());
-    }
-
-    /**
-     * @return array<string, mixed>|Error
-     */
-    private function requestApi(string $url, string $model, string $apiKey): array|Error
-    {
-        $http = new Factory;
-        $response = $http->accept('application/json')
-            ->withToken($apiKey)
-            ->post($url, [
-                'model' => $model,
-                'messages' => [
-                    [
-                        'role' => 'system',
-                        'content' => $this->systemPrompt,
-                    ],
-                    [
-                        'role' => 'user',
-                        'content' => $this->gitDiff,
-                    ],
-                ],
-                'temperature' => 0.7,
-                'stream' => false,
-            ]);
-
-        if ($response->getStatusCode() !== 200) {
-            return Error::parse(
-                "Request to {$this->ai->formattedValue()} API failed with status code {$response->getStatusCode()}"
-            );
-        }
-
-        $responseDecoded = json_decode($response->getBody(), true);
-        if (! $responseDecoded || ! is_array($responseDecoded) || ! hasOnlyStringKeys($responseDecoded)) {
-            return Error::parse('Invalid JSON response from API or unexpected response format');
-        }
-
-        /** @var array<string, mixed> $responseDecoded */
-        return $responseDecoded;
     }
 
     private function extractCommitMessage(string $commitMessage): string|Error
