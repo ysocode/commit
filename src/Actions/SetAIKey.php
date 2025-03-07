@@ -2,6 +2,8 @@
 
 namespace YSOCode\Commit\Actions;
 
+use YSOCode\Commit\Actions\Interfaces\ActionInterface;
+use YSOCode\Commit\Actions\Traits\ActionTrait;
 use YSOCode\Commit\Domain\Enums\AI;
 use YSOCode\Commit\Domain\Types\Error;
 use YSOCode\Commit\Support\EnvFileManager;

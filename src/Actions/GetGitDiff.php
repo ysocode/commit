@@ -3,6 +3,7 @@
 namespace YSOCode\Commit\Actions;
 
 use Symfony\Component\Process\Process;
+use YSOCode\Commit\Actions\Interfaces\ActionInterface;
 use YSOCode\Commit\Domain\Types\Error;
 
 class GetGitDiff implements ActionInterface

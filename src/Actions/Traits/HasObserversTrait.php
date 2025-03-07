@@ -1,10 +1,10 @@
 <?php
 
-namespace YSOCode\Commit\Actions;
+namespace YSOCode\Commit\Actions\Traits;
 
 use YSOCode\Commit\Domain\Enums\Status;
 
-trait HasObservers
+trait HasObserversTrait
 {
     /**
      * @var array<callable(Status): void>

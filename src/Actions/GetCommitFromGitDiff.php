@@ -3,6 +3,8 @@
 namespace YSOCode\Commit\Actions;
 
 use Symfony\Component\Process\Process;
+use YSOCode\Commit\Actions\Interfaces\ActionInterface;
+use YSOCode\Commit\Actions\Traits\HasObserversTrait;
 use YSOCode\Commit\Domain\Enums\AI;
 use YSOCode\Commit\Domain\Enums\Lang;
 use YSOCode\Commit\Domain\Enums\Status;
@@ -11,7 +13,7 @@ use YSOCode\Commit\Support\Http;
 
 class GetCommitFromGitDiff implements ActionInterface
 {
-    use HasObservers;
+    use HasObserversTrait;
 
     private string $systemPrompt;
 

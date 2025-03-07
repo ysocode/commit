@@ -1,6 +1,6 @@
 <?php
 
-namespace YSOCode\Commit\Actions;
+namespace YSOCode\Commit\Actions\Interfaces;
 
 interface ActionInterface
 {
