@@ -11,7 +11,7 @@ use YSOCode\Commit\Domain\Enums\Status;
 use YSOCode\Commit\Domain\Types\Error;
 use YSOCode\Commit\Support\Http;
 
-class GetCommitFromGitDiff implements ActionInterface
+class GenerateCommitMessageFromGitDiff implements ActionInterface
 {
     use HasObserversTrait;
 
