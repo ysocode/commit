@@ -2,7 +2,6 @@
 
 namespace YSOCode\Commit\Actions;
 
-use Symfony\Component\Process\Process;
 use YSOCode\Commit\Actions\Interfaces\ActionInterface;
 use YSOCode\Commit\Actions\Traits\HasObserversTrait;
 use YSOCode\Commit\Domain\Enums\AI;
@@ -38,67 +37,38 @@ class GenerateConventionalCommitMessage implements ActionInterface
     {
         $this->notifyProgress(Status::STARTED);
 
-        $commitFromGitDiff = match ($this->ai) {
+        $onProgress = function () {
+            $this->notifyProgress(Status::RUNNING);
+
+            usleep(100000);
+        };
+
+        $conventionalCommit = match ($this->ai) {
             default => Error::parse('Unsupported AI provider'),
             AI::COHERE => (new GenerateCommitWithCohereAI(
                 $this->systemPrompt,
                 $this->ai,
                 $this->gitDiff,
-                function () {
-                    $this->notifyProgress(Status::RUNNING);
-
-                    usleep(100000);
-                }
+                $onProgress
             ))->execute(),
-            // AI::OPENAI => $this->executeOpenAI(),
-            // AI::DEEPSEEK => $this->executeDeepSeek(),
-            AI::SOURCEGRAPH => $this->executeSourcegraph(),
+            // AI::OPENAI => ,
+            // AI::DEEPSEEK => ,
+            AI::SOURCEGRAPH => (new GenerateCommitWithSourcegraphAI(
+                $this->systemPrompt,
+                $this->ai,
+                $this->gitDiff,
+                $onProgress
+            ))->execute(),
         };
+
+        if ($conventionalCommit instanceof Error) {
+            $this->notifyProgress(Status::FAILED);
+
+            return $conventionalCommit;
+        }
 
         $this->notifyProgress(Status::FINISHED);
 
-        return $commitFromGitDiff;
-    }
-
-    // private function executeOpenAI(): string|Error {}
-
-    // private function executeDeepSeek(): string|Error {}
-
-    private function executeSourcegraph(): string|Error
-    {
-        $apiKey = $_ENV[apiKeyEnvVar($this->ai)];
-        if (! $apiKey || ! is_string($apiKey)) {
-            return Error::parse("No {$this->ai->formattedValue()} API key found");
-        }
-
-        $command = ['cody', 'chat', '--stdin', '-m', $this->systemPrompt];
-
-        $codyProcess = new Process(
-            $command,
-            null,
-            [
-                'SRC_ENDPOINT' => 'https://sourcegraph.com',
-                'SRC_ACCESS_TOKEN' => $apiKey,
-            ],
-            $this->gitDiff
-        );
-
-        $codyProcess->start();
-
-        while ($codyProcess->isRunning()) {
-            $this->notifyProgress(Status::RUNNING);
-
-            usleep(100000);
-        }
-
-        $codyProcess->wait();
-
-        if (! $codyProcess->isSuccessful()) {
-            $this->notifyProgress(Status::FAILED);
-
-            return Error::parse('Unable to retrieve the commit from Git diff');
-        }
-
-        return extractCommitMessage($codyProcess->getOutput());
+        return $conventionalCommit;
     }
 }
