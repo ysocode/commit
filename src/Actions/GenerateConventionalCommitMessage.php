@@ -51,7 +51,12 @@ class GenerateConventionalCommitMessage implements ActionInterface
                 $this->gitDiff,
                 $onProgress
             ))->execute(),
-            // AI::OPENAI => ,
+            AI::OPENAI => (new GenerateCommitWithOpenAI(
+                $this->defaultPrompt,
+                $this->ai,
+                $this->gitDiff,
+                $onProgress
+            ))->execute(),
             // AI::DEEPSEEK => ,
             AI::SOURCEGRAPH => (new GenerateCommitWithSourcegraphAI(
                 $this->defaultPrompt,
