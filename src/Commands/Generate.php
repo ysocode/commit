@@ -12,8 +12,8 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Process\Process;
+use YSOCode\Commit\Actions\FetchStagedGitChanges;
 use YSOCode\Commit\Actions\GenerateCommitMessageFromGitDiff;
-use YSOCode\Commit\Actions\GetGitDiff;
 use YSOCode\Commit\Commands\Traits\CommandTrait;
 use YSOCode\Commit\Domain\Enums\AI;
 use YSOCode\Commit\Domain\Enums\Lang;
@@ -58,7 +58,7 @@ class Generate extends Command
 
         Dotenv::createImmutable($this->getConfigDirPath())->load();
 
-        $gitDiff = (new GetGitDiff)->execute();
+        $gitDiff = (new FetchStagedGitChanges)->execute();
         if ($gitDiff instanceof Error) {
             $output->writeln("<error>Error: $gitDiff</error>");
 
