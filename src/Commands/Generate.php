@@ -13,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Process\Process;
 use YSOCode\Commit\Actions\FetchStagedGitChanges;
-use YSOCode\Commit\Actions\GenerateCommitMessageFromGitDiff;
+use YSOCode\Commit\Actions\GenerateConventionalCommitMessage;
 use YSOCode\Commit\Commands\Traits\CommandTrait;
 use YSOCode\Commit\Domain\Enums\AI;
 use YSOCode\Commit\Domain\Enums\Lang;
@@ -89,7 +89,7 @@ class Generate extends Command
             100,
             ['⠏', '⠛', '⠹', '⢸', '⣰', '⣤', '⣆', '⡇']
         );
-        $getCommitFromGitDiff = new GenerateCommitMessageFromGitDiff($aiProviderAsEnum, $langAsEnum, $gitDiff);
+        $getCommitFromGitDiff = new GenerateConventionalCommitMessage($aiProviderAsEnum, $langAsEnum, $gitDiff);
 
         $getCommitFromGitDiff->subscribe(function (Status $status) use ($progressIndicator, $aiProviderAsEnum) {
             match ($status) {
