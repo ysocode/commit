@@ -11,7 +11,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use YSOCode\Commit\Actions\RetrieveAIProviderKey;
-use YSOCode\Commit\Actions\SetAIKey;
+use YSOCode\Commit\Actions\StoreAIProviderKey;
 use YSOCode\Commit\Domain\Enums\AI;
 use YSOCode\Commit\Domain\Types\Error;
 
@@ -84,7 +84,7 @@ class Key extends Command
 
         $aiProviderAsEnum = AI::from($aiProvider);
 
-        $apiKeyIsSet = (new SetAIKey($aiProviderAsEnum, $key))->execute();
+        $apiKeyIsSet = (new StoreAIProviderKey($aiProviderAsEnum, $key))->execute();
         if ($apiKeyIsSet instanceof Error) {
             $output->writeln("<error>Error: {$apiKeyIsSet}</error>");
 
