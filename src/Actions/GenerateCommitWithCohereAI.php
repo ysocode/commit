@@ -39,7 +39,7 @@ readonly class GenerateCommitWithCohereAI implements ActionInterface
                             'content' => $this->gitDiff,
                         ],
                     ],
-                    'temperature' => 0.7,
+                    'temperature' => 0.2,
                     'stream' => false,
                 ],
                 $this->onProgress
