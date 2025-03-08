@@ -13,14 +13,14 @@ class GenerateConventionalCommitMessage implements ActionInterface
 {
     use HasObserversTrait;
 
-    private string $systemPrompt;
+    private string $defaultPrompt;
 
     public function __construct(
         readonly private AI $ai,
         readonly private Lang $lang,
         readonly private string $gitDiff
     ) {
-        $this->systemPrompt = <<<PROMPT
+        $this->defaultPrompt = <<<PROMPT
         Write a commit message for this diff following Conventional Commits specification.
         ALWAYS wrap the entire commit message between ``` delimiters.
         Do NOT use scopes. 
@@ -46,7 +46,7 @@ class GenerateConventionalCommitMessage implements ActionInterface
         $conventionalCommit = match ($this->ai) {
             default => Error::parse('Unsupported AI provider'),
             AI::COHERE => (new GenerateCommitWithCohereAI(
-                $this->systemPrompt,
+                $this->defaultPrompt,
                 $this->ai,
                 $this->gitDiff,
                 $onProgress
@@ -54,7 +54,7 @@ class GenerateConventionalCommitMessage implements ActionInterface
             // AI::OPENAI => ,
             // AI::DEEPSEEK => ,
             AI::SOURCEGRAPH => (new GenerateCommitWithSourcegraphAI(
-                $this->systemPrompt,
+                $this->defaultPrompt,
                 $this->ai,
                 $this->gitDiff,
                 $onProgress
