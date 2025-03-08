@@ -10,7 +10,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
-use YSOCode\Commit\Actions\GetAIKey;
+use YSOCode\Commit\Actions\RetrieveAIProviderKey;
 use YSOCode\Commit\Actions\SetAIKey;
 use YSOCode\Commit\Domain\Enums\AI;
 use YSOCode\Commit\Domain\Types\Error;
@@ -110,7 +110,7 @@ class Key extends Command
 
         $aiProviderAsEnum = AI::from($aiProvider);
 
-        $apiKey = (new GetAIKey($aiProviderAsEnum))->execute();
+        $apiKey = (new RetrieveAIProviderKey($aiProviderAsEnum))->execute();
         if ($apiKey instanceof Error) {
             $output->writeln("<error>Error: $apiKey</error>");
 
