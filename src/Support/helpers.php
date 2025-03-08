@@ -1,6 +1,7 @@
 <?php
 
 use YSOCode\Commit\Domain\Enums\AI;
+use YSOCode\Commit\Domain\Types\Error;
 
 if (! function_exists('config')) {
     function config(string $key, ?string $default = null): ?string
@@ -49,5 +50,24 @@ if (! function_exists('apiKeyEnvVar')) {
     function apiKeyEnvVar(AI $ai): string
     {
         return strtoupper("{$ai->value}_API_KEY");
+    }
+}
+
+if (! function_exists('extractCommitMessage')) {
+    function extractCommitMessage(string $commitMessage): string|Error
+    {
+        $pattern = '/```(.*?)```/s';
+
+        if (preg_match($pattern, $commitMessage, $matches)) {
+            $commitMessage = trim($matches[1]);
+
+            if (empty($commitMessage)) {
+                return Error::parse('Extracted commit message is empty');
+            }
+
+            return $commitMessage;
+        }
+
+        return Error::parse('Unable to extract commit message');
     }
 }

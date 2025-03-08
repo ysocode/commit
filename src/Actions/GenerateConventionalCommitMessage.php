@@ -9,7 +9,6 @@ use YSOCode\Commit\Domain\Enums\AI;
 use YSOCode\Commit\Domain\Enums\Lang;
 use YSOCode\Commit\Domain\Enums\Status;
 use YSOCode\Commit\Domain\Types\Error;
-use YSOCode\Commit\Support\Http;
 
 class GenerateConventionalCommitMessage implements ActionInterface
 {
@@ -41,7 +40,16 @@ class GenerateConventionalCommitMessage implements ActionInterface
 
         $commitFromGitDiff = match ($this->ai) {
             default => Error::parse('Unsupported AI provider'),
-            AI::COHERE => $this->executeCohere(),
+            AI::COHERE => (new GenerateCommitWithCohereAI(
+                $this->systemPrompt,
+                $this->ai,
+                $this->gitDiff,
+                function () {
+                    $this->notifyProgress(Status::RUNNING);
+
+                    usleep(100000);
+                }
+            ))->execute(),
             // AI::OPENAI => $this->executeOpenAI(),
             // AI::DEEPSEEK => $this->executeDeepSeek(),
             AI::SOURCEGRAPH => $this->executeSourcegraph(),
@@ -50,65 +58,6 @@ class GenerateConventionalCommitMessage implements ActionInterface
         $this->notifyProgress(Status::FINISHED);
 
         return $commitFromGitDiff;
-    }
-
-    private function executeCohere(): string|Error
-    {
-        $apiKey = $_ENV[apiKeyEnvVar($this->ai)];
-        if (! $apiKey || ! is_string($apiKey)) {
-            return Error::parse("No {$this->ai->formattedValue()} API key found");
-        }
-
-        $response = Http::create($apiKey)
-            ->post(
-                'https://api.cohere.com/v2/chat',
-                [
-                    'model' => 'command-r-plus-08-2024',
-                    'messages' => [
-                        [
-                            'role' => 'system',
-                            'content' => $this->systemPrompt,
-                        ],
-                        [
-                            'role' => 'user',
-                            'content' => $this->gitDiff,
-                        ],
-                    ],
-                    'temperature' => 0.7,
-                    'stream' => false,
-                ],
-                function () {
-                    $this->notifyProgress(Status::RUNNING);
-
-                    usleep(100000);
-                }
-            );
-
-        if ($response instanceof Error) {
-            return $response;
-        }
-
-        $message = $response['message'] ?? null;
-        if (! $message || ! is_array($message)) {
-            return Error::parse('Missing or invalid "message" field in API response');
-        }
-
-        $content = $message['content'] ?? null;
-        if (! $content || ! is_array($content)) {
-            return Error::parse('Missing or invalid "content" field in message structure');
-        }
-
-        $contentFirstItem = $content[0] ?? null;
-        if (! $contentFirstItem || ! is_array($contentFirstItem)) {
-            return Error::parse('Empty content array or invalid first content item');
-        }
-
-        $commitMessage = $contentFirstItem['text'] ?? null;
-        if (! $commitMessage || ! is_string($commitMessage)) {
-            return Error::parse('Missing or non-string commit message text in response');
-        }
-
-        return $this->extractCommitMessage($commitMessage);
     }
 
     // private function executeOpenAI(): string|Error {}
@@ -150,23 +99,6 @@ class GenerateConventionalCommitMessage implements ActionInterface
             return Error::parse('Unable to retrieve the commit from Git diff');
         }
 
-        return $this->extractCommitMessage($codyProcess->getOutput());
-    }
-
-    private function extractCommitMessage(string $commitMessage): string|Error
-    {
-        $pattern = '/```(.*?)```/s';
-
-        if (preg_match($pattern, $commitMessage, $matches)) {
-            $commitMessage = trim($matches[1]);
-
-            if (empty($commitMessage)) {
-                return Error::parse('Extracted commit message is empty');
-            }
-
-            return $commitMessage;
-        }
-
-        return Error::parse('Unable to extract commit message');
+        return extractCommitMessage($codyProcess->getOutput());
     }
 }
