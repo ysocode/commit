@@ -5,7 +5,15 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Ysocode\\Commit\\": "src/"
+            "YSOCode\\Commit\\": "src/"
+        },
+        "files": [
+            "src/Foundation/helpers.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
         }
     },
     "authors": [
@@ -14,11 +22,6 @@
             "email": "yuri.oliveira@ysocode.com"
         }
     ],
-    "autoload-dev": {
-        "psr-4": {
-            "Tests\\": "tests/"
-        }
-    },
     "minimum-stability": "stable",
     "require": {
         "php": "^8.3"
