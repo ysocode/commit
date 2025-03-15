@@ -2,11 +2,16 @@
 <?php
 
 /**
- * YSO Code Commit - CLI application to help generate commit messages
+ * YSOCode Commit CLI
  *
- * @version 2.1.4
- * @author Yuri Oliveira
- * @copyright YSO Code
+ * A tool to generate conventional commits using AI based on Git staged changes.
+ * This CLI analyzes your staged changes and uses artificial intelligence to
+ * suggest meaningful commit messages following the Conventional Commits specification.
+ *
+ * @author Yuri Oliveira <yuri.oliveira@ysocode.com>
+ * @license MIT
+ * @link https://github.com/ysocode/commit
+ * @copyright 2025 YSOCode
  */
 
 if (file_exists(__DIR__.'/../../../autoload.php')) {
