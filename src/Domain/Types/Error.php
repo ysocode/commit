@@ -13,7 +13,7 @@ final readonly class Error implements TypeInterface
         return $this->value;
     }
 
-    public static function parse(mixed $value): self
+    public static function parse(string $value): self
     {
         self::validate($value);
 
