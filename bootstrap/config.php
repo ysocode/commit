@@ -1,5 +1,7 @@
 <?php
 
+use YSOCode\Commit\Foundation\Support\Config;
+
 $config = [];
 $configPath = dirname(__DIR__, 2).'/config';
 
@@ -12,4 +14,4 @@ if (is_dir($configPath)) {
     }
 }
 
-return new \YSOCode\Commit\Foundation\Support\Config($config);
+return new Config($config);

@@ -14,8 +14,10 @@
  * @copyright 2025 YSOCode
  */
 
-if (file_exists(__DIR__.'/../../../autoload.php')) {
-    require __DIR__.'/../../../autoload.php';
-} else {
-    require __DIR__.'/../vendor/autoload.php';
-}
+$globalInstallPath = __DIR__.'/../../../autoload.php';
+$localInstallPath = __DIR__.'/../vendor/autoload.php';
+
+require_once file_exists($globalInstallPath) ? $globalInstallPath : $localInstallPath;
+
+(require_once __DIR__.'/../bootstrap/app.php')
+    ->boot();

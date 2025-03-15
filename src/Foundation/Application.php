@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace YSOCode\Commit\Foundation;
 
-use Exception;
 use YSOCode\Commit\Foundation\Adapters\Command\CommandManagerInterface;
 use YSOCode\Commit\Foundation\Support\Config;
 use YSOCode\Commit\Foundation\Support\LocalConfig;
@@ -13,25 +12,28 @@ final class Application
 {
     private static ?self $instance = null;
 
-    private bool $isLoaded = false;
+    private Config $config;
 
-    private function __construct(
-        private readonly Config $config,
-        private readonly LocalConfig $localConfig,
-        private readonly CommandManagerInterface $commandManager
-    ) {}
+    private LocalConfig $localConfig;
 
-    public static function getInstance(Config $config, LocalConfig $localConfig, CommandManagerInterface $commandManager): self
+    private CommandManagerInterface $commandManager;
+
+    private function __construct() {}
+
+    public static function getInstance(): self
     {
-        if (! self::$instance instanceof \YSOCode\Commit\Foundation\Application) {
-            self::$instance = new self(
-                $config,
-                $localConfig,
-                $commandManager
-            );
+        if (! self::$instance instanceof Application) {
+            self::$instance = new self;
         }
 
         return self::$instance;
+    }
+
+    public function setConfig(Config $config): self
+    {
+        $this->config = $config;
+
+        return $this;
     }
 
     public function getConfig(): Config
@@ -39,9 +41,23 @@ final class Application
         return $this->config;
     }
 
+    public function setLocalConfig(LocalConfig $localConfig): self
+    {
+        $this->localConfig = $localConfig;
+
+        return $this;
+    }
+
     public function getLocalConfig(): LocalConfig
     {
         return $this->localConfig;
+    }
+
+    public function setCommandManager(CommandManagerInterface $commandManager): self
+    {
+        $this->commandManager = $commandManager;
+
+        return $this;
     }
 
     public function getCommandManager(): CommandManagerInterface
@@ -49,18 +65,14 @@ final class Application
         return $this->commandManager;
     }
 
-    public function load(): void
+    private function load(): void
     {
         $this->commandManager->load();
-
-        $this->isLoaded = true;
     }
 
     public function boot(): void
     {
-        if (! $this->isLoaded) {
-            throw new Exception('Application not loaded');
-        }
+        $this->load();
 
         $this->commandManager->boot();
     }
