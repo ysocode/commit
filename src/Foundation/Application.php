@@ -17,10 +17,8 @@ final class Application
         private readonly LocalConfig $localConfig
     ) {}
 
-    public static function getInstance(
-        Config $config,
-        LocalConfig $localConfig
-    ): self {
+    public static function getInstance(Config $config, LocalConfig $localConfig): self
+    {
         if (! self::$instance) {
             self::$instance = new self(
                 $config,
