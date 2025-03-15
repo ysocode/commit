@@ -4,12 +4,29 @@ declare(strict_types=1);
 
 namespace YSOCode\Commit\Foundation\Support;
 
-final readonly class Config
+final class Config
 {
     /**
-     * @param  array<string, mixed>  $config
+     * @var array<string, mixed>
      */
-    public function __construct(private array $config) {}
+    private array $config;
+
+    public function load(): void
+    {
+        $config = [];
+        $configPath = __DIR__.'/../../../config';
+
+        if (is_dir($configPath)) {
+            foreach (scandir($configPath) ?: [] as $file) {
+                if (pathinfo($file, PATHINFO_EXTENSION) === 'php') {
+                    $name = pathinfo($file, PATHINFO_FILENAME);
+                    $config[$name] = require "{$configPath}/{$file}";
+                }
+            }
+        }
+
+        $this->config = $config;
+    }
 
     public function get(string $key, mixed $default = null): mixed
     {

@@ -6,9 +6,14 @@ namespace YSOCode\Commit\Foundation\Support;
 
 use YSOCode\Commit\Domain\Types\Error;
 
-final readonly class LocalConfig
+final class LocalConfig
 {
-    public function __construct(private Config $config) {}
+    private Config $config;
+
+    public function setConfig(Config $config): void
+    {
+        $this->config = $config;
+    }
 
     public function getConfigDirPath(): string|Error
     {

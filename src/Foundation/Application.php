@@ -67,7 +67,12 @@ final class Application
 
     private function load(): void
     {
+        $this->config->load();
+
+        $this->localConfig->setConfig($this->config);
+
         $this->commandManager->load();
+
     }
 
     public function boot(): void
