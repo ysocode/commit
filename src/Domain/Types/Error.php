@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace YSOCode\Commit\Domain\Types;
 
 use DomainException;
@@ -22,7 +24,7 @@ final readonly class Error implements TypeInterface
 
     private static function validate(string $value): void
     {
-        if (! $value) {
+        if ($value === '' || $value === '0') {
             throw new DomainException('Error cannot be empty.');
         }
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use YSOCode\Commit\Foundation\Support\Environment;
 
 if (! function_exists('env')) {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace YSOCode\Commit\Foundation\Support;
 
 final readonly class Config

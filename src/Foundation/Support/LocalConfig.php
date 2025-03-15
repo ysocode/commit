@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace YSOCode\Commit\Foundation\Support;
 
 use YSOCode\Commit\Domain\Types\Error;
