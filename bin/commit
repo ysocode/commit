@@ -10,10 +10,11 @@
  *
  * @author Yuri Oliveira <yuri.oliveira@ysocode.com>
  * @license MIT
+ *
  * @link https://github.com/ysocode/commit
+ *
  * @copyright 2025 YSOCode
  */
-
 $globalInstallPath = __DIR__.'/../../../autoload.php';
 $localInstallPath = __DIR__.'/../vendor/autoload.php';
 
@@ -23,6 +24,7 @@ use Symfony\Component\Console\Application;
 use YSOCode\Commit\Application\Actions\FetchStagedGitChanges;
 use YSOCode\Commit\Application\Actions\GetDefaultAiProviderFromLocalConfiguration;
 use YSOCode\Commit\Application\Console\GenerateConventionalCommitMessage\GenerateConventionalCommitMessage;
+use YSOCode\Commit\Application\Console\InitializeConfiguration\InitializeConfiguration;
 use YSOCode\Commit\Foundation\Support\Configuration;
 use YSOCode\Commit\Foundation\Support\LocalConfiguration;
 
@@ -35,9 +37,13 @@ $localConfiguration = new LocalConfiguration(
 $app = new Application('YSO Code', '3.0.0');
 $app->add(
     new GenerateConventionalCommitMessage(
-        new FetchStagedGitChanges(),
+        new FetchStagedGitChanges,
         new GetDefaultAiProviderFromLocalConfiguration($localConfiguration),
     )
+);
+
+$app->add(
+    new InitializeConfiguration($localConfiguration)
 );
 
 $app->run();
