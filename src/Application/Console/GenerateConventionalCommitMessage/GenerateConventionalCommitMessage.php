@@ -2,22 +2,21 @@
 
 declare(strict_types=1);
 
-namespace YSOCode\Commit\Application\Console;
+namespace YSOCode\Commit\Application\Console\GenerateConventionalCommitMessage;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use YSOCode\Commit\Application\Actions\FetchStagedGitChanges;
-use YSOCode\Commit\Application\Actions\GetDefaultAiProviderFromConfig;
 use YSOCode\Commit\Domain\Enums\AiProvider;
 use YSOCode\Commit\Domain\Types\Error;
-use YSOCode\Commit\Foundation\Support\LocalConfiguration;
 
-class GenerateConventionalCommitMessage extends Command
+final class GenerateConventionalCommitMessage extends Command
 {
-    public function __construct(private readonly LocalConfiguration $localConfiguration)
-    {
+    public function __construct(
+        private readonly FetchStagedChangesInterface $fetchStagedChanges,
+        private readonly GetDefaultAiProviderInterface $getDefaultAiProviderFromConfig,
+    ) {
         parent::__construct();
     }
 
@@ -78,7 +77,7 @@ class GenerateConventionalCommitMessage extends Command
             return $customDiff;
         }
 
-        return (new FetchStagedGitChanges)->execute();
+        return $this->fetchStagedChanges->execute();
     }
 
     private function getAiProvider(InputInterface $input): AiProvider|Error
@@ -92,6 +91,6 @@ class GenerateConventionalCommitMessage extends Command
             return Aiprovider::parse($customAiProvider);
         }
 
-        return (new GetDefaultAiProviderFromConfig($this->localConfiguration))->execute();
+        return $this->getDefaultAiProviderFromConfig->execute();
     }
 }

@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace YSOCode\Commit\Application\Actions;
 
+use YSOCode\Commit\Application\Console\GenerateConventionalCommitMessage\GetDefaultAiProviderInterface;
 use YSOCode\Commit\Domain\Enums\AiProvider;
 use YSOCode\Commit\Domain\Types\Error;
 use YSOCode\Commit\Foundation\Support\LocalConfiguration;
 
-final readonly class GetDefaultAiProviderFromConfig implements ActionInterface
+final readonly class GetDefaultAiProviderFromLocalConfiguration implements GetDefaultAiProviderInterface
 {
     public function __construct(private LocalConfiguration $localConfiguration) {}
 

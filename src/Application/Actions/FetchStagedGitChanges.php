@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace YSOCode\Commit\Application\Actions;
 
 use Symfony\Component\Process\Process;
+use YSOCode\Commit\Application\Console\GenerateConventionalCommitMessage\FetchStagedChangesInterface;
 use YSOCode\Commit\Domain\Types\Error;
 
-final readonly class FetchStagedGitChanges implements ActionInterface
+final readonly class FetchStagedGitChanges implements FetchStagedChangesInterface
 {
     public function execute(): string|Error
     {
