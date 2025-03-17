@@ -6,28 +6,23 @@ namespace YSOCode\Commit\Foundation\Support;
 
 use YSOCode\Commit\Domain\Types\Error;
 
-final class LocalConfig
+final readonly class LocalConfiguration
 {
-    private Config $config;
+    public function __construct(private Configuration $configuration) {}
 
-    public function setConfig(Config $config): void
+    public function getConfigurationDirPath(): string|Error
     {
-        $this->config = $config;
-    }
-
-    public function getConfigDirPath(): string|Error
-    {
-        $homeDirectory = $this->config->get('app.home_directory');
+        $homeDirectory = $this->configuration->getValue('app.home_directory');
         if (! is_string($homeDirectory)) {
             return Error::parse('Unable to locate home directory.');
         }
 
-        $mainDirectory = $this->config->get('app.main_directory');
+        $mainDirectory = $this->configuration->getValue('app.main_directory');
         if (! is_string($mainDirectory)) {
             return Error::parse('Unable to locate main directory.');
         }
 
-        $configDirectory = $this->config->get('app.config_directory');
+        $configDirectory = $this->configuration->getValue('app.config_directory');
         if (! is_string($configDirectory)) {
             return Error::parse('Unable to locate config directory.');
         }
@@ -35,9 +30,9 @@ final class LocalConfig
         return "{$homeDirectory}/{$mainDirectory}/{$configDirectory}";
     }
 
-    public function getConfigFilePath(): string|Error
+    public function getConfigurationFilePath(): string|Error
     {
-        $configDirPath = $this->getConfigDirPath();
+        $configDirPath = $this->getConfigurationDirPath();
         if ($configDirPath instanceof Error) {
             return $configDirPath;
         }
@@ -45,23 +40,9 @@ final class LocalConfig
         return "{$configDirPath}/config.json";
     }
 
-    public function checkConfigFileExistence(): true|Error
+    public function checkConfigurationDirExistence(): true|Error
     {
-        $configFile = $this->getConfigFilePath();
-        if ($configFile instanceof Error) {
-            return $configFile;
-        }
-
-        if (! file_exists($configFile)) {
-            return Error::parse('Unable to locate configuration file.');
-        }
-
-        return true;
-    }
-
-    public function checkConfigDirExistence(): true|Error
-    {
-        $configDir = $this->getConfigDirPath();
+        $configDir = $this->getConfigurationDirPath();
         if ($configDir instanceof Error) {
             return $configDir;
         }
@@ -73,12 +54,26 @@ final class LocalConfig
         return true;
     }
 
-    /**
-     * @return string|int|bool|array<string, mixed>|Error
-     */
-    public function get(string $key): string|int|bool|array|Error
+    public function checkConfigurationFileExistence(): true|Error
     {
-        $configData = $this->getConfigFileData();
+        $configFile = $this->getConfigurationFilePath();
+        if ($configFile instanceof Error) {
+            return $configFile;
+        }
+
+        if (! file_exists($configFile)) {
+            return Error::parse('Unable to locate configuration file.');
+        }
+
+        return true;
+    }
+
+    /**
+     * @return string|int|float|bool|array<string, mixed>|Error
+     */
+    public function getValue(string $key): string|int|float|bool|array|Error
+    {
+        $configData = $this->getConfigurationFileData();
         if ($configData instanceof Error) {
             return $configData;
         }
@@ -93,16 +88,16 @@ final class LocalConfig
             $currentValue = $currentValue[$segment];
         }
 
-        /** @var string|int|bool|array<string, mixed> $currentValue */
+        /** @var string|int|float|bool|array<string, mixed> $currentValue */
         return $currentValue;
     }
 
     /**
-     * @param  string|int|bool|array<string, mixed>  $value
+     * @param  string|int|float|bool|array<string, mixed>  $value
      */
-    public function set(string $key, string|int|bool|array $value): true|Error
+    public function setValue(string $key, string|int|float|bool|array $value): true|Error
     {
-        $configData = $this->getConfigFileData();
+        $configData = $this->getConfigurationFileData();
         if ($configData instanceof Error) {
             return $configData;
         }
@@ -132,20 +127,20 @@ final class LocalConfig
         // Set the new value at the target location
         $currentValue[$lastSegment] = $value;
 
-        return $this->setConfigFileData($configData);
+        return $this->setConfigurationFileData($configData);
     }
 
     /**
-     * @return array<string, mixed>|Error
+     * @return array<string, string|int|float|bool|array<mixed>>|Error
      */
-    private function getConfigFileData(): array|Error
+    private function getConfigurationFileData(): array|Error
     {
-        $fileExistence = $this->checkConfigFileExistence();
+        $fileExistence = $this->checkConfigurationFileExistence();
         if ($fileExistence instanceof Error) {
             return $fileExistence;
         }
 
-        $configFile = $this->getConfigFilePath();
+        $configFile = $this->getConfigurationFilePath();
         if ($configFile instanceof Error) {
             return $configFile;
         }
@@ -160,16 +155,16 @@ final class LocalConfig
             return Error::parse('Invalid configuration file format.');
         }
 
-        /** @var array<string, mixed> $configData */
+        /** @var array<string, string|int|float|bool|array<mixed>> $configData */
         return $configData;
     }
 
     /**
-     * @param  array<string, mixed>  $configData
+     * @param  array<string, string|int|float|bool|array<mixed>>  $configData
      */
-    private function setConfigFileData(array $configData): true|Error
+    private function setConfigurationFileData(array $configData): true|Error
     {
-        $configFile = $this->getConfigFilePath();
+        $configFile = $this->getConfigurationFilePath();
         if ($configFile instanceof Error) {
             return $configFile;
         }
