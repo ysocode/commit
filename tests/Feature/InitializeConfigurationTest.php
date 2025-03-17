@@ -6,29 +6,16 @@ namespace Tests\Feature;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use YSOCode\Commit\Application\Console\InitializeConfiguration\InitializeConfiguration;
-use YSOCode\Commit\Foundation\Support\Configuration;
-use YSOCode\Commit\Foundation\Support\LocalConfiguration;
 
 class InitializeConfigurationTest extends TestCase
 {
-    private LocalConfiguration $localConfiguration;
-
-    private Application $app;
+    use WithConsoleConfigurationTrait;
 
     protected function setUp(): void
     {
-        $this->localConfiguration = new LocalConfiguration(new Configuration([
-            'app' => [
-                'home_directory' => __DIR__.'/../../storage/tmp',
-                'main_directory' => '.ysocode',
-                'config_directory' => 'commit',
-            ],
-        ]));
-
-        $this->app = new Application;
+        $this->setUpConsoleConfiguration();
         $this->app->add(new InitializeConfiguration($this->localConfiguration));
     }
 
