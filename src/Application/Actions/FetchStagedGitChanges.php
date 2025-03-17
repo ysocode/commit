@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace YSOCode\Commit\Actions;
+namespace YSOCode\Commit\Application\Actions;
 
 use Symfony\Component\Process\Process;
 use YSOCode\Commit\Domain\Types\Error;
