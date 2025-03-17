@@ -19,5 +19,13 @@ $localInstallPath = __DIR__.'/../vendor/autoload.php';
 
 require_once file_exists($globalInstallPath) ? $globalInstallPath : $localInstallPath;
 
-(require_once __DIR__.'/../bootstrap/app.php')
-    ->boot();
+$localConfiguration = new \YSOCode\Commit\Foundation\Support\LocalConfiguration(
+    new \YSOCode\Commit\Foundation\Support\Configuration(
+        __DIR__.'/../config'
+    )
+);
+
+$app = new Symfony\Component\Console\Application('YSO Code', '3.0.0');
+$app->add(new \YSOCode\Commit\Application\Console\GenerateConventionalCommitMessage($localConfiguration));
+
+$app->run();
