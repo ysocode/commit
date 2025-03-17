@@ -41,7 +41,7 @@ class InitializeConfigurationTest extends TestCase
     /**
      * @throws Exception
      */
-    public function test_it_can_create_configuration_file_when_not_exist(): void
+    public function test_it_should_create_configuration_file_when_not_exists(): void
     {
         $this->removeConfigurationDir();
 
@@ -52,7 +52,7 @@ class InitializeConfigurationTest extends TestCase
         $this->assertStringContainsString('Success: Configuration initialized!', $tester->getDisplay());
     }
 
-    public function test_it_can_create_configuration_file_when_exist_with_force_option(): void
+    public function test_it_should_create_configuration_file_when_exists_with_force_option(): void
     {
         $this->createConfigurationFile();
 
@@ -63,7 +63,7 @@ class InitializeConfigurationTest extends TestCase
         $this->assertStringContainsString('Success: Configuration initialized!', $tester->getDisplay());
     }
 
-    public function test_it_cannot_create_configuration_file_when_exist_without_force_option(): void
+    public function test_it_should_not_create_configuration_file_when_exists_without_force_option(): void
     {
         $this->createConfigurationFile();
 
