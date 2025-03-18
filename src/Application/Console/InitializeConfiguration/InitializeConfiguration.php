@@ -59,32 +59,32 @@ final class InitializeConfiguration extends Command
     private function createConfigurationFile(bool $force = false): true|Error
     {
         if ($this->userConfiguration->checkUserConfigurationDirExistence() instanceof Error) {
-            $configurationDirPath = $this->userConfiguration->getUserConfigurationDirPath();
-            if ($configurationDirPath instanceof Error) {
-                return $configurationDirPath;
+            $userConfigurationDirPath = $this->userConfiguration->getUserConfigurationDirPath();
+            if ($userConfigurationDirPath instanceof Error) {
+                return $userConfigurationDirPath;
             }
 
-            if (! mkdir($configurationDirPath, 0755, true)) {
-                return Error::parse('Failed to create configuration directory.');
+            if (! mkdir($userConfigurationDirPath, 0755, true)) {
+                return Error::parse('Failed to create user configuration directory.');
             }
         }
 
         if (! $this->userConfiguration->checkUserConfigurationFileExistence() instanceof Error && ! $force) {
-            return Error::parse('Configuration file already exists.');
+            return Error::parse('User configuration file already exists.');
         }
 
         $stubFile = __DIR__.'/../../../../stubs/config.json.stub';
         if (! file_exists($stubFile)) {
-            return Error::parse('Unable to locate configuration stub file.');
+            return Error::parse('Unable to locate user configuration stub file.');
         }
 
-        $configurationFilePath = $this->userConfiguration->getUserConfigurationFilePath();
-        if ($configurationFilePath instanceof Error) {
-            return $configurationFilePath;
+        $userConfigurationFilePath = $this->userConfiguration->getUserConfigurationFilePath();
+        if ($userConfigurationFilePath instanceof Error) {
+            return $userConfigurationFilePath;
         }
 
-        if (! copy($stubFile, $configurationFilePath)) {
-            return Error::parse('Failed to copy stub file to configuration directory.');
+        if (! copy($stubFile, $userConfigurationFilePath)) {
+            return Error::parse('Failed to copy stub file to user configuration directory.');
         }
 
         return true;

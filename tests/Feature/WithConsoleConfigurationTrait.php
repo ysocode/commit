@@ -6,21 +6,21 @@ namespace Tests\Feature;
 
 use Symfony\Component\Console\Application;
 use YSOCode\Commit\Foundation\Support\Configuration;
-use YSOCode\Commit\Foundation\Support\LocalConfiguration;
+use YSOCode\Commit\Foundation\Support\UserConfiguration;
 
 trait WithConsoleConfigurationTrait
 {
-    protected LocalConfiguration $localConfiguration;
+    protected UserConfiguration $userConfiguration;
 
     protected Application $app;
 
     protected function setUpConsoleConfiguration(): void
     {
-        $this->localConfiguration = new LocalConfiguration(new Configuration([
+        $this->userConfiguration = new UserConfiguration(new Configuration([
             'app' => [
                 'home_directory' => __DIR__.'/../../storage/tmp',
                 'main_directory' => '.ysocode',
-                'config_directory' => 'commit',
+                'package_directory' => 'commit',
             ],
         ]));
 

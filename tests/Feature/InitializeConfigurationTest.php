@@ -16,7 +16,7 @@ class InitializeConfigurationTest extends TestCase
     protected function setUp(): void
     {
         $this->setUpConsoleConfiguration();
-        $this->app->add(new InitializeConfiguration($this->localConfiguration));
+        $this->app->add(new InitializeConfiguration($this->userConfiguration));
     }
 
     /**
@@ -24,18 +24,18 @@ class InitializeConfigurationTest extends TestCase
      */
     private function removeConfigurationDir(): void
     {
-        deleteDirectory($this->localConfiguration->getConfigurationDirPath());
+        deleteDirectory($this->userConfiguration->getUserConfigurationDirPath());
     }
 
     private function createConfigurationFile(): void
     {
-        $configDir = $this->localConfiguration->getConfigurationDirPath();
+        $configDir = $this->userConfiguration->getUserConfigurationDirPath();
 
         if (! is_dir($configDir)) {
             mkdir($configDir, 0755, true);
         }
 
-        touch($this->localConfiguration->getConfigurationFilePath());
+        touch($this->userConfiguration->getUserConfigurationFilePath());
     }
 
     /**
@@ -70,6 +70,6 @@ class InitializeConfigurationTest extends TestCase
         $tester = new CommandTester($this->app->find('init'));
         $tester->execute([]);
 
-        $this->assertStringContainsString('Error: Configuration file already exists.', $tester->getDisplay());
+        $this->assertStringContainsString('Error: User configuration file already exists.', $tester->getDisplay());
     }
 }
