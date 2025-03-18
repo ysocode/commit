@@ -9,11 +9,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use YSOCode\Commit\Domain\Types\Error;
-use YSOCode\Commit\Foundation\Support\LocalConfiguration;
+use YSOCode\Commit\Foundation\Support\UserConfiguration;
 
 final class InitializeConfiguration extends Command
 {
-    public function __construct(private readonly LocalConfiguration $localConfiguration)
+    public function __construct(private readonly UserConfiguration $userConfiguration)
     {
         parent::__construct();
     }
@@ -58,8 +58,8 @@ final class InitializeConfiguration extends Command
 
     private function createConfigurationFile(bool $force = false): true|Error
     {
-        if ($this->localConfiguration->checkConfigurationDirExistence() instanceof Error) {
-            $configurationDirPath = $this->localConfiguration->getConfigurationDirPath();
+        if ($this->userConfiguration->checkUserConfigurationDirExistence() instanceof Error) {
+            $configurationDirPath = $this->userConfiguration->getUserConfigurationDirPath();
             if ($configurationDirPath instanceof Error) {
                 return $configurationDirPath;
             }
@@ -69,7 +69,7 @@ final class InitializeConfiguration extends Command
             }
         }
 
-        if (! $this->localConfiguration->checkConfigurationFileExistence() instanceof Error && ! $force) {
+        if (! $this->userConfiguration->checkUserConfigurationFileExistence() instanceof Error && ! $force) {
             return Error::parse('Configuration file already exists.');
         }
 
@@ -78,7 +78,7 @@ final class InitializeConfiguration extends Command
             return Error::parse('Unable to locate configuration stub file.');
         }
 
-        $configurationFilePath = $this->localConfiguration->getConfigurationFilePath();
+        $configurationFilePath = $this->userConfiguration->getUserConfigurationFilePath();
         if ($configurationFilePath instanceof Error) {
             return $configurationFilePath;
         }

@@ -22,13 +22,13 @@ require_once file_exists($globalInstallPath) ? $globalInstallPath : $localInstal
 
 use Symfony\Component\Console\Application;
 use YSOCode\Commit\Application\Actions\FetchStagedGitChanges;
-use YSOCode\Commit\Application\Actions\GetDefaultAiProviderFromLocalConfiguration;
+use YSOCode\Commit\Application\Actions\GetDefaultAiProviderFromUserConfiguration;
 use YSOCode\Commit\Application\Console\GenerateConventionalCommitMessage\GenerateConventionalCommitMessage;
 use YSOCode\Commit\Application\Console\InitializeConfiguration\InitializeConfiguration;
 use YSOCode\Commit\Foundation\Support\Configuration;
-use YSOCode\Commit\Foundation\Support\LocalConfiguration;
+use YSOCode\Commit\Foundation\Support\UserConfiguration;
 
-$localConfiguration = new LocalConfiguration(
+$userConfiguration = new UserConfiguration(
     new Configuration(
         __DIR__.'/../config'
     )
@@ -38,12 +38,12 @@ $app = new Application('YSO Code', '3.0.0');
 $app->add(
     new GenerateConventionalCommitMessage(
         new FetchStagedGitChanges,
-        new GetDefaultAiProviderFromLocalConfiguration($localConfiguration),
+        new GetDefaultAiProviderFromUserConfiguration($userConfiguration),
     )
 );
 
 $app->add(
-    new InitializeConfiguration($localConfiguration)
+    new InitializeConfiguration($userConfiguration)
 );
 
 $app->run();
