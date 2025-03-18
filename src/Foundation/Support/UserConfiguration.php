@@ -107,9 +107,6 @@ final readonly class UserConfiguration
         // Create a reference to traverse the configuration array
         $currentValue = &$userConfigurationData;
 
-        // Navigate through all segments except the last one
-        $lastSegment = array_pop($segments);
-
         foreach ($segments as $segment) {
             if (! is_array($currentValue) || ! array_key_exists($segment, $currentValue)) {
                 return Error::parse("User configuration key '{$key}' not found.");
@@ -119,13 +116,8 @@ final readonly class UserConfiguration
             $currentValue = &$currentValue[$segment];
         }
 
-        // Verify the final array contains the last segment
-        if (! is_array($currentValue) || ! array_key_exists($lastSegment, $currentValue)) {
-            return Error::parse("User configuration key '{$key}' not found.");
-        }
-
         // Set the new value at the target location
-        $currentValue[$lastSegment] = $value;
+        $currentValue = $value;
 
         return $this->setConfigurationFileData($userConfigurationData);
     }
