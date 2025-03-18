@@ -6,21 +6,23 @@ namespace YSOCode\Commit\Domain\Enums;
 
 use YSOCode\Commit\Domain\Types\Error;
 
-enum AiProvider: string
+enum AiProvider: string implements EnumInterface
 {
+    use WithValueToolsTrait;
+
     case COHERE = 'cohere';
     case OPENAI = 'openai';
     case DEEPSEEK = 'deepseek';
     case SOURCEGRAPH = 'sourcegraph';
 
-    public static function parse(string $aiProvider): self|Error
+    public static function parse(string $value): self|Error
     {
-        return match ($aiProvider) {
+        return match ($value) {
             self::COHERE->value => self::COHERE,
             self::OPENAI->value => self::OPENAI,
             self::DEEPSEEK->value => self::DEEPSEEK,
             self::SOURCEGRAPH->value => self::SOURCEGRAPH,
-            default => Error::parse("Invalid AI provider {$aiProvider}."),
+            default => Error::parse("Invalid AI provider {$value}."),
         };
     }
 
@@ -32,13 +34,5 @@ enum AiProvider: string
             self::DEEPSEEK => 'DeepSeek',
             self::SOURCEGRAPH => 'Sourcegraph',
         };
-    }
-
-    /**
-     * @return array<string>
-     */
-    public static function values(): array
-    {
-        return array_column(self::cases(), 'value');
     }
 }
