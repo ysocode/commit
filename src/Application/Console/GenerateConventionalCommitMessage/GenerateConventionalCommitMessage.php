@@ -9,13 +9,15 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use YSOCode\Commit\Domain\Enums\AiProvider;
+use YSOCode\Commit\Domain\Enums\Language;
 use YSOCode\Commit\Domain\Types\Error;
 
 final class GenerateConventionalCommitMessage extends Command
 {
     public function __construct(
-        private readonly FetchStagedChangesInterface $fetchStagedChanges,
         private readonly GetDefaultAiProviderInterface $getDefaultAiProviderFromConfig,
+        private readonly GetDefaultLanguageInterface $getDefaultLanguage,
+        private readonly FetchStagedChangesInterface $fetchStagedChanges
     ) {
         parent::__construct();
     }
@@ -47,13 +49,6 @@ final class GenerateConventionalCommitMessage extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $gitDiff = $this->getDiff($input);
-        if ($gitDiff instanceof Error) {
-            $output->writeln("<error>Error: {$gitDiff}</error>");
-
-            return Command::FAILURE;
-        }
-
         $aiProvider = $this->getAiProvider($input);
         if ($aiProvider instanceof Error) {
             $output->writeln("<error>Error: {$aiProvider}</error>");
@@ -61,9 +56,51 @@ final class GenerateConventionalCommitMessage extends Command
             return Command::FAILURE;
         }
 
+        $language = $this->getLanguage($input);
+        if ($language instanceof Error) {
+            $output->writeln("<error>Error: {$language}</error>");
+
+            return Command::FAILURE;
+        }
+
+        $gitDiff = $this->getDiff($input);
+        if ($gitDiff instanceof Error) {
+            $output->writeln("<error>Error: {$gitDiff}</error>");
+
+            return Command::FAILURE;
+        }
+
         $output->writeln('<info>Success: Commit created successfully!</info>');
 
         return Command::SUCCESS;
+    }
+
+    private function getAiProvider(InputInterface $input): AiProvider|Error
+    {
+        $customAiProvider = $input->getOption('provider');
+        if (! is_null($customAiProvider)) {
+            if (! $customAiProvider || ! is_string($customAiProvider)) {
+                return Error::parse('Invalid AI provider provided.');
+            }
+
+            return Aiprovider::parse($customAiProvider);
+        }
+
+        return $this->getDefaultAiProviderFromConfig->execute();
+    }
+
+    private function getLanguage(InputInterface $input): Language|Error
+    {
+        $customLanguage = $input->getOption('lang');
+        if (! is_null($customLanguage)) {
+            if (! $customLanguage || ! is_string($customLanguage)) {
+                return Error::parse('Invalid language provided.');
+            }
+
+            return Language::parse($customLanguage);
+        }
+
+        return $this->getDefaultLanguage->execute();
     }
 
     private function getDiff(InputInterface $input): string|Error
@@ -78,19 +115,5 @@ final class GenerateConventionalCommitMessage extends Command
         }
 
         return $this->fetchStagedChanges->execute();
-    }
-
-    private function getAiProvider(InputInterface $input): AiProvider|Error
-    {
-        $customAiProvider = $input->getOption('provider');
-        if (! is_null($customAiProvider)) {
-            if (! $customAiProvider || ! is_string($customAiProvider)) {
-                return Error::parse('Invalid diff format provided.');
-            }
-
-            return Aiprovider::parse($customAiProvider);
-        }
-
-        return $this->getDefaultAiProviderFromConfig->execute();
     }
 }

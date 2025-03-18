@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 use YSOCode\Commit\Application\Actions\FetchStagedGitChanges;
 use YSOCode\Commit\Application\Actions\GetDefaultAiProviderFromUserConfiguration;
+use YSOCode\Commit\Application\Actions\GetDefaultLanguageFromUserConfiguration;
 use YSOCode\Commit\Application\Console\GenerateConventionalCommitMessage\GenerateConventionalCommitMessage;
 
 class GenerateConventionalCommitMessageTest extends TestCase
@@ -39,8 +40,9 @@ class GenerateConventionalCommitMessageTest extends TestCase
         $this->setUpConsoleConfiguration();
         $this->app->add(
             new GenerateConventionalCommitMessage(
-                new FetchStagedGitChanges,
                 new GetDefaultAiProviderFromUserConfiguration($this->userConfiguration),
+                new GetDefaultLanguageFromUserConfiguration($this->userConfiguration),
+                new FetchStagedGitChanges
             )
         );
     }
@@ -48,6 +50,7 @@ class GenerateConventionalCommitMessageTest extends TestCase
     public function test_it_should_generate_conventional_commit_message_based_on_staged_changes(): void
     {
         $this->userConfiguration->setValue('default_ai_provider', 'sourcegraph');
+        $this->userConfiguration->setValue('default_lang', 'en_US');
 
         $tester = new CommandTester($this->app->find('generate'));
         $tester->execute([
