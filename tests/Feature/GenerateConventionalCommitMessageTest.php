@@ -7,7 +7,7 @@ namespace Tests\Feature;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 use YSOCode\Commit\Application\Actions\FetchStagedGitChanges;
-use YSOCode\Commit\Application\Actions\GetDefaultAiProviderFromLocalConfiguration;
+use YSOCode\Commit\Application\Actions\GetDefaultAiProviderFromUserConfiguration;
 use YSOCode\Commit\Application\Console\GenerateConventionalCommitMessage\GenerateConventionalCommitMessage;
 
 class GenerateConventionalCommitMessageTest extends TestCase
@@ -40,16 +40,20 @@ class GenerateConventionalCommitMessageTest extends TestCase
         $this->app->add(
             new GenerateConventionalCommitMessage(
                 new FetchStagedGitChanges,
-                new GetDefaultAiProviderFromLocalConfiguration($this->localConfiguration),
+                new GetDefaultAiProviderFromUserConfiguration($this->userConfiguration),
             )
         );
     }
 
     public function test_it_should_generate_conventional_commit_message_based_on_staged_changes(): void
     {
+        $this->userConfiguration->setValue('default_ai_provider', 'sourcegraph');
+
         $tester = new CommandTester($this->app->find('generate'));
         $tester->execute([
-
+            '--diff' => $this->diff,
         ]);
+
+        $tester->assertCommandIsSuccessful();
     }
 }
