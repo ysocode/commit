@@ -7,7 +7,7 @@ namespace Tests\Feature;
 use Exception;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
-use YSOCode\Commit\Application\Console\InitializeConfiguration\InitializeConfiguration;
+use YSOCode\Commit\Application\Console\Commands\InitializeConfiguration;
 
 class InitializeConfigurationTest extends TestCase
 {

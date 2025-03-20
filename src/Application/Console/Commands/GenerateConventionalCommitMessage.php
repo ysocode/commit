@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace YSOCode\Commit\Application\Console\GenerateConventionalCommitMessage;
+namespace YSOCode\Commit\Application\Console\Commands;
 
 use Exception;
 use Symfony\Component\Console\Command\Command;
@@ -11,6 +11,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use YSOCode\Commit\Application\Console\Factories\GenerateCommitMessageFactory;
+use YSOCode\Commit\Application\Console\Interfaces\CommitStagedChangesInterface;
+use YSOCode\Commit\Application\Console\Interfaces\FetchStagedChangesInterface;
+use YSOCode\Commit\Application\Console\Interfaces\GetDefaultAiProviderInterface;
+use YSOCode\Commit\Application\Console\Interfaces\GetDefaultLanguageInterface;
 use YSOCode\Commit\Domain\Enums\AiProvider;
 use YSOCode\Commit\Domain\Enums\Language;
 use YSOCode\Commit\Domain\Types\Error;

@@ -25,9 +25,9 @@ use YSOCode\Commit\Application\Actions\CommitGitStagedChanges;
 use YSOCode\Commit\Application\Actions\FetchStagedGitChanges;
 use YSOCode\Commit\Application\Actions\GetDefaultAiProviderFromUserConfiguration;
 use YSOCode\Commit\Application\Actions\GetDefaultLanguageFromUserConfiguration;
-use YSOCode\Commit\Application\Console\GenerateConventionalCommitMessage\GenerateCommitMessageFactory;
-use YSOCode\Commit\Application\Console\GenerateConventionalCommitMessage\GenerateConventionalCommitMessage;
-use YSOCode\Commit\Application\Console\InitializeConfiguration\InitializeConfiguration;
+use YSOCode\Commit\Application\Console\Commands\GenerateConventionalCommitMessage;
+use YSOCode\Commit\Application\Console\Commands\InitializeConfiguration;
+use YSOCode\Commit\Application\Console\Factories\GenerateCommitMessageFactory;
 use YSOCode\Commit\Foundation\Support\Configuration;
 use YSOCode\Commit\Foundation\Support\UserConfiguration;
 

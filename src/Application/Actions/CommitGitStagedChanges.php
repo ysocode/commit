@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace YSOCode\Commit\Application\Actions;
 
 use Symfony\Component\Process\Process;
-use YSOCode\Commit\Application\Console\GenerateConventionalCommitMessage\CommitStagedChangesInterface;
+use YSOCode\Commit\Application\Console\Interfaces\CommitStagedChangesInterface;
 use YSOCode\Commit\Domain\Types\Error;
 
 class CommitGitStagedChanges implements CommitStagedChangesInterface

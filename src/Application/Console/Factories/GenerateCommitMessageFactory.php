@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace YSOCode\Commit\Application\Console\GenerateConventionalCommitMessage;
+namespace YSOCode\Commit\Application\Console\Factories;
 
 use Exception;
 use YSOCode\Commit\Application\Actions\GenerateCommitMessageWithSourcegraph;
+use YSOCode\Commit\Application\Console\Interfaces\GenerateCommitMessageInterface;
 use YSOCode\Commit\Domain\Enums\AiProvider;
 use YSOCode\Commit\Domain\Types\Error;
 use YSOCode\Commit\Foundation\Support\UserConfiguration;

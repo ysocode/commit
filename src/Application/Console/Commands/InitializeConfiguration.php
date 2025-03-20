@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace YSOCode\Commit\Application\Console\InitializeConfiguration;
+namespace YSOCode\Commit\Application\Console\Commands;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
