@@ -81,7 +81,7 @@ class GenerateConventionalCommitMessageTest extends TestCase
         );
     }
 
-    public function test_it_should_use_staged_changes_and_generate_message_when_no_diff_option_provided(): void
+    public function test_it_should_fetch_staged_changes_when_no_diff_option_provided(): void
     {
         $this->mockFetchStagedChanges
             ->expects($this->once())
@@ -179,7 +179,7 @@ class GenerateConventionalCommitMessageTest extends TestCase
         $this->assertStringContainsString('No changes found in the Git diff.', $output);
     }
 
-    public function test_it_should_use_provided_ai_provider_option_instead_of_getting_default_ai_provider(): void
+    public function test_it_should_use_provided_ai_provider_option_instead_of_default(): void
     {
         $this->mockFetchStagedChanges
             ->expects($this->once())
@@ -220,7 +220,7 @@ class GenerateConventionalCommitMessageTest extends TestCase
         $this->assertStringContainsString('Success: No commit made.', $output);
     }
 
-    public function test_it_should_use_provided_language_option_instead_of_getting_default_language(): void
+    public function test_it_should_use_provided_language_option_instead_of_default(): void
     {
         $this->mockFetchStagedChanges
             ->expects($this->once())
