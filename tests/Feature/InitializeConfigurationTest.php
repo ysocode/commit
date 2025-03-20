@@ -17,6 +17,7 @@ class InitializeConfigurationTest extends TestCase
     {
         $this->setUpUserConfiguration();
         $this->setUpSymfonyConsoleApplication();
+
         $this->app->add(new InitializeConfiguration($this->userConfiguration));
     }
 

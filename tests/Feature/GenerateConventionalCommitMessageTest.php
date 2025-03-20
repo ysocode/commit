@@ -7,8 +7,6 @@ namespace Tests\Feature;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
-use YSOCode\Commit\Application\Actions\CommitGitStagedChanges;
-use YSOCode\Commit\Application\Actions\FetchStagedGitChanges;
 use YSOCode\Commit\Application\Actions\GetDefaultAiProviderFromUserConfiguration;
 use YSOCode\Commit\Application\Actions\GetDefaultLanguageFromUserConfiguration;
 use YSOCode\Commit\Application\Console\GenerateConventionalCommitMessage\CommitStagedChangesInterface;
@@ -61,10 +59,10 @@ class GenerateConventionalCommitMessageTest extends TestCase
         $this->userConfiguration->setValue('default_ai_provider', 'sourcegraph');
         $this->userConfiguration->setValue('default_lang', 'en_US');
 
-        $this->mockFetchStagedChanges = $this->createMock(FetchStagedGitChanges::class);
+        $this->mockFetchStagedChanges = $this->createMock(FetchStagedChangesInterface::class);
         $this->mockGenerateCommitMessage = $this->createMock(GenerateCommitMessageInterface::class);
         $mockGenerateCommitMessageFactory = $this->createMock(GenerateCommitMessageFactory::class);
-        $this->mockCommitStagedChanges = $this->createMock(CommitGitStagedChanges::class);
+        $this->mockCommitStagedChanges = $this->createMock(CommitStagedChangesInterface::class);
 
         $mockGenerateCommitMessageFactory
             ->method('create')
@@ -163,7 +161,7 @@ class GenerateConventionalCommitMessageTest extends TestCase
             ->expects($this->once())
             ->method('execute')
             ->willReturn(
-                Error::parse('No changes found in the Git diff.')
+                Error::parse('No staged changes found.')
             );
 
         $this->mockGenerateCommitMessage
@@ -179,7 +177,7 @@ class GenerateConventionalCommitMessageTest extends TestCase
 
         $output = $tester->getDisplay();
 
-        $this->assertStringContainsString('No changes found in the Git diff.', $output);
+        $this->assertStringContainsString('No staged changes found.', $output);
     }
 
     public function test_it_should_use_provided_ai_provider_option_instead_of_default(): void
@@ -260,7 +258,7 @@ class GenerateConventionalCommitMessageTest extends TestCase
         $output = $tester->getDisplay();
 
         $tester->assertCommandIsSuccessful();
-        
+
         $this->assertStringContainsString("Below is the generated commit message [AI: {$aiProvider->formattedValue()} | Lang: {$language->formattedValue()}]:", $output);
         $this->assertStringContainsString($this->expectedCommitMessage, $output);
         $this->assertStringContainsString('Success: No commit made.', $output);
