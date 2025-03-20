@@ -1,0 +1,69 @@
+{
+    "default_ai_provider": "",
+    "default_lang": "en_US",
+    "ai_providers": {
+        "cohere": {
+            "api_key": "",
+            "models": [
+                "command-r7b-12-2024",
+                "command-r-plus-08-2024"
+            ],
+            "default_model": "command-r-plus-08-2024",
+            "enabled": true,
+            "settings": {
+                "temperature": 0.2
+            }
+        },
+        "openai": {
+            "api_key": "",
+            "models": [
+                "gpt-4o",
+                "gpt-4o-mini"
+            ],
+            "default_model": "gpt-4o-mini",
+            "enabled": false,
+            "settings": {
+                "temperature": 0.2
+            }
+        },
+        "deepseek": {
+            "api_key": "",
+            "models": [
+                "deepseek-reasoner",
+                "deepseek-chat"
+            ],
+            "default_model": "deepseek-chat",
+            "enabled": false,
+            "settings": {
+                "temperature": 0.2
+            }
+        },
+        "sourcegraph": {
+            "api_key": "",
+            "models": [
+                "openai/gpt-4o-mini",
+                "anthropic/claude-3.5-sonnet"
+            ],
+            "default_model": "anthropic/claude-3.5-sonnet",
+            "enabled": true,
+            "settings": {
+                "temperature": 0.2
+            }
+        }
+    },
+    "languages": {
+        "en_US": {
+            "name": "English (United States)",
+            "enabled": true
+        },
+        "pt_BR": {
+            "name": "Portuguese (Brazil)",
+            "enabled": true
+        },
+        "es_ES": {
+            "name": "Spanish (Spain)",
+            "enabled": true
+        }
+    },
+    "user_preferences": {}
+}

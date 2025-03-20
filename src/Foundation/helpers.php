@@ -4,6 +4,15 @@ declare(strict_types=1);
 
 use YSOCode\Commit\Foundation\Support\Environment;
 
+if (! function_exists('basePath')) {
+    function basePath(string $path = ''): string
+    {
+        $formattedPath = trim($path, '/');
+
+        return __DIR__."/../../{$formattedPath}";
+    }
+}
+
 if (! function_exists('deleteDirectory')) {
     function deleteDirectory(string $dir): bool
     {

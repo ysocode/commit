@@ -33,7 +33,7 @@ use YSOCode\Commit\Foundation\Support\UserConfiguration;
 
 $userConfiguration = new UserConfiguration(
     new Configuration(
-        __DIR__.'/../config'
+        basePath('config')
     )
 );
 

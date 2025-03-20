@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature;
+namespace Tests\Feature\Console\Commands;
 
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
+use Tests\Feature\Console\Traits\WithConfigurationToolsTrait;
+use Tests\Feature\Console\Traits\WithSymfonyConsoleApplicationTrait;
 use YSOCode\Commit\Application\Actions\GetDefaultAiProviderFromUserConfiguration;
 use YSOCode\Commit\Application\Actions\GetDefaultLanguageFromUserConfiguration;
 use YSOCode\Commit\Application\Console\Commands\GenerateConventionalCommitMessage;

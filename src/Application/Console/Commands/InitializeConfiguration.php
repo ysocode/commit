@@ -73,7 +73,7 @@ class InitializeConfiguration extends Command
             return Error::parse('User configuration file already exists.');
         }
 
-        $stubFile = __DIR__.'/../../../../stubs/config.json.stub';
+        $stubFile = basePath('stubs/config.json.stub');
         if (! file_exists($stubFile)) {
             return Error::parse('Unable to locate user configuration stub file.');
         }
