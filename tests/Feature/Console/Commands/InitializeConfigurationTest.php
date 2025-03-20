@@ -7,8 +7,8 @@ namespace Console\Commands;
 use Exception;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
-use Tests\Feature\Console\Traits\WithConfigurationToolsTrait;
-use Tests\Feature\Console\Traits\WithSymfonyConsoleApplicationTrait;
+use Tests\Feature\Console\Commands\Traits\WithConfigurationToolsTrait;
+use Tests\Feature\Console\Commands\Traits\WithSymfonyConsoleApplicationTrait;
 use YSOCode\Commit\Application\Console\Commands\InitializeConfiguration;
 
 class InitializeConfigurationTest extends TestCase

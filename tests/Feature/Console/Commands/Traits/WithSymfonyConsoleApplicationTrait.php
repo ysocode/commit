@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Console\Traits;
+namespace Tests\Feature\Console\Commands\Traits;
 
 use Symfony\Component\Console\Application;
 
