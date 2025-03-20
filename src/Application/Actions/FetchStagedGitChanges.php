@@ -16,13 +16,13 @@ readonly class FetchStagedGitChanges implements FetchStagedChangesInterface
         $gitDiffProcess->run();
 
         if (! $gitDiffProcess->isSuccessful()) {
-            return Error::parse('Unable to retrieve the Git diff.');
+            return Error::parse('Unable to retrieve the Git staged changes.');
         }
 
         $gitDiff = $gitDiffProcess->getOutput();
 
         if ($gitDiff === '' || $gitDiff === '0') {
-            return Error::parse('No changes found in the Git diff.');
+            return Error::parse('No Git staged changes found.');
         }
 
         return $gitDiff;
