@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace YSOCode\Commit\Application\Actions;
+namespace YSOCode\Commit\Application\Actions\Traits;
 
 use YSOCode\Commit\Domain\Enums\Status;
 
