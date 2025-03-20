@@ -6,7 +6,7 @@ namespace YSOCode\Commit\Foundation\Support;
 
 use YSOCode\Commit\Domain\Types\Error;
 
-final readonly class UserConfiguration
+readonly class UserConfiguration
 {
     public function __construct(private Configuration $configuration) {}
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace YSOCode\Commit\Foundation\Support;
 
-final class Environment
+class Environment
 {
     /** @var array<string, string|int|float|bool|null> */
     private static array $cache = [];

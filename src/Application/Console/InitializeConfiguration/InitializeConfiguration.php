@@ -11,7 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use YSOCode\Commit\Domain\Types\Error;
 use YSOCode\Commit\Foundation\Support\UserConfiguration;
 
-final class InitializeConfiguration extends Command
+class InitializeConfiguration extends Command
 {
     public function __construct(private readonly UserConfiguration $userConfiguration)
     {

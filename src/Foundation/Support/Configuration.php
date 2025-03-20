@@ -7,7 +7,7 @@ namespace YSOCode\Commit\Foundation\Support;
 use InvalidArgumentException;
 use YSOCode\Commit\Domain\Types\Error;
 
-final readonly class Configuration
+readonly class Configuration
 {
     /**
      * @var array<string, mixed>

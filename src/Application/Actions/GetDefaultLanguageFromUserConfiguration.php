@@ -9,7 +9,7 @@ use YSOCode\Commit\Domain\Enums\Language;
 use YSOCode\Commit\Domain\Types\Error;
 use YSOCode\Commit\Foundation\Support\UserConfiguration;
 
-final readonly class GetDefaultLanguageFromUserConfiguration implements GetDefaultLanguageInterface
+readonly class GetDefaultLanguageFromUserConfiguration implements GetDefaultLanguageInterface
 {
     public function __construct(private UserConfiguration $userConfiguration) {}
 

@@ -7,7 +7,7 @@ namespace YSOCode\Commit\Domain\Types;
 use DomainException;
 use Stringable;
 
-final readonly class Error implements Stringable
+readonly class Error implements Stringable
 {
     public function __construct(private string $value) {}
 

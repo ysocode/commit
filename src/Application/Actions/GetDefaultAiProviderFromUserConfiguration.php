@@ -9,7 +9,7 @@ use YSOCode\Commit\Domain\Enums\AiProvider;
 use YSOCode\Commit\Domain\Types\Error;
 use YSOCode\Commit\Foundation\Support\UserConfiguration;
 
-final readonly class GetDefaultAiProviderFromUserConfiguration implements GetDefaultAiProviderInterface
+readonly class GetDefaultAiProviderFromUserConfiguration implements GetDefaultAiProviderInterface
 {
     public function __construct(private UserConfiguration $userConfiguration) {}
 

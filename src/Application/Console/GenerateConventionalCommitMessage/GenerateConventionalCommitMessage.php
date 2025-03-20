@@ -4,20 +4,25 @@ declare(strict_types=1);
 
 namespace YSOCode\Commit\Application\Console\GenerateConventionalCommitMessage;
 
+use Exception;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
 use YSOCode\Commit\Domain\Enums\AiProvider;
 use YSOCode\Commit\Domain\Enums\Language;
 use YSOCode\Commit\Domain\Types\Error;
 
-final class GenerateConventionalCommitMessage extends Command
+class GenerateConventionalCommitMessage extends Command
 {
     public function __construct(
         private readonly GetDefaultAiProviderInterface $getDefaultAiProviderFromConfig,
         private readonly GetDefaultLanguageInterface $getDefaultLanguage,
-        private readonly FetchStagedChangesInterface $fetchStagedChanges
+        private readonly FetchStagedChangesInterface $fetchStagedChanges,
+        private readonly GenerateCommitMessageFactory $generateCommitMessageFactory,
+        private readonly CommitStagedChangesInterface $commitStagedChanges
     ) {
         parent::__construct();
     }
@@ -25,7 +30,7 @@ final class GenerateConventionalCommitMessage extends Command
     protected function configure(): void
     {
         $helperMessage = <<<'HELP'
-        This command automatically generates a Conventional Commit message based on the provided Git staged changes.
+        This command automatically generates a Conventional Commit message based on the provided staged changes.
         It uses AI to analyze the staged changes and create a commit message that adheres to the Conventional Commit standards.
         
         Options:
@@ -40,13 +45,16 @@ final class GenerateConventionalCommitMessage extends Command
         HELP;
 
         $this->setName('generate')
-            ->setDescription('Generate a conventional commit message using AI based on the provided Git staged changes')
+            ->setDescription('Generate a conventional commit message using AI based on the provided staged changes')
             ->setHelp($helperMessage)
             ->addOption('provider', 'p', InputOption::VALUE_REQUIRED, 'AI provider')
             ->addOption('lang', 'l', InputOption::VALUE_REQUIRED, 'Language of the commit message (e.g., en_US, pt_BR)')
-            ->addOption('diff', 'd', InputOption::VALUE_REQUIRED, 'Provide a custom Git diff instead of detecting staged changes');
+            ->addOption('diff', 'd', InputOption::VALUE_REQUIRED, 'Provide a custom diff instead of detecting staged changes');
     }
 
+    /**
+     * @throws Exception
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $aiProvider = $this->getAiProvider($input);
@@ -63,9 +71,73 @@ final class GenerateConventionalCommitMessage extends Command
             return Command::FAILURE;
         }
 
-        $gitDiff = $this->getDiff($input);
-        if ($gitDiff instanceof Error) {
-            $output->writeln("<error>Error: {$gitDiff}</error>");
+        $diff = $this->getDiff($input);
+        if ($diff instanceof Error) {
+            $output->writeln("<error>Error: {$diff}</error>");
+
+            return Command::FAILURE;
+        }
+
+        $prompt = <<<PROMPT
+        Write a commit message for this diff following Conventional Commits specification.
+        ALWAYS wrap the entire commit message between ``` delimiters.
+        Do NOT use scopes. 
+        EACH line must not exceed 72 characters.
+        Write the commit message in {$language->formattedValue()} language without any accents.
+        If there are multiple modifications, write the body using the list format.
+        DO NOT add a period at the end of each list item, as in the following example:
+        ```
+        feat: Add a new feature
+        
+        - Add a new feature
+        - Fix a bug
+        ```
+        PROMPT;
+
+        $generateCommitMessage = $this->generateCommitMessageFactory->create($aiProvider);
+        if ($generateCommitMessage instanceof Error) {
+            $output->writeln("<error>Error: {$generateCommitMessage}</error>");
+
+            return Command::FAILURE;
+        }
+
+        $conventionalCommitMessage = $generateCommitMessage->execute($prompt, $diff);
+        if ($conventionalCommitMessage instanceof Error) {
+            $output->writeln("<error>Error: {$conventionalCommitMessage}</error>");
+
+            return Command::FAILURE;
+        }
+
+        $conventionalCommitMessageFormatted = $this->extractCommitMessage($conventionalCommitMessage);
+        if ($conventionalCommitMessageFormatted instanceof Error) {
+            $output->writeln("<error>Error: {$conventionalCommitMessageFormatted}</error>");
+
+            return Command::FAILURE;
+        }
+
+        $askToConfirmCommitReturn = $this->askToConfirmCommit(
+            $input,
+            $output,
+            $aiProvider,
+            $language,
+            $conventionalCommitMessageFormatted
+        );
+
+        if ($askToConfirmCommitReturn instanceof Error) {
+            $output->writeln("<error>Error: {$askToConfirmCommitReturn}</error>");
+
+            return Command::FAILURE;
+        }
+
+        if (! $askToConfirmCommitReturn) {
+            $output->writeln('<info>Success: No commit made.</info>');
+
+            return Command::SUCCESS;
+        }
+
+        $commitStagedChanges = $this->commitStagedChanges->execute($conventionalCommitMessageFormatted);
+        if ($commitStagedChanges instanceof Error) {
+            $output->writeln("<error>Error: {$commitStagedChanges}</error>");
 
             return Command::FAILURE;
         }
@@ -115,5 +187,54 @@ final class GenerateConventionalCommitMessage extends Command
         }
 
         return $this->fetchStagedChanges->execute();
+    }
+
+    private function askToConfirmCommit(
+        InputInterface $input,
+        OutputInterface $output,
+        AiProvider $aiProvider,
+        Language $language,
+        string $conventionalCommitMessage
+    ): bool|Error {
+        $output->writeln([
+            "<info>Below is the generated commit message [AI: {$aiProvider->formattedValue()} | Lang: {$language->formattedValue()}]:</info>",
+            '',
+            "<fg=yellow>{$conventionalCommitMessage}</fg=yellow>",
+            '',
+        ]);
+
+        $helper = $this->getHelper('question');
+        if (! $helper instanceof QuestionHelper) {
+            return Error::parse('Unable to get the question helper.');
+        }
+
+        $question = new ConfirmationQuestion(
+            '<question>Do you want to create a commit with this message? [Y/n]</question>'
+        );
+
+        $askReturn = $helper->ask($input, $output, $question);
+
+        if (! is_bool($askReturn)) {
+            return Error::parse('Unable to get the answer.');
+        }
+
+        return $askReturn;
+    }
+
+    private function extractCommitMessage(string $commitMessage): string|Error
+    {
+        $pattern = '/```(.*?)```/s';
+
+        if (preg_match($pattern, $commitMessage, $matches)) {
+            $commitMessage = trim($matches[1]);
+
+            if ($commitMessage === '' || $commitMessage === '0') {
+                return Error::parse('Extracted commit message is empty.');
+            }
+
+            return $commitMessage;
+        }
+
+        return Error::parse('Unable to extract commit message.');
     }
 }

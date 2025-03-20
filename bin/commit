@@ -21,9 +21,11 @@ $localInstallPath = __DIR__.'/../vendor/autoload.php';
 require_once file_exists($globalInstallPath) ? $globalInstallPath : $localInstallPath;
 
 use Symfony\Component\Console\Application;
+use YSOCode\Commit\Application\Actions\CommitGitStagedChanges;
 use YSOCode\Commit\Application\Actions\FetchStagedGitChanges;
 use YSOCode\Commit\Application\Actions\GetDefaultAiProviderFromUserConfiguration;
 use YSOCode\Commit\Application\Actions\GetDefaultLanguageFromUserConfiguration;
+use YSOCode\Commit\Application\Console\GenerateConventionalCommitMessage\GenerateCommitMessageFactory;
 use YSOCode\Commit\Application\Console\GenerateConventionalCommitMessage\GenerateConventionalCommitMessage;
 use YSOCode\Commit\Application\Console\InitializeConfiguration\InitializeConfiguration;
 use YSOCode\Commit\Foundation\Support\Configuration;
@@ -41,6 +43,8 @@ $app->add(
         new GetDefaultAiProviderFromUserConfiguration($userConfiguration),
         new GetDefaultLanguageFromUserConfiguration($userConfiguration),
         new FetchStagedGitChanges,
+        new GenerateCommitMessageFactory($userConfiguration),
+        new CommitGitStagedChanges
     )
 );
 
