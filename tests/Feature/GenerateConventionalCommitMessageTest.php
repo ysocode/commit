@@ -103,14 +103,19 @@ class GenerateConventionalCommitMessageTest extends TestCase
 
         $this->mockCommitStagedChanges
             ->expects($this->never())
-            ->method('execute');
+            ->method('execute')
+            ->with(
+                $this->equalTo($this->expectedCommitMessage)
+            );
 
         $tester = new CommandTester($this->app->find('generate'));
         $tester->setInputs(['n']);
         $tester->execute([]);
 
         $output = $tester->getDisplay();
+
         $tester->assertCommandIsSuccessful();
+
         $this->assertStringContainsString($this->expectedCommitMessage, $output);
         $this->assertStringContainsString('Success: No commit made.', $output);
     }
