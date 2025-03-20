@@ -29,7 +29,6 @@ class GenerateConventionalCommitMessageTest extends TestCase
     private CommitStagedChangesInterface $mockCommitStagedChanges;
 
     private string $diff = <<<'DIFF'
-        diff --git a/Example.php b/Example.php
         index 6711592..6108c39 100644
         --- a/Example.php
         +++ b/Example.php
