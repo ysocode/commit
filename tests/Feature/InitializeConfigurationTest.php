@@ -11,11 +11,12 @@ use YSOCode\Commit\Application\Console\InitializeConfiguration\InitializeConfigu
 
 class InitializeConfigurationTest extends TestCase
 {
-    use WithConsoleConfigurationTrait;
+    use WithConfigurationToolsTrait, WithSymfonyConsoleApplicationTrait;
 
     protected function setUp(): void
     {
-        $this->setUpConsoleConfiguration();
+        $this->setUpUserConfiguration();
+        $this->setUpSymfonyConsoleApplication();
         $this->app->add(new InitializeConfiguration($this->userConfiguration));
     }
 

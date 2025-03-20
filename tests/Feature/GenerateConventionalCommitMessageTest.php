@@ -22,7 +22,7 @@ use YSOCode\Commit\Domain\Types\Error;
 
 class GenerateConventionalCommitMessageTest extends TestCase
 {
-    use WithConsoleConfigurationTrait;
+    use WithConfigurationToolsTrait, WithSymfonyConsoleApplicationTrait;
 
     private FetchStagedChangesInterface $mockFetchStagedChanges;
 
@@ -57,7 +57,8 @@ class GenerateConventionalCommitMessageTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->setUpConsoleConfiguration();
+        $this->setUpUserConfiguration();
+        $this->setUpSymfonyConsoleApplication();
 
         $this->userConfiguration->setValue('default_ai_provider', 'sourcegraph');
         $this->userConfiguration->setValue('default_lang', 'en_US');
