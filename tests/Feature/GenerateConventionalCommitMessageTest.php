@@ -28,8 +28,6 @@ class GenerateConventionalCommitMessageTest extends TestCase
 
     private GenerateCommitMessageInterface $mockGenerateCommitMessage;
 
-    private GenerateCommitMessageFactory $mockGenerateCommitMessageFactory;
-
     private CommitStagedChangesInterface $mockCommitStagedChanges;
 
     private string $diff = <<<'DIFF'
@@ -65,10 +63,10 @@ class GenerateConventionalCommitMessageTest extends TestCase
 
         $this->mockFetchStagedChanges = $this->createMock(FetchStagedGitChanges::class);
         $this->mockGenerateCommitMessage = $this->createMock(GenerateCommitMessageInterface::class);
-        $this->mockGenerateCommitMessageFactory = $this->createMock(GenerateCommitMessageFactory::class);
+        $mockGenerateCommitMessageFactory = $this->createMock(GenerateCommitMessageFactory::class);
         $this->mockCommitStagedChanges = $this->createMock(CommitGitStagedChanges::class);
 
-        $this->mockGenerateCommitMessageFactory
+        $mockGenerateCommitMessageFactory
             ->method('create')
             ->willReturn($this->mockGenerateCommitMessage);
 
@@ -77,7 +75,7 @@ class GenerateConventionalCommitMessageTest extends TestCase
                 new GetDefaultAiProviderFromUserConfiguration($this->userConfiguration),
                 new GetDefaultLanguageFromUserConfiguration($this->userConfiguration),
                 $this->mockFetchStagedChanges,
-                $this->mockGenerateCommitMessageFactory,
+                $mockGenerateCommitMessageFactory,
                 $this->mockCommitStagedChanges
             )
         );
