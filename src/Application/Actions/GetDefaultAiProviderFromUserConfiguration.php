@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace YSOCode\Commit\Application\Actions;
 
-use YSOCode\Commit\Application\Console\Interfaces\GetDefaultAiProviderInterface;
+use YSOCode\Commit\Application\Console\Commands\Interfaces\GetDefaultAiProviderInterface;
 use YSOCode\Commit\Domain\Enums\AiProvider;
 use YSOCode\Commit\Domain\Types\Error;
 use YSOCode\Commit\Foundation\Support\UserConfiguration;

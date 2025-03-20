@@ -6,7 +6,7 @@ namespace YSOCode\Commit\Application\Actions;
 
 use Symfony\Component\Process\Process;
 use YSOCode\Commit\Application\Actions\Traits\WithObserverToolsTrait;
-use YSOCode\Commit\Application\Console\Interfaces\GenerateCommitMessageInterface;
+use YSOCode\Commit\Application\Console\Commands\Interfaces\GenerateCommitMessageInterface;
 use YSOCode\Commit\Domain\Enums\Status;
 use YSOCode\Commit\Domain\Types\Error;
 
