@@ -9,7 +9,7 @@ if (! function_exists('basePath')) {
     {
         $formattedPath = trim($path, '/');
 
-        return __DIR__."/../../{$formattedPath}";
+        return dirname(__DIR__, 2).'/'.$formattedPath;
     }
 }
 
