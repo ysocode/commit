@@ -150,7 +150,9 @@ class GenerateConventionalCommitMessageTest extends TestCase
         ]);
 
         $output = $tester->getDisplay();
+
         $tester->assertCommandIsSuccessful();
+
         $this->assertStringContainsString($this->expectedCommitMessage, $output);
         $this->assertStringContainsString('Success: No commit made.', $output);
     }
@@ -176,6 +178,7 @@ class GenerateConventionalCommitMessageTest extends TestCase
         $tester->execute([]);
 
         $output = $tester->getDisplay();
+
         $this->assertStringContainsString('No changes found in the Git diff.', $output);
     }
 
@@ -215,6 +218,7 @@ class GenerateConventionalCommitMessageTest extends TestCase
         $output = $tester->getDisplay();
 
         $tester->assertCommandIsSuccessful();
+
         $this->assertStringContainsString("Below is the generated commit message [AI: {$aiProvider->formattedValue()} | Lang: {$language->formattedValue()}]:", $output);
         $this->assertStringContainsString($this->expectedCommitMessage, $output);
         $this->assertStringContainsString('Success: No commit made.', $output);
@@ -256,6 +260,7 @@ class GenerateConventionalCommitMessageTest extends TestCase
         $output = $tester->getDisplay();
 
         $tester->assertCommandIsSuccessful();
+        
         $this->assertStringContainsString("Below is the generated commit message [AI: {$aiProvider->formattedValue()} | Lang: {$language->formattedValue()}]:", $output);
         $this->assertStringContainsString($this->expectedCommitMessage, $output);
         $this->assertStringContainsString('Success: No commit made.', $output);
