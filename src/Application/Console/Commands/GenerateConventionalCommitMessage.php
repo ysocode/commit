@@ -6,6 +6,7 @@ namespace YSOCode\Commit\Application\Console\Commands;
 
 use Exception;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\ProgressIndicator;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -18,6 +19,7 @@ use YSOCode\Commit\Application\Console\Commands\Interfaces\GetDefaultAiProviderI
 use YSOCode\Commit\Application\Console\Commands\Interfaces\GetDefaultLanguageInterface;
 use YSOCode\Commit\Domain\Enums\AiProvider;
 use YSOCode\Commit\Domain\Enums\Language;
+use YSOCode\Commit\Domain\Enums\Status;
 use YSOCode\Commit\Domain\Types\Error;
 
 class GenerateConventionalCommitMessage extends Command
@@ -100,12 +102,28 @@ class GenerateConventionalCommitMessage extends Command
         ```
         PROMPT;
 
+        $progressIndicator = new ProgressIndicator(
+            $output,
+            'verbose',
+            100,
+            ['⠏', '⠛', '⠹', '⢸', '⣰', '⣤', '⣆', '⡇']
+        );
+
         $generateCommitMessage = $this->generateCommitMessageFactory->create($aiProvider);
         if ($generateCommitMessage instanceof Error) {
             $output->writeln("<error>Error: {$generateCommitMessage}</error>");
 
             return Command::FAILURE;
         }
+
+        $generateCommitMessage->subscribe(function (Status $status) use ($progressIndicator, $aiProvider): void {
+            match ($status) {
+                Status::STARTED => $progressIndicator->start("Processing with {$aiProvider->formattedValue()}..."),
+                Status::RUNNING => $progressIndicator->advance(),
+                Status::FAILED => $progressIndicator->finish('Failed'),
+                Status::FINISHED => $progressIndicator->finish('Finished'),
+            };
+        });
 
         $conventionalCommitMessage = $generateCommitMessage->execute($prompt, $diff);
         if ($conventionalCommitMessage instanceof Error) {

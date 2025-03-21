@@ -18,8 +18,12 @@ class GenerateCommitMessageWithSourcegraph implements GenerateCommitMessageInter
 
     public function execute(string $prompt, string $diff): string|Error
     {
+        $this->notify(Status::STARTED);
+
         $checkCodyInstallationReturn = $this->checkCodyInstallation();
         if ($checkCodyInstallationReturn instanceof Error) {
+            $this->notify(Status::FAILED);
+
             return $checkCodyInstallationReturn;
         }
 
@@ -37,18 +41,24 @@ class GenerateCommitMessageWithSourcegraph implements GenerateCommitMessageInter
 
         while ($codyProcess->isRunning()) {
             $this->notify(Status::RUNNING);
+
+            usleep(100000);
         }
 
-        $codyProcess->wait();
-
         if (! $codyProcess->isSuccessful()) {
+            $this->notify(Status::FAILED);
+
             return Error::parse($codyProcess->getErrorOutput());
         }
 
         $commitMessage = $codyProcess->getOutput();
         if ($commitMessage === '' || $commitMessage === '0') {
+            $this->notify(Status::FAILED);
+
             return Error::parse('Unable to retrieve the commit from diff.');
         }
+
+        $this->notify(Status::FINISHED);
 
         return $commitMessage;
     }

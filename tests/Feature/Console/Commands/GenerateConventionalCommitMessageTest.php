@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Console\Commands;
 
 use PHPUnit\Framework\MockObject\Exception;
+use PHPUnit\Framework\MockObject\Rule\InvocationOrder;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 use Tests\Feature\Console\Commands\Traits\WithConfigurationToolsTrait;
@@ -18,19 +19,32 @@ use YSOCode\Commit\Application\Console\Commands\Interfaces\FetchStagedChangesInt
 use YSOCode\Commit\Application\Console\Commands\Interfaces\GenerateCommitMessageInterface;
 use YSOCode\Commit\Domain\Enums\AiProvider;
 use YSOCode\Commit\Domain\Enums\Language;
+use YSOCode\Commit\Domain\Enums\Status;
 use YSOCode\Commit\Domain\Types\Error;
 
 class GenerateConventionalCommitMessageTest extends TestCase
 {
     use WithConfigurationToolsTrait, WithSymfonyConsoleApplicationTrait;
 
-    private FetchStagedChangesInterface $mockFetchStagedChanges;
+    private readonly FetchStagedChangesInterface $mockFetchStagedChanges;
 
-    private GenerateCommitMessageInterface $mockGenerateCommitMessage;
+    private readonly GenerateCommitMessageInterface $mockGenerateCommitMessage;
 
-    private CommitStagedChangesInterface $mockCommitStagedChanges;
+    private readonly CommitStagedChangesInterface $mockCommitStagedChanges;
 
-    private string $diff = <<<'DIFF'
+    private readonly string $diff;
+
+    private readonly string $expectedCommitMessage;
+
+    /**
+     * @throws Exception
+     */
+    protected function setUp(): void
+    {
+        $this->setUpUserConfiguration();
+        $this->setUpSymfonyConsoleApplication();
+
+        $this->diff = <<<'DIFF'
         index 6711592..6108c39 100644
         --- a/Example.php
         +++ b/Example.php
@@ -47,15 +61,7 @@ class GenerateConventionalCommitMessageTest extends TestCase
          }
         DIFF;
 
-    private string $expectedCommitMessage = 'feat: rename hello world function to hello YSO Code';
-
-    /**
-     * @throws Exception
-     */
-    protected function setUp(): void
-    {
-        $this->setUpUserConfiguration();
-        $this->setUpSymfonyConsoleApplication();
+        $this->expectedCommitMessage = 'feat: rename hello world function to hello YSO Code';
 
         $this->userConfiguration->setValue('default_ai_provider', 'sourcegraph');
         $this->userConfiguration->setValue('default_lang', 'en_US');
@@ -80,12 +86,32 @@ class GenerateConventionalCommitMessageTest extends TestCase
         );
     }
 
+    public function configureObserverTraitMethods(
+        InvocationOrder $subscribeExpectation,
+        InvocationOrder $notifyExpectation
+    ): void {
+        $this->mockGenerateCommitMessage
+            ->expects($subscribeExpectation)
+            ->method('subscribe')
+            ->with($this->isCallable());
+
+        $this->mockGenerateCommitMessage
+            ->expects($notifyExpectation)
+            ->method('notify')
+            ->with($this->isInstanceOf(Status::class));
+    }
+
     public function test_it_should_fetch_staged_changes_when_no_diff_option_provided(): void
     {
         $this->mockFetchStagedChanges
             ->expects($this->once())
             ->method('execute')
             ->willReturn($this->diff);
+
+        $this->configureObserverTraitMethods(
+            $this->once(),
+            $this->never(),
+        );
 
         $this->mockGenerateCommitMessage
             ->expects($this->once())
@@ -124,6 +150,11 @@ class GenerateConventionalCommitMessageTest extends TestCase
         $this->mockFetchStagedChanges
             ->expects($this->never())
             ->method('execute');
+
+        $this->configureObserverTraitMethods(
+            $this->once(),
+            $this->never(),
+        );
 
         $this->mockGenerateCommitMessage
             ->expects($this->once())
@@ -165,6 +196,11 @@ class GenerateConventionalCommitMessageTest extends TestCase
                 Error::parse('No staged changes found.')
             );
 
+        $this->configureObserverTraitMethods(
+            $this->never(),
+            $this->never(),
+        );
+
         $this->mockGenerateCommitMessage
             ->expects($this->never())
             ->method('execute');
@@ -187,6 +223,11 @@ class GenerateConventionalCommitMessageTest extends TestCase
             ->expects($this->once())
             ->method('execute')
             ->willReturn($this->diff);
+
+        $this->configureObserverTraitMethods(
+            $this->once(),
+            $this->never(),
+        );
 
         $this->mockGenerateCommitMessage
             ->expects($this->once())
@@ -229,6 +270,11 @@ class GenerateConventionalCommitMessageTest extends TestCase
             ->expects($this->once())
             ->method('execute')
             ->willReturn($this->diff);
+
+        $this->configureObserverTraitMethods(
+            $this->once(),
+            $this->never(),
+        );
 
         $this->mockGenerateCommitMessage
             ->expects($this->once())
