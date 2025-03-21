@@ -92,10 +92,16 @@ class GenerateConventionalCommitMessage extends Command
         If there are multiple modifications, write the body using the list format.
         DO NOT add a period at the end of each list item, as in the following example:
         ```
-        feat: Add a new feature
+        feat: add a new feature
         
         - Add a new feature
         - Fix a bug
+        ```
+        or
+        ```
+        feat: add a new feature
+        
+        In this commit, we added a new feature to the application.
         ```
         PROMPT;
 
