@@ -40,32 +40,24 @@ readonly class UserConfiguration
         return "{$userConfigurationDirPath}/config.json";
     }
 
-    public function checkUserConfigurationDirExistence(): true|Error
+    public function checkUserConfigurationDirExistence(): bool|Error
     {
         $userConfigurationDirPath = $this->getUserConfigurationDirPath();
         if ($userConfigurationDirPath instanceof Error) {
             return $userConfigurationDirPath;
         }
 
-        if (! is_dir($userConfigurationDirPath)) {
-            return Error::parse('Unable to locate user configuration directory.');
-        }
-
-        return true;
+        return is_dir($userConfigurationDirPath);
     }
 
-    public function checkUserConfigurationFileExistence(): true|Error
+    public function checkUserConfigurationFileExistence(): bool|Error
     {
         $userConfigurationFilePath = $this->getUserConfigurationFilePath();
         if ($userConfigurationFilePath instanceof Error) {
             return $userConfigurationFilePath;
         }
 
-        if (! file_exists($userConfigurationFilePath)) {
-            return Error::parse('Unable to locate user configuration file.');
-        }
-
-        return true;
+        return file_exists($userConfigurationFilePath);
     }
 
     /**

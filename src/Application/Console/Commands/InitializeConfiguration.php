@@ -44,9 +44,9 @@ class InitializeConfiguration extends Command
             return Command::FAILURE;
         }
 
-        $createConfigurationFileReturn = $this->createConfigurationFile($force);
-        if ($createConfigurationFileReturn instanceof Error) {
-            $output->writeln("<error>Error: {$createConfigurationFileReturn}</error>");
+        $createUserConfigurationFileReturn = $this->createUserConfigurationFile($force);
+        if ($createUserConfigurationFileReturn instanceof Error) {
+            $output->writeln("<error>Error: {$createUserConfigurationFileReturn}</error>");
 
             return Command::FAILURE;
         }
@@ -56,9 +56,14 @@ class InitializeConfiguration extends Command
         return Command::SUCCESS;
     }
 
-    private function createConfigurationFile(bool $force = false): true|Error
+    private function createUserConfigurationFile(bool $force = false): true|Error
     {
-        if ($this->userConfiguration->checkUserConfigurationDirExistence() instanceof Error) {
+        $checkUserConfigurationDirExistenceReturn = $this->userConfiguration->checkUserConfigurationDirExistence();
+        if ($checkUserConfigurationDirExistenceReturn instanceof Error) {
+            return $checkUserConfigurationDirExistenceReturn;
+        }
+
+        if (! $checkUserConfigurationDirExistenceReturn) {
             $userConfigurationDirPath = $this->userConfiguration->getUserConfigurationDirPath();
             if ($userConfigurationDirPath instanceof Error) {
                 return $userConfigurationDirPath;
@@ -69,7 +74,12 @@ class InitializeConfiguration extends Command
             }
         }
 
-        if (! $this->userConfiguration->checkUserConfigurationFileExistence() instanceof Error && ! $force) {
+        $checkUserConfigurationFileExistenceReturn = $this->userConfiguration->checkUserConfigurationFileExistence();
+        if ($checkUserConfigurationFileExistenceReturn instanceof Error) {
+            return $checkUserConfigurationFileExistenceReturn;
+        }
+
+        if ($checkUserConfigurationFileExistenceReturn && ! $force) {
             return Error::parse('User configuration file already exists.');
         }
 
