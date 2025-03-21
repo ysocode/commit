@@ -89,19 +89,14 @@ class GenerateConventionalCommitMessage extends Command
         Do NOT use scopes. 
         EACH line must not exceed 72 characters.
         Write the commit message in {$language->formattedValue()} language without any accents.
-        If there are multiple modifications, write the body using the list format.
-        DO NOT add a period at the end of each list item, as in the following example:
+        If there are multiple modifications in different contexts, write the body using a list format.
+        Otherwise, use a regular paragraph format that ends with a period.
+        If the body is a list, DO NOT add a period at the end of each list item, as in the following example:
         ```
         feat: add a new feature
         
         - Add a new feature
         - Fix a bug
-        ```
-        or
-        ```
-        feat: add a new feature
-        
-        In this commit, we added a new feature to the application.
         ```
         PROMPT;
 
