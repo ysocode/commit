@@ -15,31 +15,26 @@ class InitializeConfigurationTest extends TestCase
 {
     use WithConfigurationToolsTrait, WithSymfonyConsoleApplicationTrait;
 
+    /**
+     * @throws Exception
+     */
     protected function setUp(): void
     {
         $this->setUpUserConfiguration();
+
+        self::createUserConfigurationFile();
+
         $this->setUpSymfonyConsoleApplication();
 
-        $this->app->add(new InitializeConfiguration($this->userConfiguration));
+        $this->app->add(new InitializeConfiguration(self::$userConfiguration));
     }
 
     /**
      * @throws Exception
      */
-    private function removeConfigurationDir(): void
+    public static function tearDownAfterClass(): void
     {
-        deleteDirectory($this->userConfiguration->getUserConfigurationDirPath());
-    }
-
-    private function createConfigurationFile(): void
-    {
-        $configDir = $this->userConfiguration->getUserConfigurationDirPath();
-
-        if (! is_dir($configDir)) {
-            mkdir($configDir, 0755, true);
-        }
-
-        touch($this->userConfiguration->getUserConfigurationFilePath());
+        self::removeUserConfigurationDir();
     }
 
     /**
@@ -47,7 +42,7 @@ class InitializeConfigurationTest extends TestCase
      */
     public function test_it_should_create_configuration_file_when_not_exists(): void
     {
-        $this->removeConfigurationDir();
+        self::removeUserConfigurationDir();
 
         $tester = new CommandTester($this->app->find('init'));
         $tester->execute([]);
@@ -56,10 +51,11 @@ class InitializeConfigurationTest extends TestCase
         $this->assertStringContainsString('Success: Configuration initialized!', $tester->getDisplay());
     }
 
+    /**
+     * @throws Exception
+     */
     public function test_it_should_create_configuration_file_when_exists_with_force_option(): void
     {
-        $this->createConfigurationFile();
-
         $tester = new CommandTester($this->app->find('init'));
         $tester->execute(['--force' => true]);
 
@@ -67,10 +63,11 @@ class InitializeConfigurationTest extends TestCase
         $this->assertStringContainsString('Success: Configuration initialized!', $tester->getDisplay());
     }
 
+    /**
+     * @throws Exception
+     */
     public function test_it_should_not_create_configuration_file_when_exists_without_force_option(): void
     {
-        $this->createConfigurationFile();
-
         $tester = new CommandTester($this->app->find('init'));
         $tester->execute([]);
 

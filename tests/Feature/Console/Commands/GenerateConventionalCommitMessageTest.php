@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Console\Commands;
 
-use PHPUnit\Framework\MockObject\Exception;
+use Exception;
+use PHPUnit\Framework\MockObject\Exception as PHPUnitMockObjectException;
 use PHPUnit\Framework\MockObject\Rule\InvocationOrder;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -37,11 +38,16 @@ class GenerateConventionalCommitMessageTest extends TestCase
     private readonly string $expectedCommitMessage;
 
     /**
+     * @throws PHPUnitMockObjectException
      * @throws Exception
      */
     protected function setUp(): void
     {
         $this->setUpUserConfiguration();
+
+        self::removeUserConfigurationDir();
+        self::createUserConfigurationFile();
+
         $this->setUpSymfonyConsoleApplication();
 
         $this->diff = <<<'DIFF'
@@ -63,8 +69,8 @@ class GenerateConventionalCommitMessageTest extends TestCase
 
         $this->expectedCommitMessage = 'feat: rename hello world function to hello YSO Code';
 
-        $this->userConfiguration->setValue('default_ai_provider', 'sourcegraph');
-        $this->userConfiguration->setValue('default_lang', 'en_US');
+        self::$userConfiguration->setValue('default_ai_provider', 'sourcegraph');
+        self::$userConfiguration->setValue('default_lang', 'en_US');
 
         $this->mockFetchStagedChanges = $this->createMock(FetchStagedChangesInterface::class);
         $this->mockGenerateCommitMessage = $this->createMock(GenerateCommitMessageInterface::class);
@@ -77,13 +83,21 @@ class GenerateConventionalCommitMessageTest extends TestCase
 
         $this->app->add(
             new GenerateConventionalCommitMessage(
-                new GetDefaultAiProviderFromUserConfiguration($this->userConfiguration),
-                new GetDefaultLanguageFromUserConfiguration($this->userConfiguration),
+                new GetDefaultAiProviderFromUserConfiguration(self::$userConfiguration),
+                new GetDefaultLanguageFromUserConfiguration(self::$userConfiguration),
                 $this->mockFetchStagedChanges,
                 $mockGenerateCommitMessageFactory,
                 $this->mockCommitStagedChanges
             )
         );
+    }
+
+    /**
+     * @throws Exception
+     */
+    public static function tearDownAfterClass(): void
+    {
+        self::removeUserConfigurationDir();
     }
 
     public function configureObserverTraitMethods(
@@ -247,7 +261,7 @@ class GenerateConventionalCommitMessageTest extends TestCase
             ->method('execute');
 
         $aiProvider = AiProvider::SOURCEGRAPH;
-        $language = Language::parse($this->userConfiguration->getValue('default_lang'));
+        $language = Language::parse(self::$userConfiguration->getValue('default_lang'));
 
         $tester = new CommandTester($this->app->find('generate'));
         $tester->setInputs(['n']);
@@ -293,7 +307,7 @@ class GenerateConventionalCommitMessageTest extends TestCase
             ->expects($this->never())
             ->method('execute');
 
-        $aiProvider = AiProvider::parse($this->userConfiguration->getValue('default_ai_provider'));
+        $aiProvider = AiProvider::parse(self::$userConfiguration->getValue('default_ai_provider'));
         $language = Language::PT_BR;
 
         $tester = new CommandTester($this->app->find('generate'));
