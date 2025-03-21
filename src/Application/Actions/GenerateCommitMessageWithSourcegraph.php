@@ -42,7 +42,7 @@ class GenerateCommitMessageWithSourcegraph implements GenerateCommitMessageInter
         $codyProcess->wait();
 
         if (! $codyProcess->isSuccessful()) {
-            return Error::parse('Unable to retrieve the commit from diff.');
+            return Error::parse($codyProcess->getErrorOutput());
         }
 
         $commitMessage = $codyProcess->getOutput();
