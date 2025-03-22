@@ -189,7 +189,7 @@ class GenerateConventionalCommitMessageTest extends TestCase
         $tester = new CommandTester($this->app->find('generate'));
         $tester->setInputs(['n']);
         $tester->execute([
-            '--diff' => $this->diff,
+            'diff' => $this->diff,
         ]);
 
         $output = $tester->getDisplay();

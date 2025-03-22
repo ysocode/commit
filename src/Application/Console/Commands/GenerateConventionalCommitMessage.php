@@ -8,6 +8,7 @@ use Exception;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressIndicator;
 use Symfony\Component\Console\Helper\QuestionHelper;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -40,6 +41,9 @@ class GenerateConventionalCommitMessage extends Command
         This command automatically generates a Conventional Commit message based on the provided staged changes.
         It uses AI to analyze the staged changes and create a commit message that adheres to the Conventional Commit standards.
         
+        Arguments:
+            diff          Provide a custom diff instead of detecting staged changes
+        
         Options:
             --provider    Specify which AI provider to use
             --lang        Language of the commit message
@@ -48,15 +52,15 @@ class GenerateConventionalCommitMessage extends Command
             commit generate
             commit generate --provider=sourcegraph
             commit generate --lang=pt_BR
-            commit generate --provider=sourcegraph --lang=en_US
+            commit generate "your custom diff"
         HELP;
 
         $this->setName('generate')
             ->setDescription('Generate a conventional commit message using AI based on the provided staged changes')
             ->setHelp($helperMessage)
+            ->addArgument('diff', InputArgument::OPTIONAL, 'Provide a custom diff instead of detecting staged changes')
             ->addOption('provider', 'p', InputOption::VALUE_REQUIRED, 'AI provider')
-            ->addOption('lang', 'l', InputOption::VALUE_REQUIRED, 'Language of the commit message (e.g., en_US, pt_BR)')
-            ->addOption('diff', 'd', InputOption::VALUE_REQUIRED, 'Provide a custom diff instead of detecting staged changes');
+            ->addOption('lang', 'l', InputOption::VALUE_REQUIRED, 'Language of the commit message (e.g., en_US, pt_BR)');
     }
 
     /**
@@ -205,7 +209,7 @@ class GenerateConventionalCommitMessage extends Command
 
     private function getDiff(InputInterface $input): string|Error
     {
-        $customDiff = $input->getOption('diff');
+        $customDiff = $input->getArgument('diff');
         if (! is_null($customDiff)) {
             if (! $customDiff || ! is_string($customDiff)) {
                 return Error::parse('Invalid diff format provided.');
