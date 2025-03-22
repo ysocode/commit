@@ -102,19 +102,19 @@ class GenerateConventionalCommitMessage extends Command
         ```
         PROMPT;
 
-        $progressIndicator = new ProgressIndicator(
-            $output,
-            'verbose',
-            100,
-            ['⠏', '⠛', '⠹', '⢸', '⣰', '⣤', '⣆', '⡇']
-        );
-
         $generateCommitMessage = $this->generateCommitMessageFactory->create($aiProvider);
         if ($generateCommitMessage instanceof Error) {
             $output->writeln("<error>Error: {$generateCommitMessage}</error>");
 
             return Command::FAILURE;
         }
+
+        $progressIndicator = new ProgressIndicator(
+            $output,
+            'verbose',
+            100,
+            ['⠏', '⠛', '⠹', '⢸', '⣰', '⣤', '⣆', '⡇']
+        );
 
         $generateCommitMessage->subscribe(function (Status $status) use ($progressIndicator, $aiProvider): void {
             match ($status) {
