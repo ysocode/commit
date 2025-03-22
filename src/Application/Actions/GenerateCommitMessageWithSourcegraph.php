@@ -5,60 +5,57 @@ declare(strict_types=1);
 namespace YSOCode\Commit\Application\Actions;
 
 use Symfony\Component\Process\Process;
-use YSOCode\Commit\Application\Actions\Traits\WithObserverToolsTrait;
-use YSOCode\Commit\Application\Console\Commands\Interfaces\GenerateCommitMessageInterface;
-use YSOCode\Commit\Domain\Enums\Status;
+use YSOCode\Commit\Application\Console\Commands\Abstracts\GenerateCommitMessageAbstract;
+use YSOCode\Commit\Domain\Enums\AiProvider;
 use YSOCode\Commit\Domain\Types\Error;
+use YSOCode\Commit\Foundation\Support\UserConfiguration;
 
-class GenerateCommitMessageWithSourcegraph implements GenerateCommitMessageInterface
+class GenerateCommitMessageWithSourcegraph extends GenerateCommitMessageAbstract
 {
-    use WithObserverToolsTrait;
+    public function __construct(
+        UserConfiguration $userConfiguration,
+        string $prompt,
+        string $diff
+    ) {
+        parent::__construct(
+            AiProvider::SOURCEGRAPH,
+            $userConfiguration,
+            $prompt,
+            $diff
+        );
+    }
 
-    public function __construct(private readonly string $apiKey) {}
-
-    public function execute(string $prompt, string $diff): string|Error
+    protected function generateCommitMessage(string $apiKey): string|Error
     {
-        $this->notify(Status::STARTED);
-
         $checkCodyInstallationReturn = $this->checkCodyInstallation();
         if ($checkCodyInstallationReturn instanceof Error) {
-            $this->notify(Status::FAILED);
-
             return $checkCodyInstallationReturn;
         }
 
         $codyProcess = new Process(
-            ['cody', 'chat', '--stdin', '-m', $prompt],
+            ['cody', 'chat', '--stdin', '-m', $this->prompt],
             null,
             [
                 'SRC_ENDPOINT' => 'https://sourcegraph.com',
-                'SRC_ACCESS_TOKEN' => $this->apiKey,
+                'SRC_ACCESS_TOKEN' => $apiKey,
             ],
-            $diff
+            $this->diff
         );
 
         $codyProcess->start();
 
         while ($codyProcess->isRunning()) {
-            $this->notify(Status::RUNNING);
-
-            usleep(100000);
+            $this->notifyRunningStatus();
         }
 
         if (! $codyProcess->isSuccessful()) {
-            $this->notify(Status::FAILED);
-
             return Error::parse($codyProcess->getErrorOutput());
         }
 
         $commitMessage = $codyProcess->getOutput();
         if ($commitMessage === '' || $commitMessage === '0') {
-            $this->notify(Status::FAILED);
-
             return Error::parse('Unable to retrieve the commit from diff.');
         }
-
-        $this->notify(Status::FINISHED);
 
         return $commitMessage;
     }

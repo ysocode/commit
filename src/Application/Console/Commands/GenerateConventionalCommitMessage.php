@@ -45,10 +45,10 @@ class GenerateConventionalCommitMessage extends Command
             --lang        Language of the commit message
         
         Examples:
-            commit
-            commit --provider=openai
-            commit --lang=pt_BR
-            commit --provider=openai --lang=en_US
+            commit generate
+            commit generate --provider=sourcegraph
+            commit generate --lang=pt_BR
+            commit generate --provider=sourcegraph --lang=en_US
         HELP;
 
         $this->setName('generate')
@@ -102,7 +102,11 @@ class GenerateConventionalCommitMessage extends Command
         ```
         PROMPT;
 
-        $generateCommitMessage = $this->generateCommitMessageFactory->create($aiProvider);
+        $generateCommitMessage = $this->generateCommitMessageFactory->create(
+            $aiProvider,
+            $prompt,
+            $diff
+        );
         if ($generateCommitMessage instanceof Error) {
             $output->writeln("<error>Error: {$generateCommitMessage}</error>");
 
@@ -125,7 +129,7 @@ class GenerateConventionalCommitMessage extends Command
             };
         });
 
-        $conventionalCommitMessage = $generateCommitMessage->execute($prompt, $diff);
+        $conventionalCommitMessage = $generateCommitMessage->execute();
         if ($conventionalCommitMessage instanceof Error) {
             $output->writeln("<error>Error: {$conventionalCommitMessage}</error>");
 

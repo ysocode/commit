@@ -13,14 +13,13 @@ use Tests\Feature\Console\Commands\Traits\WithConfigurationToolsTrait;
 use Tests\Feature\Console\Commands\Traits\WithSymfonyConsoleApplicationTrait;
 use YSOCode\Commit\Application\Actions\GetDefaultAiProviderFromUserConfiguration;
 use YSOCode\Commit\Application\Actions\GetDefaultLanguageFromUserConfiguration;
+use YSOCode\Commit\Application\Console\Commands\Abstracts\GenerateCommitMessageAbstract;
 use YSOCode\Commit\Application\Console\Commands\Factories\GenerateCommitMessageFactory;
 use YSOCode\Commit\Application\Console\Commands\GenerateConventionalCommitMessage;
 use YSOCode\Commit\Application\Console\Commands\Interfaces\CommitStagedChangesInterface;
 use YSOCode\Commit\Application\Console\Commands\Interfaces\FetchStagedChangesInterface;
-use YSOCode\Commit\Application\Console\Commands\Interfaces\GenerateCommitMessageInterface;
 use YSOCode\Commit\Domain\Enums\AiProvider;
 use YSOCode\Commit\Domain\Enums\Language;
-use YSOCode\Commit\Domain\Enums\Status;
 use YSOCode\Commit\Domain\Types\Error;
 
 class GenerateConventionalCommitMessageTest extends TestCase
@@ -29,7 +28,9 @@ class GenerateConventionalCommitMessageTest extends TestCase
 
     private readonly FetchStagedChangesInterface $mockFetchStagedChanges;
 
-    private readonly GenerateCommitMessageInterface $mockGenerateCommitMessage;
+    private readonly GenerateCommitMessageAbstract $mockGenerateCommitMessage;
+
+    private readonly GenerateCommitMessageFactory $mockGenerateCommitMessageFactory;
 
     private readonly CommitStagedChangesInterface $mockCommitStagedChanges;
 
@@ -73,20 +74,18 @@ class GenerateConventionalCommitMessageTest extends TestCase
         self::$userConfiguration->setValue('default_lang', 'en_US');
 
         $this->mockFetchStagedChanges = $this->createMock(FetchStagedChangesInterface::class);
-        $this->mockGenerateCommitMessage = $this->createMock(GenerateCommitMessageInterface::class);
-        $mockGenerateCommitMessageFactory = $this->createMock(GenerateCommitMessageFactory::class);
-        $this->mockCommitStagedChanges = $this->createMock(CommitStagedChangesInterface::class);
 
-        $mockGenerateCommitMessageFactory
-            ->method('create')
-            ->willReturn($this->mockGenerateCommitMessage);
+        $this->mockGenerateCommitMessage = $this->createMock(GenerateCommitMessageAbstract::class);
+        $this->mockGenerateCommitMessageFactory = $this->createMock(GenerateCommitMessageFactory::class);
+
+        $this->mockCommitStagedChanges = $this->createMock(CommitStagedChangesInterface::class);
 
         $this->app->add(
             new GenerateConventionalCommitMessage(
                 new GetDefaultAiProviderFromUserConfiguration(self::$userConfiguration),
                 new GetDefaultLanguageFromUserConfiguration(self::$userConfiguration),
                 $this->mockFetchStagedChanges,
-                $mockGenerateCommitMessageFactory,
+                $this->mockGenerateCommitMessageFactory,
                 $this->mockCommitStagedChanges
             )
         );
@@ -100,9 +99,9 @@ class GenerateConventionalCommitMessageTest extends TestCase
         self::removeUserConfigurationDir();
     }
 
-    public function configureObserverTraitMethods(
+    public function configureMockGenerateCommitMessage(
         InvocationOrder $subscribeExpectation,
-        InvocationOrder $notifyExpectation
+        InvocationOrder $createExpectation
     ): void {
         $this->mockGenerateCommitMessage
             ->expects($subscribeExpectation)
@@ -110,9 +109,27 @@ class GenerateConventionalCommitMessageTest extends TestCase
             ->with($this->isCallable());
 
         $this->mockGenerateCommitMessage
-            ->expects($notifyExpectation)
-            ->method('notify')
-            ->with($this->isInstanceOf(Status::class));
+            ->expects($createExpectation)
+            ->method('execute')
+            ->willReturn(<<<COMMIT_MESSAGE
+            ```
+            $this->expectedCommitMessage
+            ```
+            COMMIT_MESSAGE);
+    }
+
+    public function configureMockGenerateCommitMessageFactory(
+        InvocationOrder $createExpectation
+    ): void {
+        $this->mockGenerateCommitMessageFactory
+            ->expects($createExpectation)
+            ->method('create')
+            ->with(
+                $this->isInstanceOf(AiProvider::class),
+                $this->isString(),
+                $this->isString(),
+            )
+            ->willReturn($this->mockGenerateCommitMessage);
     }
 
     public function test_it_should_fetch_staged_changes_when_no_diff_option_provided(): void
@@ -122,23 +139,14 @@ class GenerateConventionalCommitMessageTest extends TestCase
             ->method('execute')
             ->willReturn($this->diff);
 
-        $this->configureObserverTraitMethods(
+        $this->configureMockGenerateCommitMessage(
             $this->once(),
-            $this->never(),
+            $this->once()
         );
 
-        $this->mockGenerateCommitMessage
-            ->expects($this->once())
-            ->method('execute')
-            ->with(
-                $this->isString(),
-                $this->equalTo($this->diff)
-            )
-            ->willReturn(<<<COMMIT_MESSAGE
-            ```
-            $this->expectedCommitMessage
-            ```
-            COMMIT_MESSAGE);
+        $this->configureMockGenerateCommitMessageFactory(
+            $this->once()
+        );
 
         $this->mockCommitStagedChanges
             ->expects($this->never())
@@ -165,23 +173,14 @@ class GenerateConventionalCommitMessageTest extends TestCase
             ->expects($this->never())
             ->method('execute');
 
-        $this->configureObserverTraitMethods(
+        $this->configureMockGenerateCommitMessage(
             $this->once(),
-            $this->never(),
+            $this->once()
         );
 
-        $this->mockGenerateCommitMessage
-            ->expects($this->once())
-            ->method('execute')
-            ->with(
-                $this->isString(),
-                $this->equalTo($this->diff)
-            )
-            ->willReturn(<<<COMMIT_MESSAGE
-            ```
-            $this->expectedCommitMessage
-            ```
-            COMMIT_MESSAGE);
+        $this->configureMockGenerateCommitMessageFactory(
+            $this->once()
+        );
 
         $this->mockCommitStagedChanges
             ->expects($this->never())
@@ -210,14 +209,14 @@ class GenerateConventionalCommitMessageTest extends TestCase
                 Error::parse('No staged changes found.')
             );
 
-        $this->configureObserverTraitMethods(
+        $this->configureMockGenerateCommitMessage(
             $this->never(),
-            $this->never(),
+            $this->never()
         );
 
-        $this->mockGenerateCommitMessage
-            ->expects($this->never())
-            ->method('execute');
+        $this->configureMockGenerateCommitMessageFactory(
+            $this->never()
+        );
 
         $this->mockCommitStagedChanges
             ->expects($this->never())
@@ -238,23 +237,14 @@ class GenerateConventionalCommitMessageTest extends TestCase
             ->method('execute')
             ->willReturn($this->diff);
 
-        $this->configureObserverTraitMethods(
+        $this->configureMockGenerateCommitMessage(
             $this->once(),
-            $this->never(),
+            $this->once()
         );
 
-        $this->mockGenerateCommitMessage
-            ->expects($this->once())
-            ->method('execute')
-            ->with(
-                $this->isString(),
-                $this->equalTo($this->diff)
-            )
-            ->willReturn(<<<COMMIT_MESSAGE
-            ```
-            $this->expectedCommitMessage
-            ```
-            COMMIT_MESSAGE);
+        $this->configureMockGenerateCommitMessageFactory(
+            $this->once()
+        );
 
         $this->mockCommitStagedChanges
             ->expects($this->never())
@@ -285,23 +275,14 @@ class GenerateConventionalCommitMessageTest extends TestCase
             ->method('execute')
             ->willReturn($this->diff);
 
-        $this->configureObserverTraitMethods(
+        $this->configureMockGenerateCommitMessage(
             $this->once(),
-            $this->never(),
+            $this->once()
         );
 
-        $this->mockGenerateCommitMessage
-            ->expects($this->once())
-            ->method('execute')
-            ->with(
-                $this->isString(),
-                $this->equalTo($this->diff)
-            )
-            ->willReturn(<<<COMMIT_MESSAGE
-            ```
-            $this->expectedCommitMessage
-            ```
-            COMMIT_MESSAGE);
+        $this->configureMockGenerateCommitMessageFactory(
+            $this->once()
+        );
 
         $this->mockCommitStagedChanges
             ->expects($this->never())

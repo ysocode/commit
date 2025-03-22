@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace YSOCode\Commit\Application\Actions\Traits;
+namespace YSOCode\Commit\Application\Console\Commands\Traits;
 
 use Closure;
 use YSOCode\Commit\Domain\Enums\Status;
@@ -10,14 +10,14 @@ use YSOCode\Commit\Domain\Enums\Status;
 trait WithObserverToolsTrait
 {
     /** @var array<Closure> */
-    private array $observers = [];
+    protected array $observers = [];
 
     public function subscribe(Closure $observer): void
     {
         $this->observers[] = $observer;
     }
 
-    public function notify(Status $status): void
+    protected function notify(Status $status): void
     {
         foreach ($this->observers as $observer) {
             $observer($status);
