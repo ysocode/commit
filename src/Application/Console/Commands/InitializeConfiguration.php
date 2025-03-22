@@ -39,7 +39,7 @@ class InitializeConfiguration extends Command
     {
         $force = $input->getOption('force');
         if (! is_bool($force)) {
-            $output->writeln('<error>Error: Invalid force type provided.</error>');
+            $output->writeln('<error>Error: Invalid "--force" option provided.</error>');
 
             return Command::FAILURE;
         }
