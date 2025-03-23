@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Console\Commands;
+namespace Tests\Feature\Console\Commands;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
