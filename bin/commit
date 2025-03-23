@@ -25,9 +25,11 @@ use YSOCode\Commit\Application\Actions\CommitGitStagedChanges;
 use YSOCode\Commit\Application\Actions\FetchStagedGitChanges;
 use YSOCode\Commit\Application\Actions\GetDefaultAiProviderFromUserConfiguration;
 use YSOCode\Commit\Application\Actions\GetDefaultLanguageFromUserConfiguration;
+use YSOCode\Commit\Application\Actions\SetDefaultAiProviderInUserConfiguration;
 use YSOCode\Commit\Application\Console\Commands\Factories\GenerateCommitMessageFactory;
 use YSOCode\Commit\Application\Console\Commands\GenerateConventionalCommitMessage;
 use YSOCode\Commit\Application\Console\Commands\InitializeConfiguration;
+use YSOCode\Commit\Application\Console\Commands\ManageDefaultAiProvider;
 use YSOCode\Commit\Foundation\Support\Configuration;
 use YSOCode\Commit\Foundation\Support\UserConfiguration;
 
@@ -50,6 +52,13 @@ $app->add(
 
 $app->add(
     new InitializeConfiguration($userConfiguration)
+);
+
+$app->add(
+    new ManageDefaultAiProvider(
+        new GetDefaultAiProviderFromUserConfiguration($userConfiguration),
+        new SetDefaultAiProviderInUserConfiguration($userConfiguration),
+    )
 );
 
 $app->run();

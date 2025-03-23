@@ -26,7 +26,7 @@ use YSOCode\Commit\Domain\Types\Error;
 class GenerateConventionalCommitMessage extends Command
 {
     public function __construct(
-        private readonly GetDefaultAiProviderInterface $getDefaultAiProviderFromConfig,
+        private readonly GetDefaultAiProviderInterface $getDefaultAiProvider,
         private readonly GetDefaultLanguageInterface $getDefaultLanguage,
         private readonly FetchStagedChangesInterface $fetchStagedChanges,
         private readonly GenerateCommitMessageFactory $generateCommitMessageFactory,
@@ -190,7 +190,7 @@ class GenerateConventionalCommitMessage extends Command
             return Aiprovider::parse($customAiProvider);
         }
 
-        return $this->getDefaultAiProviderFromConfig->execute();
+        return $this->getDefaultAiProvider->execute();
     }
 
     private function getLanguage(InputInterface $input): Language|Error
@@ -245,7 +245,6 @@ class GenerateConventionalCommitMessage extends Command
         );
 
         $askReturn = $helper->ask($input, $output, $question);
-
         if (! is_bool($askReturn)) {
             return Error::parse('Unable to get the answer.');
         }
