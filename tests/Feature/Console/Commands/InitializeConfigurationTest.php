@@ -20,7 +20,7 @@ class InitializeConfigurationTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->setUpUserConfiguration();
+        self::setUpUserConfiguration();
 
         self::createUserConfigurationFile();
 

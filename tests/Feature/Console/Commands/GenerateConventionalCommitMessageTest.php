@@ -44,7 +44,7 @@ class GenerateConventionalCommitMessageTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->setUpUserConfiguration();
+        self::setUpUserConfiguration();
 
         self::removeUserConfigurationDir();
         self::createUserConfigurationFile();
