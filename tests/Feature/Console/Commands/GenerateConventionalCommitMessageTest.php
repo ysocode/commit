@@ -227,6 +227,11 @@ class GenerateConventionalCommitMessageTest extends TestCase
 
         $output = $tester->getDisplay();
 
+        $this->assertEquals(
+            1,
+            $tester->getStatusCode()
+        );
+
         $this->assertStringContainsString('No staged changes found.', $output);
     }
 
