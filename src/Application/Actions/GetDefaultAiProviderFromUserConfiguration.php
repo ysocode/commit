@@ -16,7 +16,6 @@ readonly class GetDefaultAiProviderFromUserConfiguration implements GetDefaultAi
     public function execute(): AiProvider|Error
     {
         $aiProvider = $this->userConfiguration->getValue('default_ai_provider');
-
         if (! $aiProvider || ! is_string($aiProvider)) {
             return Error::parse('Unable to get default AI provider.');
         }
