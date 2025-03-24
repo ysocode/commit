@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace YSOCode\Commit\Domain\Enums;
 
+use YSOCode\Commit\Domain\Enums\Traits\WithValueToolsTrait;
 use YSOCode\Commit\Domain\Types\Error;
 
 enum Language: string implements EnumInterface
