@@ -22,6 +22,7 @@ require_once file_exists($globalInstallPath) ? $globalInstallPath : $localInstal
 
 use Symfony\Component\Console\Application;
 use YSOCode\Commit\Application\Actions\CommitGitStagedChanges;
+use YSOCode\Commit\Application\Actions\FetchEnabledAiProvidersInUserConfiguration;
 use YSOCode\Commit\Application\Actions\FetchStagedGitChanges;
 use YSOCode\Commit\Application\Actions\GetDefaultAiProviderFromUserConfiguration;
 use YSOCode\Commit\Application\Actions\GetDefaultLanguageFromUserConfiguration;
@@ -58,6 +59,7 @@ $app->add(
     new ManageDefaultAiProvider(
         new GetDefaultAiProviderFromUserConfiguration($userConfiguration),
         new SetDefaultAiProviderInUserConfiguration($userConfiguration),
+        new FetchEnabledAiProvidersInUserConfiguration($userConfiguration)
     )
 );
 

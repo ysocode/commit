@@ -11,6 +11,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
+use YSOCode\Commit\Application\Console\Commands\Interfaces\FetchEnabledAiProvidersInterface;
 use YSOCode\Commit\Application\Console\Commands\Interfaces\GetDefaultAiProviderInterface;
 use YSOCode\Commit\Application\Console\Commands\Interfaces\SetDefaultAiProviderInterface;
 use YSOCode\Commit\Domain\Enums\AiProvider;
@@ -20,7 +21,8 @@ class ManageDefaultAiProvider extends Command
 {
     public function __construct(
         private readonly GetDefaultAiProviderInterface $getDefaultAiProvider,
-        private readonly SetDefaultAiProviderInterface $setDefaultAiProvider
+        private readonly SetDefaultAiProviderInterface $setDefaultAiProvider,
+        private readonly FetchEnabledAiProvidersInterface $fetchEnabledAiProviders
     ) {
         parent::__construct();
     }
@@ -105,6 +107,10 @@ class ManageDefaultAiProvider extends Command
             return Command::FAILURE;
         }
 
+        $output->writeln(
+            "The default AI provider has been set to: {$aiProvider->formattedValue()}"
+        );
+
         return Command::SUCCESS;
     }
 
@@ -132,16 +138,21 @@ class ManageDefaultAiProvider extends Command
 
     private function askToChooseDefaultAiProvider(InputInterface $input, OutputInterface $output): AiProvider|Error
     {
-        $aiProviderChoices = AiProvider::values();
+        $fetchEnabledAiProviders = $this->fetchEnabledAiProviders->execute();
+        if ($fetchEnabledAiProviders instanceof Error) {
+            return $fetchEnabledAiProviders;
+        }
 
         $helper = $this->getHelper('question');
         if (! $helper instanceof QuestionHelper) {
             return Error::parse('Unable to get the question helper.');
         }
 
+        [$firstEnabledAiProvider] = $fetchEnabledAiProviders;
+
         $question = new ChoiceQuestion(
-            "<question>Choose the AI provider to set as default [auto: {$aiProviderChoices[0]}]</question>",
-            $aiProviderChoices,
+            "<question>Choose the AI provider to set as default [auto: {$firstEnabledAiProvider->value}]</question>",
+            array_map(fn ($aiProvider) => $aiProvider->value, $fetchEnabledAiProviders),
             0
         );
 
