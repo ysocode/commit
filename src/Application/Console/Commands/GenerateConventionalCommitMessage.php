@@ -13,8 +13,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use YSOCode\Commit\Application\Console\Commands\Abstracts\CommitStagedChangesAbstract;
 use YSOCode\Commit\Application\Console\Commands\Factories\GenerateCommitMessageFactory;
-use YSOCode\Commit\Application\Console\Commands\Interfaces\CommitStagedChangesInterface;
 use YSOCode\Commit\Application\Console\Commands\Interfaces\FetchStagedChangesInterface;
 use YSOCode\Commit\Application\Console\Commands\Interfaces\GetDefaultAiProviderInterface;
 use YSOCode\Commit\Application\Console\Commands\Interfaces\GetDefaultLanguageInterface;
@@ -30,7 +30,7 @@ class GenerateConventionalCommitMessage extends Command
         private readonly GetDefaultLanguageInterface $getDefaultLanguage,
         private readonly FetchStagedChangesInterface $fetchStagedChanges,
         private readonly GenerateCommitMessageFactory $generateCommitMessageFactory,
-        private readonly CommitStagedChangesInterface $commitStagedChanges
+        private readonly CommitStagedChangesAbstract $commitStagedChanges
     ) {
         parent::__construct();
     }
@@ -166,6 +166,22 @@ class GenerateConventionalCommitMessage extends Command
 
             return Command::SUCCESS;
         }
+
+        $progressIndicator = new ProgressIndicator(
+            $output,
+            'verbose',
+            100,
+            ['⠏', '⠛', '⠹', '⢸', '⣰', '⣤', '⣆', '⡇']
+        );
+
+        $this->commitStagedChanges->subscribe(function (Status $status) use ($progressIndicator): void {
+            match ($status) {
+                Status::STARTED => $progressIndicator->start('Committing...'),
+                Status::RUNNING => $progressIndicator->advance(),
+                Status::FAILED => $progressIndicator->finish('Failed'),
+                Status::FINISHED => $progressIndicator->finish('Finished'),
+            };
+        });
 
         $commitStagedChanges = $this->commitStagedChanges->execute($conventionalCommitMessageFormatted);
         if ($commitStagedChanges instanceof Error) {

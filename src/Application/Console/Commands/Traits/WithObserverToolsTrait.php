@@ -23,4 +23,11 @@ trait WithObserverToolsTrait
             $observer($status);
         }
     }
+
+    protected function notifyRunningStatus(int $sleepTime = 100000): void
+    {
+        $this->notify(Status::RUNNING);
+
+        usleep($sleepTime);
+    }
 }

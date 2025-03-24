@@ -79,12 +79,5 @@ abstract class GenerateCommitMessageAbstract
         return $isEnabled;
     }
 
-    protected function notifyRunningStatus(int $sleepTime = 100000): void
-    {
-        $this->notify(Status::RUNNING);
-
-        usleep($sleepTime);
-    }
-
     abstract protected function generateCommitMessage(string $apiKey): string|Error;
 }

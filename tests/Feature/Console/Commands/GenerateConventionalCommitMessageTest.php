@@ -13,10 +13,10 @@ use Tests\Feature\Console\Commands\Traits\WithConfigurationToolsTrait;
 use Tests\Feature\Console\Commands\Traits\WithSymfonyConsoleApplicationTrait;
 use YSOCode\Commit\Application\Actions\GetDefaultAiProviderFromUserConfiguration;
 use YSOCode\Commit\Application\Actions\GetDefaultLanguageFromUserConfiguration;
+use YSOCode\Commit\Application\Console\Commands\Abstracts\CommitStagedChangesAbstract;
 use YSOCode\Commit\Application\Console\Commands\Abstracts\GenerateCommitMessageAbstract;
 use YSOCode\Commit\Application\Console\Commands\Factories\GenerateCommitMessageFactory;
 use YSOCode\Commit\Application\Console\Commands\GenerateConventionalCommitMessage;
-use YSOCode\Commit\Application\Console\Commands\Interfaces\CommitStagedChangesInterface;
 use YSOCode\Commit\Application\Console\Commands\Interfaces\FetchStagedChangesInterface;
 use YSOCode\Commit\Domain\Enums\AiProvider;
 use YSOCode\Commit\Domain\Enums\Language;
@@ -32,7 +32,7 @@ class GenerateConventionalCommitMessageTest extends TestCase
 
     private readonly GenerateCommitMessageFactory $mockGenerateCommitMessageFactory;
 
-    private readonly CommitStagedChangesInterface $mockCommitStagedChanges;
+    private readonly CommitStagedChangesAbstract $mockCommitStagedChanges;
 
     private readonly string $diff;
 
@@ -78,7 +78,7 @@ class GenerateConventionalCommitMessageTest extends TestCase
         $this->mockGenerateCommitMessage = $this->createMock(GenerateCommitMessageAbstract::class);
         $this->mockGenerateCommitMessageFactory = $this->createMock(GenerateCommitMessageFactory::class);
 
-        $this->mockCommitStagedChanges = $this->createMock(CommitStagedChangesInterface::class);
+        $this->mockCommitStagedChanges = $this->createMock(CommitStagedChangesAbstract::class);
 
         $this->app->add(
             new GenerateConventionalCommitMessage(

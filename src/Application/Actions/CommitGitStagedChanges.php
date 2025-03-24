@@ -5,15 +5,20 @@ declare(strict_types=1);
 namespace YSOCode\Commit\Application\Actions;
 
 use Symfony\Component\Process\Process;
-use YSOCode\Commit\Application\Console\Commands\Interfaces\CommitStagedChangesInterface;
+use YSOCode\Commit\Application\Console\Commands\Abstracts\CommitStagedChangesAbstract;
 use YSOCode\Commit\Domain\Types\Error;
 
-class CommitGitStagedChanges implements CommitStagedChangesInterface
+class CommitGitStagedChanges extends CommitStagedChangesAbstract
 {
-    public function execute(string $commitMessage): true|Error
+    protected function commitStagedChanges(string $commitMessage): true|Error
     {
         $commitGitStagedChangesProcess = new Process(['git', 'commit', '-m', $commitMessage]);
-        $commitGitStagedChangesProcess->run();
+
+        $commitGitStagedChangesProcess->start();
+
+        while ($commitGitStagedChangesProcess->isRunning()) {
+            $this->notifyRunningStatus();
+        }
 
         if (! $commitGitStagedChangesProcess->isSuccessful()) {
             return Error::parse($commitGitStagedChangesProcess->getErrorOutput());
