@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 use Tests\Feature\Console\Commands\Traits\WithConfigurationToolsTrait;
 use Tests\Feature\Console\Commands\Traits\WithSymfonyConsoleApplicationTrait;
-use YSOCode\Commit\Application\Actions\FetchEnabledAiProvidersInUserConfiguration;
+use YSOCode\Commit\Application\Actions\FetchEnabledAiProvidersFromUserConfiguration;
 use YSOCode\Commit\Application\Actions\GetDefaultAiProviderFromUserConfiguration;
 use YSOCode\Commit\Application\Actions\SetDefaultAiProviderInUserConfiguration;
 use YSOCode\Commit\Application\Console\Commands\ManageDefaultAiProvider;
@@ -39,7 +39,7 @@ class ManageDefaultAiProviderTest extends TestCase
             new ManageDefaultAiProvider(
                 new GetDefaultAiProviderFromUserConfiguration(self::$userConfiguration),
                 new SetDefaultAiProviderInUserConfiguration(self::$userConfiguration),
-                new FetchEnabledAiProvidersInUserConfiguration(self::$userConfiguration)
+                new FetchEnabledAiProvidersFromUserConfiguration(self::$userConfiguration)
             )
         );
     }
