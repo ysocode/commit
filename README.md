@@ -25,6 +25,27 @@ To initialize the necessary configuration files:
 commit init
 ```
 
+#### Manage AI Provider
+
+##### Set the default AI provider
+
+To define which AI provider should be used as default:
+
+```shell
+commit ai:provider sourcegraph
+```
+
+If no provider argument is specified, an interactive prompt will appear, allowing you to select
+the desired AI provider.
+
+##### Get the current default AI provider
+
+To display the current AI provider:
+
+```shell
+commit ai:provider --get
+```
+
 #### Main functionality
 
 ##### Generate a Commit Message
