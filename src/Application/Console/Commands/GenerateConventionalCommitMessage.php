@@ -117,19 +117,19 @@ class GenerateConventionalCommitMessage extends Command
             return Command::FAILURE;
         }
 
-        $progressIndicator = new ProgressIndicator(
+        $generateCommitMessageProgressIndicator = new ProgressIndicator(
             $output,
             'verbose',
             100,
             ['⠏', '⠛', '⠹', '⢸', '⣰', '⣤', '⣆', '⡇']
         );
 
-        $generateCommitMessage->subscribe(function (Status $status) use ($progressIndicator, $aiProvider): void {
+        $generateCommitMessage->subscribe(function (Status $status) use ($generateCommitMessageProgressIndicator, $aiProvider): void {
             match ($status) {
-                Status::STARTED => $progressIndicator->start("Processing with {$aiProvider->formattedValue()}..."),
-                Status::RUNNING => $progressIndicator->advance(),
-                Status::FAILED => $progressIndicator->finish('Failed'),
-                Status::FINISHED => $progressIndicator->finish('Finished'),
+                Status::STARTED => $generateCommitMessageProgressIndicator->start("Processing with {$aiProvider->formattedValue()}..."),
+                Status::RUNNING => $generateCommitMessageProgressIndicator->advance(),
+                Status::FAILED => $generateCommitMessageProgressIndicator->finish('Failed'),
+                Status::FINISHED => $generateCommitMessageProgressIndicator->finish('Finished'),
             };
         });
 
@@ -167,19 +167,19 @@ class GenerateConventionalCommitMessage extends Command
             return Command::SUCCESS;
         }
 
-        $progressIndicator = new ProgressIndicator(
+        $commitStagedChangesProgressIndicator = new ProgressIndicator(
             $output,
             'verbose',
             100,
             ['⠏', '⠛', '⠹', '⢸', '⣰', '⣤', '⣆', '⡇']
         );
 
-        $this->commitStagedChanges->subscribe(function (Status $status) use ($progressIndicator): void {
+        $this->commitStagedChanges->subscribe(function (Status $status) use ($commitStagedChangesProgressIndicator): void {
             match ($status) {
-                Status::STARTED => $progressIndicator->start('Committing...'),
-                Status::RUNNING => $progressIndicator->advance(),
-                Status::FAILED => $progressIndicator->finish('Failed'),
-                Status::FINISHED => $progressIndicator->finish('Finished'),
+                Status::STARTED => $commitStagedChangesProgressIndicator->start('Committing...'),
+                Status::RUNNING => $commitStagedChangesProgressIndicator->advance(),
+                Status::FAILED => $commitStagedChangesProgressIndicator->finish('Failed'),
+                Status::FINISHED => $commitStagedChangesProgressIndicator->finish('Finished'),
             };
         });
 
