@@ -46,7 +46,7 @@ class ManageDefaultAiProvider extends Command
             ai:provider
             ai:provider --get
             ai:provider --list
-            ai:provider openai
+            ai:provider sourcegraph
         HELP;
 
         $this->setName('ai:provider')
