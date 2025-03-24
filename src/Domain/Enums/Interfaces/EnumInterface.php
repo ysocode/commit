@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace YSOCode\Commit\Domain\Enums;
+namespace YSOCode\Commit\Domain\Enums\Interfaces;
 
 use YSOCode\Commit\Domain\Types\Error;
 
