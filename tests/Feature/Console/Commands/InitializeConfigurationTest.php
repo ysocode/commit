@@ -54,7 +54,7 @@ class InitializeConfigurationTest extends TestCase
     /**
      * @throws Exception
      */
-    public function test_it_should_create_configuration_file_when_exists_with_force_option(): void
+    public function test_it_should_create_configuration_file_when_exists_using_force_option(): void
     {
         $tester = new CommandTester($this->app->find('init'));
         $tester->execute(['--force' => true]);
@@ -66,7 +66,7 @@ class InitializeConfigurationTest extends TestCase
     /**
      * @throws Exception
      */
-    public function test_it_should_not_create_configuration_file_when_exists_without_force_option(): void
+    public function test_it_should_display_error_when_configuration_file_exists_without_force_option(): void
     {
         $tester = new CommandTester($this->app->find('init'));
         $tester->execute([]);
