@@ -29,9 +29,12 @@ readonly class GetDefaultLanguageFromUserConfiguration implements GetDefaultLang
             return $defaultLanguageAsEnum;
         }
 
-        $languageIsEnabled = $this->checkLanguageIsEnabled->execute($defaultLanguageAsEnum);
+        $defaultLanguageIsEnabled = $this->checkLanguageIsEnabled->execute($defaultLanguageAsEnum);
+        if ($defaultLanguageIsEnabled instanceof Error) {
+            return $defaultLanguageIsEnabled;
+        }
 
-        if (! $languageIsEnabled) {
+        if (! $defaultLanguageIsEnabled) {
             return Error::parse(
                 sprintf(
                     'The "%s" language is not enabled.',

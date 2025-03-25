@@ -15,6 +15,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use YSOCode\Commit\Application\Console\Commands\Abstracts\CommitStagedChangesAbstract;
 use YSOCode\Commit\Application\Console\Commands\Factories\GenerateCommitMessageFactory;
+use YSOCode\Commit\Application\Console\Commands\Interfaces\CheckAiProviderIsEnabledInterface;
+use YSOCode\Commit\Application\Console\Commands\Interfaces\CheckLanguageIsEnabledInterface;
 use YSOCode\Commit\Application\Console\Commands\Interfaces\FetchStagedChangesInterface;
 use YSOCode\Commit\Application\Console\Commands\Interfaces\GetDefaultAiProviderInterface;
 use YSOCode\Commit\Application\Console\Commands\Interfaces\GetDefaultLanguageInterface;
@@ -26,6 +28,8 @@ use YSOCode\Commit\Domain\Types\Error;
 class GenerateConventionalCommitMessage extends Command
 {
     public function __construct(
+        private readonly CheckAiProviderIsEnabledInterface $checkAiProviderIsEnabled,
+        private readonly CheckLanguageIsEnabledInterface $checkLanguageIsEnabled,
         private readonly GetDefaultAiProviderInterface $getDefaultAiProvider,
         private readonly GetDefaultLanguageInterface $getDefaultLanguage,
         private readonly FetchStagedChangesInterface $fetchStagedChanges,
@@ -203,7 +207,26 @@ class GenerateConventionalCommitMessage extends Command
                 return Error::parse('Invalid AI provider provided.');
             }
 
-            return Aiprovider::parse($customAiProvider);
+            $customAiProviderAsEnum = Aiprovider::parse($customAiProvider);
+            if ($customAiProviderAsEnum instanceof Error) {
+                return $customAiProviderAsEnum;
+            }
+
+            $customAiProviderIsEnabled = $this->checkAiProviderIsEnabled->execute($customAiProviderAsEnum);
+            if ($customAiProviderIsEnabled instanceof Error) {
+                return $customAiProviderIsEnabled;
+            }
+
+            if (! $customAiProviderIsEnabled) {
+                return Error::parse(
+                    sprintf(
+                        'The "%s" AI provider is not enabled.',
+                        $customAiProviderAsEnum->formattedValue()
+                    )
+                );
+            }
+
+            return $customAiProviderAsEnum;
         }
 
         return $this->getDefaultAiProvider->execute();
@@ -217,7 +240,26 @@ class GenerateConventionalCommitMessage extends Command
                 return Error::parse('Invalid language provided.');
             }
 
-            return Language::parse($customLanguage);
+            $customLanguageAsEnum = Language::parse($customLanguage);
+            if ($customLanguageAsEnum instanceof Error) {
+                return $customLanguageAsEnum;
+            }
+
+            $customLanguageIsEnabled = $this->checkLanguageIsEnabled->execute($customLanguageAsEnum);
+            if ($customLanguageIsEnabled instanceof Error) {
+                return $customLanguageIsEnabled;
+            }
+
+            if (! $customLanguageIsEnabled) {
+                return Error::parse(
+                    sprintf(
+                        'The "%s" language is not enabled.',
+                        $customLanguageAsEnum->formattedValue()
+                    )
+                );
+            }
+
+            return $customLanguageAsEnum;
         }
 
         return $this->getDefaultLanguage->execute();

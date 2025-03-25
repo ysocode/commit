@@ -48,6 +48,8 @@ $checkLanguageIsEnabled = new CheckLanguageIsEnabledInUserConfiguration($userCon
 $app = new Application('YSO Code', '3.0.0');
 $app->add(
     new GenerateConventionalCommitMessage(
+        $checkAiProviderIsEnabled,
+        $checkLanguageIsEnabled,
         new GetDefaultAiProviderFromUserConfiguration($userConfiguration, $checkAiProviderIsEnabled),
         new GetDefaultLanguageFromUserConfiguration($userConfiguration, $checkLanguageIsEnabled),
         new FetchStagedGitChanges,

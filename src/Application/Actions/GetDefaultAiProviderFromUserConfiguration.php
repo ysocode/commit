@@ -29,12 +29,12 @@ readonly class GetDefaultAiProviderFromUserConfiguration implements GetDefaultAi
             return $defaultAiProviderAsEnum;
         }
 
-        $aiProviderIsEnabled = $this->checkAiProviderIsEnabled->execute($defaultAiProviderAsEnum);
-        if ($aiProviderIsEnabled instanceof Error) {
-            return $aiProviderIsEnabled;
+        $defaultAiProviderIsEnabled = $this->checkAiProviderIsEnabled->execute($defaultAiProviderAsEnum);
+        if ($defaultAiProviderIsEnabled instanceof Error) {
+            return $defaultAiProviderIsEnabled;
         }
 
-        if (! $aiProviderIsEnabled) {
+        if (! $defaultAiProviderIsEnabled) {
             return Error::parse(
                 sprintf(
                     'The "%s" AI provider is not enabled.',
