@@ -72,7 +72,7 @@ Use the `--lang` option to specify the language for the commit message:
 commit generate --lang=pt_BR
 ```
 
-Available languages:
+Enabled languages:
 
 - `en_US` for English (United States)
 - `pt_BR` for Portuguese (Brazil)
