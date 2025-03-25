@@ -6,6 +6,7 @@ namespace Tests\Feature\Console\Commands;
 
 use Exception;
 use PHPUnit\Framework\MockObject\Exception as PHPUnitMockObjectException;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Rule\InvocationOrder;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -26,17 +27,17 @@ class GenerateConventionalCommitMessageTest extends TestCase
 {
     use WithConfigurationToolsTrait, WithSymfonyConsoleApplicationTrait;
 
-    private readonly FetchStagedChangesInterface $mockFetchStagedChanges;
+    private MockObject $mockFetchStagedChanges;
 
-    private readonly GenerateCommitMessageAbstract $mockGenerateCommitMessage;
+    private MockObject $mockGenerateCommitMessage;
 
-    private readonly GenerateCommitMessageFactory $mockGenerateCommitMessageFactory;
+    private MockObject $mockGenerateCommitMessageFactory;
 
-    private readonly CommitStagedChangesAbstract $mockCommitStagedChanges;
+    private MockObject $mockCommitStagedChanges;
 
-    private readonly string $diff;
+    private string $diff;
 
-    private readonly string $expectedCommitMessage;
+    private string $expectedCommitMessage;
 
     /**
      * @throws PHPUnitMockObjectException
@@ -235,6 +236,9 @@ class GenerateConventionalCommitMessageTest extends TestCase
         $this->assertStringContainsString('No staged changes found.', $output);
     }
 
+    /**
+     * @throws Exception
+     */
     public function test_it_should_use_provided_ai_provider_option_instead_of_default(): void
     {
         $this->mockFetchStagedChanges
@@ -256,7 +260,20 @@ class GenerateConventionalCommitMessageTest extends TestCase
             ->method('execute');
 
         $aiProvider = AiProvider::SOURCEGRAPH;
-        $language = Language::parse(self::$userConfiguration->getValue('default_lang'));
+
+        $defaultLanguage = self::$userConfiguration->getValue('default_lang');
+        if ($defaultLanguage instanceof Error) {
+            throw new Exception((string) $defaultLanguage);
+        }
+
+        if (! is_string($defaultLanguage)) {
+            throw new Exception('Default language should be a string.');
+        }
+
+        $language = Language::parse($defaultLanguage);
+        if ($language instanceof Error) {
+            throw new Exception((string) $language);
+        }
 
         $tester = new CommandTester($this->app->find('generate'));
         $tester->setInputs(['n']);
@@ -273,6 +290,9 @@ class GenerateConventionalCommitMessageTest extends TestCase
         $this->assertStringContainsString('Success: No commit made.', $output);
     }
 
+    /**
+     * @throws Exception
+     */
     public function test_it_should_use_provided_language_option_instead_of_default(): void
     {
         $this->mockFetchStagedChanges
@@ -293,7 +313,20 @@ class GenerateConventionalCommitMessageTest extends TestCase
             ->expects($this->never())
             ->method('execute');
 
-        $aiProvider = AiProvider::parse(self::$userConfiguration->getValue('default_ai_provider'));
+        $defaultAiProvider = self::$userConfiguration->getValue('default_ai_provider');
+        if ($defaultAiProvider instanceof Error) {
+            throw new Exception((string) $defaultAiProvider);
+        }
+
+        if (! is_string($defaultAiProvider)) {
+            throw new Exception('Default AI provider should be a string.');
+        }
+
+        $aiProvider = AiProvider::parse($defaultAiProvider);
+        if ($aiProvider instanceof Error) {
+            throw new Exception((string) $aiProvider);
+        }
+
         $language = Language::PT_BR;
 
         $tester = new CommandTester($this->app->find('generate'));
