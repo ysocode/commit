@@ -14,12 +14,13 @@ use YSOCode\Commit\Application\Actions\GetDefaultAiProviderFromUserConfiguration
 use YSOCode\Commit\Application\Actions\SetDefaultAiProviderInUserConfiguration;
 use YSOCode\Commit\Application\Console\Commands\ManageDefaultAiProvider;
 use YSOCode\Commit\Domain\Enums\AiProvider;
+use YSOCode\Commit\Domain\Types\Error;
 
 class ManageDefaultAiProviderTest extends TestCase
 {
     use WithConfigurationToolsTrait, WithSymfonyConsoleApplicationTrait;
 
-    private readonly AiProvider $aiProvider;
+    private AiProvider $aiProvider;
 
     /**
      * @throws Exception
@@ -50,6 +51,97 @@ class ManageDefaultAiProviderTest extends TestCase
     public static function tearDownAfterClass(): void
     {
         self::removeUserConfigurationDir();
+    }
+
+    /**
+     * @return array<AiProvider>
+     *
+     * @throws Exception
+     */
+    private function getEnabledAiProviders(): array
+    {
+        $aiProviders = self::$userConfiguration->getValue('ai_providers');
+        if ($aiProviders instanceof Error) {
+            throw new Exception((string) $aiProviders);
+        }
+
+        if (! is_array($aiProviders)) {
+            throw new Exception('AI providers should be an array.');
+        }
+        $convertedAiProviders = [];
+
+        foreach ($aiProviders as $aiProvider => $aiProviderConfigurations) {
+            $convertedAiProvider = AiProvider::parse($aiProvider);
+            if ($convertedAiProvider instanceof Error) {
+                throw new Exception((string) $convertedAiProvider);
+            }
+
+            if (! is_array($aiProviderConfigurations)) {
+                throw new Exception("{$convertedAiProvider->formattedValue()} AI provider configurations should be an array.");
+            }
+
+            if (! $aiProviderConfigurations['enabled']) {
+                continue;
+            }
+
+            $convertedAiProviders[] = $convertedAiProvider;
+
+        }
+
+        if ($convertedAiProviders === []) {
+            throw new Exception('No enabled AI providers found.');
+        }
+
+        return $convertedAiProviders;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function test_it_should_list_all_enabled_ai_providers(): void
+    {
+        $tester = new CommandTester($this->app->find('ai:provider'));
+        $tester->execute([
+            '--list' => true,
+        ]);
+
+        $output = $tester->getDisplay();
+
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString(
+            'Enabled AI Providers:',
+            $output
+        );
+
+        $enabledAiProviders = $this->getEnabledAiProviders();
+        foreach ($enabledAiProviders as $aiProvider) {
+            $this->assertStringContainsString(
+                $aiProvider->formattedValue(),
+                $output
+            );
+        }
+    }
+
+    public function test_it_should_display_error_when_provider_argument_is_provided_with_list_option(): void
+    {
+        $tester = new CommandTester($this->app->find('ai:provider'));
+        $tester->execute([
+            '--list' => true,
+            'provider' => $this->aiProvider->value,
+        ]);
+
+        $output = $tester->getDisplay();
+
+        $this->assertEquals(
+            1,
+            $tester->getStatusCode()
+        );
+
+        $this->assertStringContainsString(
+            'Error: The "--list" option cannot be used with the "provider" argument.',
+            $output
+        );
     }
 
     public function test_it_should_get_the_current_default_ai_provider(): void
@@ -170,9 +262,20 @@ class ManageDefaultAiProviderTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     */
     public function test_it_display_error_when_ai_providers_are_not_enabled(): void
     {
         $aiProviders = self::$userConfiguration->getValue('ai_providers');
+
+        if ($aiProviders instanceof Error) {
+            throw new Exception((string) $aiProviders);
+        }
+
+        if (! is_array($aiProviders)) {
+            throw new Exception('AI providers should be an array.');
+        }
 
         foreach (array_keys($aiProviders) as $aiProvider) {
             self::$userConfiguration->setValue("ai_providers.{$aiProvider}.enabled", false);

@@ -40,7 +40,7 @@ class ManageDefaultAiProvider extends Command
             
         Options:
             --get       Display the current default AI provider
-            --list      Display all available AI providers
+            --list      Display all enabled AI providers
 
         Examples:
             ai:provider
@@ -54,11 +54,41 @@ class ManageDefaultAiProvider extends Command
             ->setHelp($helperMessage)
             ->addArgument('provider', InputArgument::OPTIONAL, 'AI provider name to set as default')
             ->addOption('get', 'g', InputOption::VALUE_NONE, 'Display the current default AI provider')
-            ->addOption('list', 'l', InputOption::VALUE_NONE, 'Display all available AI providers');
+            ->addOption('list', 'l', InputOption::VALUE_NONE, 'Display all enabled AI providers');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $list = $this->getBooleanOption($input, 'list');
+        if ($list instanceof Error) {
+            $output->writeln("<error>Error: {$list}</error>");
+
+            return Command::FAILURE;
+        }
+
+        if ($list) {
+            $handleListOptionReturn = $this->handleListOption($input);
+            if ($handleListOptionReturn instanceof Error) {
+                $output->writeln("<error>Error: {$handleListOptionReturn}</error>");
+
+                return Command::FAILURE;
+            }
+
+            $formattedProviders = array_map(
+                fn ($aiProvider): string => sprintf('<info>• %s</info>', $aiProvider->formattedValue()),
+                $handleListOptionReturn
+            );
+
+            $output->writeln([
+                '<comment>Enabled AI Providers:</comment>',
+                '',
+                ...$formattedProviders,
+                '',
+            ]);
+
+            return Command::SUCCESS;
+        }
+
         $get = $this->getBooleanOption($input, 'get');
         if ($get instanceof Error) {
             $output->writeln("<error>Error: {$get}</error>");
@@ -67,23 +97,15 @@ class ManageDefaultAiProvider extends Command
         }
 
         if ($get) {
-            if ($this->checkAiProviderIsProvided($input)) {
-                $output->writeln(
-                    '<error>Error: The "--get" option cannot be used with the "provider" argument.</error>'
-                );
-
-                return Command::FAILURE;
-            }
-
-            $getDefaultAiProviderReturn = $this->getDefaultAiProvider();
-            if ($getDefaultAiProviderReturn instanceof Error) {
-                $output->writeln("<error>Error: {$getDefaultAiProviderReturn}</error>");
+            $handleGetOptionReturn = $this->handleGetOption($input);
+            if ($handleGetOptionReturn instanceof Error) {
+                $output->writeln("<error>Error: {$handleGetOptionReturn}</error>");
 
                 return Command::FAILURE;
             }
 
             $output->writeln(
-                "The current default AI provider is: {$getDefaultAiProviderReturn->formattedValue()}"
+                "The current default AI provider is: {$handleGetOptionReturn->formattedValue()}"
             );
 
             return Command::SUCCESS;
@@ -124,6 +146,27 @@ class ManageDefaultAiProvider extends Command
         }
 
         return $value;
+    }
+
+    /**
+     * @return array<AiProvider>|Error
+     */
+    private function handleListOption(InputInterface $input): array|Error
+    {
+        if ($this->checkAiProviderIsProvided($input)) {
+            return Error::parse('The "--list" option cannot be used with the "provider" argument.');
+        }
+
+        return $this->fetchEnabledAiProviders->execute();
+    }
+
+    private function handleGetOption(InputInterface $input): AiProvider|Error
+    {
+        if ($this->checkAiProviderIsProvided($input)) {
+            return Error::parse('The "--get" option cannot be used with the "provider" argument.');
+        }
+
+        return $this->getDefaultAiProvider();
     }
 
     private function checkAiProviderIsProvided(InputInterface $input): bool
