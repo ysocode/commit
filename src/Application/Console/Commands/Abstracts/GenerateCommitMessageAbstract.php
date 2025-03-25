@@ -67,16 +67,17 @@ abstract class GenerateCommitMessageAbstract
 
     protected function checkAiProviderIsEnabled(): bool|Error
     {
-        $isEnabled = $this->userConfiguration->getValue("ai_providers.{$this->aiProvider->value}.enabled");
-        if ($isEnabled instanceof Error) {
-            return Error::parse('Unable to check if AI provider is enabled.');
+        $aiProviderIsEnabled = $this->userConfiguration->getValue("ai_providers.{$this->aiProvider->value}.enabled");
+        if (! is_bool($aiProviderIsEnabled)) {
+            return Error::parse(
+                sprintf(
+                    'Unable to check if "%s" AI provider is enabled.',
+                    $this->aiProvider->value
+                )
+            );
         }
 
-        if (! is_bool($isEnabled)) {
-            return Error::parse('Invalid AI provider enabled setting. Set a valid boolean value.');
-        }
-
-        return $isEnabled;
+        return $aiProviderIsEnabled;
     }
 
     abstract protected function generateCommitMessage(string $apiKey): string|Error;

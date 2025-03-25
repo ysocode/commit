@@ -21,6 +21,8 @@ $localInstallPath = __DIR__.'/../vendor/autoload.php';
 require_once file_exists($globalInstallPath) ? $globalInstallPath : $localInstallPath;
 
 use Symfony\Component\Console\Application;
+use YSOCode\Commit\Application\Actions\CheckAiProviderIsEnabledInUserConfiguration;
+use YSOCode\Commit\Application\Actions\CheckLanguageIsEnabledInUserConfiguration;
 use YSOCode\Commit\Application\Actions\CommitGitStagedChanges;
 use YSOCode\Commit\Application\Actions\FetchEnabledAiProvidersFromUserConfiguration;
 use YSOCode\Commit\Application\Actions\FetchStagedGitChanges;
@@ -40,11 +42,14 @@ $userConfiguration = new UserConfiguration(
     )
 );
 
+$checkAiProviderIsEnabled = new CheckAiProviderIsEnabledInUserConfiguration($userConfiguration);
+$checkLanguageIsEnabled = new CheckLanguageIsEnabledInUserConfiguration($userConfiguration);
+
 $app = new Application('YSO Code', '3.0.0');
 $app->add(
     new GenerateConventionalCommitMessage(
-        new GetDefaultAiProviderFromUserConfiguration($userConfiguration),
-        new GetDefaultLanguageFromUserConfiguration($userConfiguration),
+        new GetDefaultAiProviderFromUserConfiguration($userConfiguration, $checkAiProviderIsEnabled),
+        new GetDefaultLanguageFromUserConfiguration($userConfiguration, $checkLanguageIsEnabled),
         new FetchStagedGitChanges,
         new GenerateCommitMessageFactory($userConfiguration),
         new CommitGitStagedChanges
@@ -57,7 +62,7 @@ $app->add(
 
 $app->add(
     new ManageDefaultAiProvider(
-        new GetDefaultAiProviderFromUserConfiguration($userConfiguration),
+        new GetDefaultAiProviderFromUserConfiguration($userConfiguration, $checkAiProviderIsEnabled),
         new SetDefaultAiProviderInUserConfiguration($userConfiguration),
         new FetchEnabledAiProvidersFromUserConfiguration($userConfiguration)
     )
