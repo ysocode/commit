@@ -244,28 +244,6 @@ class ManageDefaultAiProviderTest extends TestCase
         );
     }
 
-    public function test_it_should_display_error_when_ai_provier_is_not_enabled(): void
-    {
-        self::$userConfiguration->setValue("ai_providers.{$this->aiProvider->value}.enabled", false);
-
-        $tester = new CommandTester($this->app->find('ai:provider'));
-        $tester->execute([
-            'provider' => $this->aiProvider->value,
-        ]);
-
-        $output = $tester->getDisplay();
-
-        $this->assertEquals(
-            1,
-            $tester->getStatusCode()
-        );
-
-        $this->assertStringContainsString(
-            sprintf('AI provider "%s" is not enabled.', $this->aiProvider->value),
-            $output
-        );
-    }
-
     /**
      * @throws Exception
      */
@@ -297,6 +275,28 @@ class ManageDefaultAiProviderTest extends TestCase
 
         $this->assertStringContainsString(
             'No enabled AI providers found.',
+            $output
+        );
+    }
+
+    public function test_it_should_display_error_when_ai_provier_is_not_enabled(): void
+    {
+        self::$userConfiguration->setValue("ai_providers.{$this->aiProvider->value}.enabled", false);
+
+        $tester = new CommandTester($this->app->find('ai:provider'));
+        $tester->execute([
+            'provider' => $this->aiProvider->value,
+        ]);
+
+        $output = $tester->getDisplay();
+
+        $this->assertEquals(
+            1,
+            $tester->getStatusCode()
+        );
+
+        $this->assertStringContainsString(
+            sprintf('AI provider "%s" is not enabled.', $this->aiProvider->value),
             $output
         );
     }
