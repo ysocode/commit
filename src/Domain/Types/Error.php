@@ -18,16 +18,16 @@ readonly class Error implements Stringable
 
     public static function parse(string $value): self
     {
-        self::validate($value);
+        if (! self::isValid($value)) {
+            throw new DomainException('Error cannot be empty.');
+        }
 
         return new self($value);
     }
 
-    private static function validate(string $value): void
+    public static function isValid(string $value): bool
     {
-        if ($value === '' || $value === '0') {
-            throw new DomainException('Error cannot be empty.');
-        }
+        return $value !== '' && $value !== '0';
     }
 
     public function __toString(): string
