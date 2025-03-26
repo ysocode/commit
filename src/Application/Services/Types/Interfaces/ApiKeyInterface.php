@@ -12,5 +12,7 @@ interface ApiKeyInterface extends Stringable
 
     public function getValue(): string;
 
+    public static function isValid(string $value): bool;
+
     public static function parse(string $value): self;
 }
