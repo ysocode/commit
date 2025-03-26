@@ -54,7 +54,7 @@ class GenerateCommitMessageWithSourcegraph extends GenerateCommitMessageAbstract
 
         $commitMessage = $codyProcess->getOutput();
         if ($commitMessage === '' || $commitMessage === '0') {
-            return Error::parse('Unable to retrieve the commit from diff.');
+            return Error::parse('Unable to generate commit message.');
         }
 
         return $commitMessage;

@@ -71,7 +71,7 @@ AIs for you to select from.
 
 ##### Get the current API key for a specific AI provider
 
-Retrieve the currently stored API key for the specified AI provider:
+Display the currently stored API key for the specified AI provider:
 
 ```shell
 commit ai:key --get --provider=openai
