@@ -11,7 +11,7 @@ readonly class Error implements Stringable
 {
     public function __construct(private string $value) {}
 
-    public function value(): string
+    public function getValue(): string
     {
         return $this->value;
     }
@@ -32,6 +32,6 @@ readonly class Error implements Stringable
 
     public function __toString(): string
     {
-        return $this->value;
+        return $this->getValue();
     }
 }
