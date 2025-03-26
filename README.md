@@ -113,6 +113,14 @@ commit generate
 
 This will display the generated commit message for your confirmation before finalizing the commit.
 
+##### Using a Custom Diff
+
+You can provide a custom diff instead of using the automatically detected staged changes:
+
+```shell
+commit generate YOUR_CUSTOM_DIFF
+```
+
 ##### Using options to customize the commit
 
 Use the `--provider` option to select the AI provider:
