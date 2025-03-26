@@ -24,6 +24,7 @@ use Symfony\Component\Console\Application;
 use YSOCode\Commit\Application\Actions\CheckAiProviderIsEnabledInUserConfiguration;
 use YSOCode\Commit\Application\Actions\CheckLanguageIsEnabledInUserConfiguration;
 use YSOCode\Commit\Application\Actions\CommitGitStagedChanges;
+use YSOCode\Commit\Application\Actions\CreateUserConfigurationFile;
 use YSOCode\Commit\Application\Actions\FetchEnabledAiProvidersFromUserConfiguration;
 use YSOCode\Commit\Application\Actions\FetchStagedGitChanges;
 use YSOCode\Commit\Application\Actions\GetDefaultAiProviderFromUserConfiguration;
@@ -60,7 +61,9 @@ $app->add(
 );
 
 $app->add(
-    new InitializeConfiguration($userConfiguration)
+    new InitializeConfiguration(
+        new CreateUserConfigurationFile($userConfiguration)
+    )
 );
 
 $app->add(

@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 use Tests\Feature\Console\Commands\Traits\WithConfigurationToolsTrait;
 use Tests\Feature\Console\Commands\Traits\WithSymfonyConsoleApplicationTrait;
+use YSOCode\Commit\Application\Actions\CreateUserConfigurationFile;
 use YSOCode\Commit\Application\Console\Commands\InitializeConfiguration;
 
 class InitializeConfigurationTest extends TestCase
@@ -26,7 +27,9 @@ class InitializeConfigurationTest extends TestCase
 
         $this->setUpSymfonyConsoleApplication();
 
-        $this->app->add(new InitializeConfiguration(self::$userConfiguration));
+        $this->app->add(new InitializeConfiguration(
+            new CreateUserConfigurationFile(self::$userConfiguration)
+        ));
     }
 
     /**

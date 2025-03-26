@@ -8,13 +8,17 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use YSOCode\Commit\Application\Console\Commands\Interfaces\CreateConfigurationFileInterface;
+use YSOCode\Commit\Application\Console\Commands\Traits\WithCommandToolsTrait;
 use YSOCode\Commit\Domain\Types\Error;
-use YSOCode\Commit\Foundation\Support\UserConfiguration;
 
 class InitializeConfiguration extends Command
 {
-    public function __construct(private readonly UserConfiguration $userConfiguration)
-    {
+    use WithCommandToolsTrait;
+
+    public function __construct(
+        private readonly CreateConfigurationFileInterface $createConfigurationFile
+    ) {
         parent::__construct();
     }
 
@@ -37,14 +41,14 @@ class InitializeConfiguration extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $force = $input->getOption('force');
-        if (! is_bool($force)) {
-            $output->writeln('<error>Error: Invalid "--force" option provided.</error>');
+        $force = $this->getBooleanOption($input, 'force');
+        if ($force instanceof Error) {
+            $output->writeln("<error>Error: {$force}</error>");
 
             return Command::FAILURE;
         }
 
-        $userConfigurationFileIsCreated = $this->createUserConfigurationFile($force);
+        $userConfigurationFileIsCreated = $this->createConfigurationFile->execute($force);
         if ($userConfigurationFileIsCreated instanceof Error) {
             $output->writeln("<error>Error: {$userConfigurationFileIsCreated}</error>");
 
@@ -54,49 +58,5 @@ class InitializeConfiguration extends Command
         $output->writeln('<info>Success: Configuration initialized!</info>');
 
         return Command::SUCCESS;
-    }
-
-    private function createUserConfigurationFile(bool $force = false): true|Error
-    {
-        $userConfigurationDirExists = $this->userConfiguration->checkUserConfigurationDirExistence();
-        if ($userConfigurationDirExists instanceof Error) {
-            return $userConfigurationDirExists;
-        }
-
-        if (! $userConfigurationDirExists) {
-            $userConfigurationDirPath = $this->userConfiguration->getUserConfigurationDirPath();
-            if ($userConfigurationDirPath instanceof Error) {
-                return $userConfigurationDirPath;
-            }
-
-            if (! mkdir($userConfigurationDirPath, 0755, true)) {
-                return Error::parse('Failed to create user configuration directory.');
-            }
-        }
-
-        $userConfigurationFileExists = $this->userConfiguration->checkUserConfigurationFileExistence();
-        if ($userConfigurationFileExists instanceof Error) {
-            return $userConfigurationFileExists;
-        }
-
-        if ($userConfigurationFileExists && ! $force) {
-            return Error::parse('User configuration file already exists.');
-        }
-
-        $stubFile = basePath('stubs/config.json.stub');
-        if (! file_exists($stubFile)) {
-            return Error::parse('Unable to locate user configuration stub file.');
-        }
-
-        $userConfigurationFilePath = $this->userConfiguration->getUserConfigurationFilePath();
-        if ($userConfigurationFilePath instanceof Error) {
-            return $userConfigurationFilePath;
-        }
-
-        if (! copy($stubFile, $userConfigurationFilePath)) {
-            return Error::parse('Failed to copy stub file to user configuration directory.');
-        }
-
-        return true;
     }
 }
