@@ -151,7 +151,7 @@ class GenerateConventionalCommitMessage extends Command
             return Command::FAILURE;
         }
 
-        $askToConfirmCommitReturn = $this->askToConfirmCommit(
+        $shouldCommit = $this->askToConfirmCommit(
             $input,
             $output,
             $aiProvider,
@@ -159,13 +159,13 @@ class GenerateConventionalCommitMessage extends Command
             $conventionalCommitMessageFormatted
         );
 
-        if ($askToConfirmCommitReturn instanceof Error) {
-            $output->writeln("<error>Error: {$askToConfirmCommitReturn}</error>");
+        if ($shouldCommit instanceof Error) {
+            $output->writeln("<error>Error: {$shouldCommit}</error>");
 
             return Command::FAILURE;
         }
 
-        if (! $askToConfirmCommitReturn) {
+        if (! $shouldCommit) {
             $output->writeln('<info>Success: No commit made.</info>');
 
             return Command::SUCCESS;
@@ -302,12 +302,12 @@ class GenerateConventionalCommitMessage extends Command
             '<question>Do you want to create a commit with this message? [Y/n]</question>'
         );
 
-        $askReturn = $helper->ask($input, $output, $question);
-        if (! is_bool($askReturn)) {
-            return Error::parse('Unable to get the answer.');
+        $shouldCommit = $helper->ask($input, $output, $question);
+        if (! is_bool($shouldCommit)) {
+            return Error::parse('Unable to get the commit decision.');
         }
 
-        return $askReturn;
+        return $shouldCommit;
     }
 
     private function extractCommitMessage(string $commitMessage): string|Error

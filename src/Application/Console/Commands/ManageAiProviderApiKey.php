@@ -9,9 +9,14 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use YSOCode\Commit\Application\Console\Commands\Traits\WithCommandToolsTrait;
+use YSOCode\Commit\Application\Services\Types\Interfaces\ApiKeyInterface;
+use YSOCode\Commit\Domain\Types\Error;
 
 class ManageAiProviderApiKey extends Command
 {
+    use WithCommandToolsTrait;
+
     protected function configure(): void
     {
         $helperMessage = <<<'HELP'
@@ -29,12 +34,12 @@ class ManageAiProviderApiKey extends Command
             --remove      Remove the stored API key for the provider
         
         Examples:
-            commit ai:key --provider=openai YOUR_API_KEY
-            commit ai:key --get --provider=openai
-            commit ai:key --remove --provider=openai
+            commit ai:api-key --provider=openai YOUR_API_KEY
+            commit ai:api-key --get --provider=openai
+            commit ai:api-key --remove --provider=openai
         HELP;
 
-        $this->setName('ai:key')
+        $this->setName('ai:api-key')
             ->setDescription('Set, display, or remove an API key for an AI provider')
             ->setHelp($helperMessage)
             ->addArgument('api-key', InputArgument::OPTIONAL, 'API key to set for the provider')
@@ -45,6 +50,28 @@ class ManageAiProviderApiKey extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $get = $this->getBooleanOption($input, 'get');
+        if ($get instanceof Error) {
+            $output->writeln("<error>Error: {$get}</error>");
+
+            return Command::FAILURE;
+        }
+
+        if ($get) {
+            $apiKey = $this->handleGetOption($input);
+            if ($apiKey instanceof Error) {
+                $output->writeln("<error>Error: {$apiKey}</error>");
+
+                return Command::FAILURE;
+            }
+
+            $output->writeln('');
+
+            return Command::SUCCESS;
+        }
+
         return Command::SUCCESS;
     }
+
+    private function handleGetOption(InputInterface $input): ApiKeyInterface|Error {}
 }

@@ -15,19 +15,19 @@ readonly class SetDefaultAiProviderInUserConfiguration implements SetDefaultAiPr
 
     public function execute(AiProvider $aiProvider): true|Error
     {
-        $checkAiProviderIsEnabledReturn = $this->checkAiProviderIsEnabled($aiProvider);
-        if ($checkAiProviderIsEnabledReturn instanceof Error) {
-            return $checkAiProviderIsEnabledReturn;
+        $aiProviderIsEnabled = $this->checkAiProviderIsEnabled($aiProvider);
+        if ($aiProviderIsEnabled instanceof Error) {
+            return $aiProviderIsEnabled;
         }
 
-        if (! $checkAiProviderIsEnabledReturn) {
+        if (! $aiProviderIsEnabled) {
             return Error::parse(
                 sprintf('AI provider "%s" is not enabled.', $aiProvider->value)
             );
         }
 
-        $setValueReturn = $this->userConfiguration->setValue('default_ai_provider', $aiProvider->value);
-        if ($setValueReturn instanceof Error) {
+        $valueIsSet = $this->userConfiguration->setValue('default_ai_provider', $aiProvider->value);
+        if ($valueIsSet instanceof Error) {
             return Error::parse('Unable to set default AI provider.');
         }
 

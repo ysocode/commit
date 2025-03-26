@@ -27,16 +27,16 @@ readonly class FetchEnabledAiProvidersFromUserConfiguration implements FetchEnab
             return Error::parse('AI providers should be an array.');
         }
 
-        $convertedAiProviders = [];
+        $enabledAiProviders = [];
         foreach ($aiProviders as $aiProvider => $aiProviderConfigurations) {
-            $convertedAiProvider = AiProvider::parse($aiProvider);
-            if ($convertedAiProvider instanceof Error) {
-                return $convertedAiProvider;
+            $aiProviderAsEnum = AiProvider::parse($aiProvider);
+            if ($aiProviderAsEnum instanceof Error) {
+                return $aiProviderAsEnum;
             }
 
             if (! is_array($aiProviderConfigurations)) {
                 return Error::parse(
-                    "{$convertedAiProvider->formattedValue()} AI provider configurations should be an array."
+                    "{$aiProviderAsEnum->formattedValue()} AI provider configurations should be an array."
                 );
             }
 
@@ -44,13 +44,13 @@ readonly class FetchEnabledAiProvidersFromUserConfiguration implements FetchEnab
                 continue;
             }
 
-            $convertedAiProviders[] = $convertedAiProvider;
+            $enabledAiProviders[] = $aiProviderAsEnum;
         }
 
-        if ($convertedAiProviders === []) {
+        if ($enabledAiProviders === []) {
             return Error::parse('No enabled AI providers found.');
         }
 
-        return $convertedAiProviders;
+        return $enabledAiProviders;
     }
 }

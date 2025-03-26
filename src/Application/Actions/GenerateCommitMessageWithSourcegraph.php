@@ -27,9 +27,9 @@ class GenerateCommitMessageWithSourcegraph extends GenerateCommitMessageAbstract
 
     protected function generateCommitMessage(string $apiKey): string|Error
     {
-        $checkCodyInstallationReturn = $this->checkCodyInstallation();
-        if ($checkCodyInstallationReturn instanceof Error) {
-            return $checkCodyInstallationReturn;
+        $codyIsInstalled = $this->checkCodyIsInstalled();
+        if (! $codyIsInstalled) {
+            return Error::parse('Cody is not installed.');
         }
 
         $codyProcess = new Process(
@@ -60,15 +60,11 @@ class GenerateCommitMessageWithSourcegraph extends GenerateCommitMessageAbstract
         return $commitMessage;
     }
 
-    private function checkCodyInstallation(): true|Error
+    private function checkCodyIsInstalled(): bool
     {
         $process = new Process(['which', 'cody']);
         $process->run();
 
-        if (! $process->isSuccessful()) {
-            return Error::parse('Cody is not installed.');
-        }
-
-        return true;
+        return $process->isSuccessful();
     }
 }

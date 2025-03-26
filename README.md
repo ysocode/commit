@@ -63,7 +63,7 @@ Commit allows you to set your API keys for the AI providers you choose.
 To set your API key for an AI provider, use the following commands:
 
 ```shell
-commit ai:key --provider=openai YOUR_API_KEY
+commit ai:api-key --provider=openai YOUR_API_KEY
 ```
 
 If you don't specify a provider, an interactive prompt will appear with a list of enabled
@@ -74,7 +74,7 @@ AIs for you to select from.
 Display the currently stored API key for the specified AI provider:
 
 ```shell
-commit ai:key --get --provider=openai
+commit ai:api-key --get --provider=openai
 ```
 
 If you don't specify a provider, an interactive prompt will appear with a list of enabled
@@ -96,7 +96,7 @@ Now that you have the Cody CLI available, you can follow the same process as oth
 AI providers by setting your key, and ysocode/commit will handle the rest for you:
 
 ```shell
-commit ai:key --provider=sourcegraph YOUR_API_KEY
+commit ai:api-key --provider=sourcegraph YOUR_API_KEY
 ```
 
 The key you set here corresponds directly to the SRC_ACCESS_TOKEN used by the Cody CLI.

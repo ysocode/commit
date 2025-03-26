@@ -39,16 +39,16 @@ abstract class GenerateCommitMessageAbstract
             return $apiKey;
         }
 
-        $generateCommitMessageReturn = $this->generateCommitMessage($apiKey);
-        if ($generateCommitMessageReturn instanceof Error) {
+        $commitMessage = $this->generateCommitMessage($apiKey);
+        if ($commitMessage instanceof Error) {
             $this->notify(Status::FAILED);
 
-            return $generateCommitMessageReturn;
+            return $commitMessage;
         }
 
         $this->notify(Status::FINISHED);
 
-        return $generateCommitMessageReturn;
+        return $commitMessage;
     }
 
     protected function getApiKey(): string|Error

@@ -70,16 +70,16 @@ class ManageDefaultAiProvider extends Command
         }
 
         if ($list) {
-            $handleListOptionReturn = $this->handleListOption($input);
-            if ($handleListOptionReturn instanceof Error) {
-                $output->writeln("<error>Error: {$handleListOptionReturn}</error>");
+            $enabledAiProviders = $this->handleListOption($input);
+            if ($enabledAiProviders instanceof Error) {
+                $output->writeln("<error>Error: {$enabledAiProviders}</error>");
 
                 return Command::FAILURE;
             }
 
             $formattedProviders = array_map(
                 fn ($aiProvider): string => sprintf('<info>• %s</info>', $aiProvider->formattedValue()),
-                $handleListOptionReturn
+                $enabledAiProviders
             );
 
             $output->writeln([
@@ -100,15 +100,15 @@ class ManageDefaultAiProvider extends Command
         }
 
         if ($get) {
-            $handleGetOptionReturn = $this->handleGetOption($input);
-            if ($handleGetOptionReturn instanceof Error) {
-                $output->writeln("<error>Error: {$handleGetOptionReturn}</error>");
+            $defaultAiProvider = $this->handleGetOption($input);
+            if ($defaultAiProvider instanceof Error) {
+                $output->writeln("<error>Error: {$defaultAiProvider}</error>");
 
                 return Command::FAILURE;
             }
 
             $output->writeln(
-                "The current default AI provider is: {$handleGetOptionReturn->formattedValue()}"
+                "The current default AI provider is: {$defaultAiProvider->formattedValue()}"
             );
 
             return Command::SUCCESS;
@@ -132,9 +132,9 @@ class ManageDefaultAiProvider extends Command
             return Command::FAILURE;
         }
 
-        $setDefaultAiProviderReturn = $this->setDefaultAiProvider($aiProvider);
-        if ($setDefaultAiProviderReturn instanceof Error) {
-            $output->writeln("<error>Error: {$setDefaultAiProviderReturn}</error>");
+        $defaultAiProviderIsSet = $this->setDefaultAiProvider($aiProvider);
+        if ($defaultAiProviderIsSet instanceof Error) {
+            $output->writeln("<error>Error: {$defaultAiProviderIsSet}</error>");
 
             return Command::FAILURE;
         }

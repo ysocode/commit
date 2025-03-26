@@ -59,12 +59,12 @@ trait WithConfigurationToolsTrait
      */
     private static function createUserConfigurationFile(): void
     {
-        $checkUserConfigurationDirExistenceReturn = self::$userConfiguration->checkUserConfigurationDirExistence();
-        if ($checkUserConfigurationDirExistenceReturn instanceof Error) {
-            throw new Exception((string) $checkUserConfigurationDirExistenceReturn);
+        $userConfigurationDirExists = self::$userConfiguration->checkUserConfigurationDirExistence();
+        if ($userConfigurationDirExists instanceof Error) {
+            throw new Exception((string) $userConfigurationDirExists);
         }
 
-        if (! $checkUserConfigurationDirExistenceReturn) {
+        if (! $userConfigurationDirExists) {
             self::createUserConfigurationDir();
         }
 

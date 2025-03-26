@@ -16,9 +16,9 @@ abstract class CommitStagedChangesAbstract
     {
         $this->notify(Status::STARTED);
 
-        $commitStagedChangesReturn = $this->commitStagedChanges($commitMessage);
-        if ($commitStagedChangesReturn instanceof Error) {
-            return $commitStagedChangesReturn;
+        $commitIsMade = $this->commitStagedChanges($commitMessage);
+        if ($commitIsMade instanceof Error) {
+            return $commitIsMade;
         }
 
         $this->notify(Status::FINISHED);
