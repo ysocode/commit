@@ -132,7 +132,7 @@ class ManageDefaultAiProvider extends Command
             return Command::FAILURE;
         }
 
-        $defaultAiProviderIsSet = $this->setDefaultAiProvider($aiProvider);
+        $defaultAiProviderIsSet = $this->setDefaultAiProvider->execute($aiProvider);
         if ($defaultAiProviderIsSet instanceof Error) {
             $output->writeln("<error>Error: {$defaultAiProviderIsSet}</error>");
 
@@ -174,11 +174,6 @@ class ManageDefaultAiProvider extends Command
             return Error::parse('The "--get" option cannot be used with the "provider" argument.');
         }
 
-        return $this->getDefaultAiProvider();
-    }
-
-    private function getDefaultAiProvider(): AiProvider|Error
-    {
         return $this->getDefaultAiProvider->execute();
     }
 
@@ -208,11 +203,6 @@ class ManageDefaultAiProvider extends Command
         }
 
         return AiProvider::parse($questionResponse);
-    }
-
-    private function setDefaultAiProvider(AiProvider $aiProvider): true|Error
-    {
-        return $this->setDefaultAiProvider->execute($aiProvider);
     }
 
     private function getAiProvider(InputInterface $input): AiProvider|Error
