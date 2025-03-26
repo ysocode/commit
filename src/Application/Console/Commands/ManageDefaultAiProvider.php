@@ -14,11 +14,14 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
 use YSOCode\Commit\Application\Console\Commands\Interfaces\FetchEnabledAiProvidersInterface;
 use YSOCode\Commit\Application\Console\Commands\Interfaces\GetDefaultAiProviderInterface;
 use YSOCode\Commit\Application\Console\Commands\Interfaces\SetDefaultAiProviderInterface;
+use YSOCode\Commit\Application\Console\Commands\Traits\WithCommandToolsTrait;
 use YSOCode\Commit\Domain\Enums\AiProvider;
 use YSOCode\Commit\Domain\Types\Error;
 
 class ManageDefaultAiProvider extends Command
 {
+    use WithCommandToolsTrait;
+
     public function __construct(
         private readonly GetDefaultAiProviderInterface $getDefaultAiProvider,
         private readonly SetDefaultAiProviderInterface $setDefaultAiProvider,
@@ -111,7 +114,14 @@ class ManageDefaultAiProvider extends Command
             return Command::SUCCESS;
         }
 
-        $aiProvider = match ($this->checkAiProviderIsProvided($input)) {
+        $aiProviderIsProvided = $this->checkArgumentIsProvided($input, 'provider');
+        if ($aiProviderIsProvided instanceof Error) {
+            $output->writeln("<error>Error: {$aiProviderIsProvided}</error>");
+
+            return Command::FAILURE;
+        }
+
+        $aiProvider = match ($aiProviderIsProvided) {
             true => $this->getAiProvider($input),
             false => $this->askToChooseDefaultAiProvider($input, $output),
         };
@@ -136,24 +146,17 @@ class ManageDefaultAiProvider extends Command
         return Command::SUCCESS;
     }
 
-    private function getBooleanOption(InputInterface $input, string $option): bool|Error
-    {
-        $value = $input->getOption($option);
-        if (! is_bool($value)) {
-            return Error::parse(
-                sprintf('<error>Invalid "--%s" option provided.</error>', $option)
-            );
-        }
-
-        return $value;
-    }
-
     /**
      * @return array<AiProvider>|Error
      */
     private function handleListOption(InputInterface $input): array|Error
     {
-        if ($this->checkAiProviderIsProvided($input)) {
+        $aiProviderIsProvided = $this->checkArgumentIsProvided($input, 'provider');
+        if ($aiProviderIsProvided instanceof Error) {
+            return $aiProviderIsProvided;
+        }
+
+        if ($aiProviderIsProvided) {
             return Error::parse('The "--list" option cannot be used with the "provider" argument.');
         }
 
@@ -162,16 +165,16 @@ class ManageDefaultAiProvider extends Command
 
     private function handleGetOption(InputInterface $input): AiProvider|Error
     {
-        if ($this->checkAiProviderIsProvided($input)) {
+        $aiProviderIsProvided = $this->checkArgumentIsProvided($input, 'provider');
+        if ($aiProviderIsProvided instanceof Error) {
+            return $aiProviderIsProvided;
+        }
+
+        if ($aiProviderIsProvided) {
             return Error::parse('The "--get" option cannot be used with the "provider" argument.');
         }
 
         return $this->getDefaultAiProvider();
-    }
-
-    private function checkAiProviderIsProvided(InputInterface $input): bool
-    {
-        return ! is_null($input->getArgument('provider'));
     }
 
     private function getDefaultAiProvider(): AiProvider|Error
