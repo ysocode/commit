@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace YSOCode\Commit\Domain\Types;
 
 use DomainException;
-use Stringable;
+use YSOCode\Commit\Domain\Types\Interfaces\ErrorInterface;
 
-readonly class Error implements Stringable
+readonly class Error implements ErrorInterface
 {
     public function __construct(private string $value) {}
 

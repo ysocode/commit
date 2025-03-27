@@ -6,7 +6,7 @@ namespace YSOCode\Commit\Application\Services;
 
 use Closure;
 use Symfony\Component\Process\Process;
-use YSOCode\Commit\Application\Services\Interface\AiProviderInterface;
+use YSOCode\Commit\Application\Services\Interfaces\AiProviderInterface;
 use YSOCode\Commit\Application\Services\Types\SourcegraphApiKey;
 use YSOCode\Commit\Domain\Types\Error;
 

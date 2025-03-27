@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace YSOCode\Commit\Application\Services\Types;
 
 use DomainException;
-use Stringable;
+use YSOCode\Commit\Application\Services\Types\Interfaces\ApiKeyInterface;
 
-readonly class SourcegraphApiKey implements Stringable
+readonly class SourcegraphApiKey implements ApiKeyInterface
 {
     public function __construct(private string $value) {}
 
