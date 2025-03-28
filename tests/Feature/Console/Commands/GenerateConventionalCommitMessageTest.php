@@ -16,11 +16,10 @@ use YSOCode\Commit\Application\Actions\CheckAiProviderIsEnabledInUserConfigurati
 use YSOCode\Commit\Application\Actions\CheckLanguageIsEnabledInUserConfiguration;
 use YSOCode\Commit\Application\Actions\GetDefaultAiProviderFromUserConfiguration;
 use YSOCode\Commit\Application\Actions\GetDefaultLanguageFromUserConfiguration;
-use YSOCode\Commit\Application\Console\Commands\Abstracts\CommitStagedChangesAbstract;
-use YSOCode\Commit\Application\Console\Commands\Abstracts\GenerateCommitMessageAbstract;
-use YSOCode\Commit\Application\Console\Commands\Factories\GenerateCommitMessageFactory;
 use YSOCode\Commit\Application\Console\Commands\GenerateConventionalCommitMessage;
+use YSOCode\Commit\Application\Console\Commands\Interfaces\CommitStagedChangesInterface;
 use YSOCode\Commit\Application\Console\Commands\Interfaces\FetchStagedChangesInterface;
+use YSOCode\Commit\Application\Console\Commands\Interfaces\GenerateCommitMessageInterface;
 use YSOCode\Commit\Domain\Enums\AiProvider;
 use YSOCode\Commit\Domain\Enums\Language;
 use YSOCode\Commit\Domain\Types\Error;
@@ -32,8 +31,6 @@ class GenerateConventionalCommitMessageTest extends TestCase
     private MockObject $mockFetchStagedChanges;
 
     private MockObject $mockGenerateCommitMessage;
-
-    private MockObject $mockGenerateCommitMessageFactory;
 
     private MockObject $mockCommitStagedChanges;
 
@@ -78,10 +75,9 @@ class GenerateConventionalCommitMessageTest extends TestCase
 
         $this->mockFetchStagedChanges = $this->createMock(FetchStagedChangesInterface::class);
 
-        $this->mockGenerateCommitMessage = $this->createMock(GenerateCommitMessageAbstract::class);
-        $this->mockGenerateCommitMessageFactory = $this->createMock(GenerateCommitMessageFactory::class);
+        $this->mockGenerateCommitMessage = $this->createMock(GenerateCommitMessageInterface::class);
 
-        $this->mockCommitStagedChanges = $this->createMock(CommitStagedChangesAbstract::class);
+        $this->mockCommitStagedChanges = $this->createMock(CommitStagedChangesInterface::class);
 
         $checkAiProviderIsEnabled = new CheckAiProviderIsEnabledInUserConfiguration(self::$userConfiguration);
         $checkLanguageIsEnabled = new CheckLanguageIsEnabledInUserConfiguration(self::$userConfiguration);
@@ -99,7 +95,7 @@ class GenerateConventionalCommitMessageTest extends TestCase
                     $checkLanguageIsEnabled
                 ),
                 $this->mockFetchStagedChanges,
-                $this->mockGenerateCommitMessageFactory,
+                $this->mockGenerateCommitMessage,
                 $this->mockCommitStagedChanges
             )
         );
@@ -130,20 +126,6 @@ class GenerateConventionalCommitMessageTest extends TestCase
             $this->expectedCommitMessage
             ```
             COMMIT_MESSAGE);
-    }
-
-    private function configureMockGenerateCommitMessageFactory(
-        InvocationOrder $createExpectation
-    ): void {
-        $this->mockGenerateCommitMessageFactory
-            ->expects($createExpectation)
-            ->method('create')
-            ->with(
-                $this->isInstanceOf(AiProvider::class),
-                $this->isString(),
-                $this->isString(),
-            )
-            ->willReturn($this->mockGenerateCommitMessage);
     }
 
     /**
@@ -202,10 +184,6 @@ class GenerateConventionalCommitMessageTest extends TestCase
             $this->once()
         );
 
-        $this->configureMockGenerateCommitMessageFactory(
-            $this->once()
-        );
-
         $this->mockCommitStagedChanges
             ->expects($this->never())
             ->method('execute')
@@ -239,10 +217,6 @@ class GenerateConventionalCommitMessageTest extends TestCase
             $this->never()
         );
 
-        $this->configureMockGenerateCommitMessageFactory(
-            $this->never()
-        );
-
         $this->mockCommitStagedChanges
             ->expects($this->never())
             ->method('execute');
@@ -268,10 +242,6 @@ class GenerateConventionalCommitMessageTest extends TestCase
 
         $this->configureMockGenerateCommitMessage(
             $this->once(),
-            $this->once()
-        );
-
-        $this->configureMockGenerateCommitMessageFactory(
             $this->once()
         );
 
@@ -305,10 +275,6 @@ class GenerateConventionalCommitMessageTest extends TestCase
 
         $this->configureMockGenerateCommitMessage(
             $this->once(),
-            $this->once()
-        );
-
-        $this->configureMockGenerateCommitMessageFactory(
             $this->once()
         );
 
@@ -361,10 +327,6 @@ class GenerateConventionalCommitMessageTest extends TestCase
             $this->never()
         );
 
-        $this->configureMockGenerateCommitMessageFactory(
-            $this->never()
-        );
-
         $this->mockCommitStagedChanges
             ->expects($this->never())
             ->method('execute');
@@ -403,10 +365,6 @@ class GenerateConventionalCommitMessageTest extends TestCase
 
         $this->configureMockGenerateCommitMessage(
             $this->never(),
-            $this->never()
-        );
-
-        $this->configureMockGenerateCommitMessageFactory(
             $this->never()
         );
 
@@ -451,10 +409,6 @@ class GenerateConventionalCommitMessageTest extends TestCase
 
         $this->configureMockGenerateCommitMessage(
             $this->once(),
-            $this->once()
-        );
-
-        $this->configureMockGenerateCommitMessageFactory(
             $this->once()
         );
 
@@ -507,10 +461,6 @@ class GenerateConventionalCommitMessageTest extends TestCase
             $this->never()
         );
 
-        $this->configureMockGenerateCommitMessageFactory(
-            $this->never()
-        );
-
         $this->mockCommitStagedChanges
             ->expects($this->never())
             ->method('execute');
@@ -546,10 +496,6 @@ class GenerateConventionalCommitMessageTest extends TestCase
 
         $this->configureMockGenerateCommitMessage(
             $this->never(),
-            $this->never()
-        );
-
-        $this->configureMockGenerateCommitMessageFactory(
             $this->never()
         );
 

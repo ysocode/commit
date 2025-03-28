@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace YSOCode\Commit\Application\Actions;
 
 use YSOCode\Commit\Application\Console\Commands\Interfaces\GetApiKeyInterface;
@@ -15,7 +17,7 @@ readonly class GetApiKeyFromUserConfiguration implements GetApiKeyInterface
 
     public function execute(AiProvider $aiProvider): ApiKeyInterface|Error
     {
-        $apiKey = $this->userConfiguration->getValue("ai_providers.{$aiProvider->formattedValue()}.api_key");
+        $apiKey = $this->userConfiguration->getValue("ai_providers.{$aiProvider->value}.api_key");
         if ($apiKey instanceof Error) {
             return Error::parse(sprintf('Could not retrieve API key for "%s" AI provider.', $aiProvider->formattedValue()));
         }

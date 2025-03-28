@@ -27,10 +27,9 @@ use YSOCode\Commit\Application\Actions\CommitGitStagedChanges;
 use YSOCode\Commit\Application\Actions\CreateUserConfigurationFile;
 use YSOCode\Commit\Application\Actions\FetchEnabledAiProvidersFromUserConfiguration;
 use YSOCode\Commit\Application\Actions\FetchStagedGitChanges;
-use YSOCode\Commit\Application\Actions\GetDefaultAiProviderFromUserConfiguration;
+use YSOCode\Commit\Application\Actions\GenerateCommitMessageWithAiProvider;use YSOCode\Commit\Application\Actions\GetApiKeyFromUserConfiguration;use YSOCode\Commit\Application\Actions\GetDefaultAiProviderFromUserConfiguration;
 use YSOCode\Commit\Application\Actions\GetDefaultLanguageFromUserConfiguration;
 use YSOCode\Commit\Application\Actions\SetDefaultAiProviderInUserConfiguration;
-use YSOCode\Commit\Application\Console\Commands\Factories\GenerateCommitMessageFactory;
 use YSOCode\Commit\Application\Console\Commands\GenerateConventionalCommitMessage;
 use YSOCode\Commit\Application\Console\Commands\InitializeConfiguration;
 use YSOCode\Commit\Application\Console\Commands\ManageAiProviderApiKey;
@@ -55,7 +54,9 @@ $app->add(
         new GetDefaultAiProviderFromUserConfiguration($userConfiguration, $checkAiProviderIsEnabled),
         new GetDefaultLanguageFromUserConfiguration($userConfiguration, $checkLanguageIsEnabled),
         new FetchStagedGitChanges,
-        new GenerateCommitMessageFactory($userConfiguration),
+        new GenerateCommitMessageWithAiProvider(
+            new GetApiKeyFromUserConfiguration($userConfiguration),
+        ),
         new CommitGitStagedChanges
     )
 );

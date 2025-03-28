@@ -75,7 +75,7 @@ readonly class UserConfiguration
 
         foreach ($segments as $segment) {
             if (! is_array($currentValue) || ! array_key_exists($segment, $currentValue)) {
-                return Error::parse("User configuration key '{$key}' not found.");
+                return Error::parse(sprintf('User configuration key "%s" not found.', $key));
             }
             $currentValue = $currentValue[$segment];
         }
@@ -101,7 +101,7 @@ readonly class UserConfiguration
 
         foreach ($segments as $segment) {
             if (! is_array($currentValue) || ! array_key_exists($segment, $currentValue)) {
-                return Error::parse("User configuration key '{$key}' not found.");
+                return Error::parse(sprintf('User configuration key "%s" not found.', $key));
             }
 
             // Move the reference deeper into the array

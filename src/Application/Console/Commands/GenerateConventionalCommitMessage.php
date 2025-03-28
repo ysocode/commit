@@ -13,11 +13,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
-use YSOCode\Commit\Application\Console\Commands\Abstracts\CommitStagedChangesAbstract;
-use YSOCode\Commit\Application\Console\Commands\Factories\GenerateCommitMessageFactory;
 use YSOCode\Commit\Application\Console\Commands\Interfaces\CheckAiProviderIsEnabledInterface;
 use YSOCode\Commit\Application\Console\Commands\Interfaces\CheckLanguageIsEnabledInterface;
+use YSOCode\Commit\Application\Console\Commands\Interfaces\CommitStagedChangesInterface;
 use YSOCode\Commit\Application\Console\Commands\Interfaces\FetchStagedChangesInterface;
+use YSOCode\Commit\Application\Console\Commands\Interfaces\GenerateCommitMessageInterface;
 use YSOCode\Commit\Application\Console\Commands\Interfaces\GetDefaultAiProviderInterface;
 use YSOCode\Commit\Application\Console\Commands\Interfaces\GetDefaultLanguageInterface;
 use YSOCode\Commit\Domain\Enums\AiProvider;
@@ -33,8 +33,8 @@ class GenerateConventionalCommitMessage extends Command
         private readonly GetDefaultAiProviderInterface $getDefaultAiProvider,
         private readonly GetDefaultLanguageInterface $getDefaultLanguage,
         private readonly FetchStagedChangesInterface $fetchStagedChanges,
-        private readonly GenerateCommitMessageFactory $generateCommitMessageFactory,
-        private readonly CommitStagedChangesAbstract $commitStagedChanges
+        private readonly GenerateCommitMessageInterface $generateCommitMessage,
+        private readonly CommitStagedChangesInterface $commitStagedChanges
     ) {
         parent::__construct();
     }
@@ -93,6 +93,22 @@ class GenerateConventionalCommitMessage extends Command
             return Command::FAILURE;
         }
 
+        $generateCommitMessageProgressIndicator = new ProgressIndicator(
+            $output,
+            'verbose',
+            100,
+            ['⠏', '⠛', '⠹', '⢸', '⣰', '⣤', '⣆', '⡇']
+        );
+
+        $this->generateCommitMessage->subscribe(function (Status $status) use ($generateCommitMessageProgressIndicator, $aiProvider): void {
+            match ($status) {
+                Status::STARTED => $generateCommitMessageProgressIndicator->start("Processing with {$aiProvider->formattedValue()}..."),
+                Status::RUNNING => $generateCommitMessageProgressIndicator->advance(),
+                Status::FAILED => $generateCommitMessageProgressIndicator->finish('Failed'),
+                Status::FINISHED => $generateCommitMessageProgressIndicator->finish('Finished'),
+            };
+        });
+
         $prompt = <<<PROMPT
         Write a commit message for this diff following Conventional Commits specification.
         ALWAYS wrap the entire commit message between ``` delimiters.
@@ -110,34 +126,7 @@ class GenerateConventionalCommitMessage extends Command
         ```
         PROMPT;
 
-        $generateCommitMessage = $this->generateCommitMessageFactory->create(
-            $aiProvider,
-            $prompt,
-            $diff
-        );
-        if ($generateCommitMessage instanceof Error) {
-            $output->writeln("<error>Error: {$generateCommitMessage}</error>");
-
-            return Command::FAILURE;
-        }
-
-        $generateCommitMessageProgressIndicator = new ProgressIndicator(
-            $output,
-            'verbose',
-            100,
-            ['⠏', '⠛', '⠹', '⢸', '⣰', '⣤', '⣆', '⡇']
-        );
-
-        $generateCommitMessage->subscribe(function (Status $status) use ($generateCommitMessageProgressIndicator, $aiProvider): void {
-            match ($status) {
-                Status::STARTED => $generateCommitMessageProgressIndicator->start("Processing with {$aiProvider->formattedValue()}..."),
-                Status::RUNNING => $generateCommitMessageProgressIndicator->advance(),
-                Status::FAILED => $generateCommitMessageProgressIndicator->finish('Failed'),
-                Status::FINISHED => $generateCommitMessageProgressIndicator->finish('Finished'),
-            };
-        });
-
-        $conventionalCommitMessage = $generateCommitMessage->execute();
+        $conventionalCommitMessage = $this->generateCommitMessage->execute($aiProvider, $prompt, $diff);
         if ($conventionalCommitMessage instanceof Error) {
             $output->writeln("<error>Error: {$conventionalCommitMessage}</error>");
 

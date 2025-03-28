@@ -2,40 +2,23 @@
 
 declare(strict_types=1);
 
-namespace YSOCode\Commit\Application\Actions;
+namespace YSOCode\Commit\Application\Services;
 
+use Closure;
 use Symfony\Component\Process\Process;
-use YSOCode\Commit\Application\Console\Commands\Interfaces\GenerateCommitMessageInterface;
-use YSOCode\Commit\Application\Console\Commands\Interfaces\GetApiKeyInterface;
-use YSOCode\Commit\Domain\Enums\AiProvider;
-use YSOCode\Commit\Domain\Enums\Status;
-use YSOCode\Commit\Domain\Traits\WithObserverToolsTrait;
+use YSOCode\Commit\Application\Services\Interfaces\AiProviderServiceInterface;
 use YSOCode\Commit\Domain\Types\Error;
+use YSOCode\Commit\Domain\Types\SourcegraphApiKey;
 
-class GenerateCommitMessageWithSourcegraph implements GenerateCommitMessageInterface
+readonly class Sourcegraph implements AiProviderServiceInterface
 {
-    use WithObserverToolsTrait;
+    public function __construct(private SourcegraphApiKey $apiKey) {}
 
-    public function __construct(
-        private readonly GetApiKeyInterface $getApiKey,
-    ) {}
-
-    public function execute(AiProvider $aiProvider, string $prompt, string $diff): string|Error
+    public function generateCommitMessage(string $prompt, string $diff, Closure $onProgress): string|Error
     {
-        $this->notify(Status::STARTED);
-
         $codyIsInstalled = $this->checkCodyIsInstalled();
         if (! $codyIsInstalled) {
-            $this->notify(Status::FAILED);
-
             return Error::parse('Cody is not installed.');
-        }
-
-        $apiKey = $this->getApiKey->execute($aiProvider);
-        if ($apiKey instanceof Error) {
-            $this->notify(Status::FAILED);
-
-            return $apiKey;
         }
 
         $codyGenerateCommitMessageProcess = new Process(
@@ -43,31 +26,25 @@ class GenerateCommitMessageWithSourcegraph implements GenerateCommitMessageInter
             null,
             [
                 'SRC_ENDPOINT' => 'https://sourcegraph.com',
-                'SRC_ACCESS_TOKEN' => (string) $apiKey,
+                'SRC_ACCESS_TOKEN' => (string) $this->apiKey,
             ],
-            $this->$diff
+            $diff
         );
 
         $codyGenerateCommitMessageProcess->start();
 
         while ($codyGenerateCommitMessageProcess->isRunning()) {
-            $this->notifyRunningStatus();
+            $onProgress();
         }
 
         if (! $codyGenerateCommitMessageProcess->isSuccessful()) {
-            $this->notify(Status::FAILED);
-
             return Error::parse($codyGenerateCommitMessageProcess->getErrorOutput());
         }
 
         $commitMessage = $codyGenerateCommitMessageProcess->getOutput();
         if ($commitMessage === '' || $commitMessage === '0') {
-            $this->notify(Status::FAILED);
-
             return Error::parse('Unable to generate commit message.');
         }
-
-        $this->notify(Status::FINISHED);
 
         return $commitMessage;
     }
