@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace YSOCode\Commit\Application\Console\Commands\Traits;
+namespace YSOCode\Commit\Application\Commands\Traits;
 
 use Symfony\Component\Console\Input\InputInterface;
 use YSOCode\Commit\Domain\Types\Error;

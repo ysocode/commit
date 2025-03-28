@@ -13,7 +13,7 @@ use YSOCode\Commit\Application\Actions\CheckAiProviderIsEnabledInUserConfigurati
 use YSOCode\Commit\Application\Actions\FetchEnabledAiProvidersFromUserConfiguration;
 use YSOCode\Commit\Application\Actions\GetDefaultAiProviderFromUserConfiguration;
 use YSOCode\Commit\Application\Actions\SetDefaultAiProviderInUserConfiguration;
-use YSOCode\Commit\Application\Console\Commands\ManageDefaultAiProvider;
+use YSOCode\Commit\Application\Commands\ManageDefaultAiProvider;
 use YSOCode\Commit\Domain\Enums\AiProvider;
 use YSOCode\Commit\Domain\Types\Error;
 

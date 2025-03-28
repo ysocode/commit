@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace YSOCode\Commit\Application\Actions;
 
-use YSOCode\Commit\Application\Console\Commands\Interfaces\CheckLanguageIsEnabledInterface;
+use YSOCode\Commit\Application\Commands\Interfaces\CheckLanguageIsEnabledInterface;
 use YSOCode\Commit\Domain\Enums\Language;
 use YSOCode\Commit\Domain\Types\Error;
 use YSOCode\Commit\Foundation\Support\UserConfiguration;

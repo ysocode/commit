@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace YSOCode\Commit\Application\Actions;
 
-use YSOCode\Commit\Application\Console\Commands\Interfaces\GenerateCommitMessageInterface;
-use YSOCode\Commit\Application\Console\Commands\Interfaces\GetApiKeyInterface;
+use YSOCode\Commit\Application\Commands\Interfaces\GenerateCommitMessageInterface;
+use YSOCode\Commit\Application\Commands\Interfaces\GetApiKeyInterface;
 use YSOCode\Commit\Application\Services\Factories\AiProviderServiceFactory;
 use YSOCode\Commit\Domain\Enums\AiProvider;
 use YSOCode\Commit\Domain\Enums\Status;

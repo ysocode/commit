@@ -10,7 +10,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 use Tests\Feature\Console\Commands\Traits\WithConfigurationToolsTrait;
 use Tests\Feature\Console\Commands\Traits\WithSymfonyConsoleApplicationTrait;
 use YSOCode\Commit\Application\Actions\CreateUserConfigurationFile;
-use YSOCode\Commit\Application\Console\Commands\InitializeConfiguration;
+use YSOCode\Commit\Application\Commands\InitializeConfiguration;
 
 class InitializeConfigurationTest extends TestCase
 {

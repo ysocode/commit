@@ -16,10 +16,10 @@ use YSOCode\Commit\Application\Actions\CheckAiProviderIsEnabledInUserConfigurati
 use YSOCode\Commit\Application\Actions\CheckLanguageIsEnabledInUserConfiguration;
 use YSOCode\Commit\Application\Actions\GetDefaultAiProviderFromUserConfiguration;
 use YSOCode\Commit\Application\Actions\GetDefaultLanguageFromUserConfiguration;
-use YSOCode\Commit\Application\Console\Commands\GenerateConventionalCommitMessage;
-use YSOCode\Commit\Application\Console\Commands\Interfaces\CommitStagedChangesInterface;
-use YSOCode\Commit\Application\Console\Commands\Interfaces\FetchStagedChangesInterface;
-use YSOCode\Commit\Application\Console\Commands\Interfaces\GenerateCommitMessageInterface;
+use YSOCode\Commit\Application\Commands\GenerateConventionalCommitMessage;
+use YSOCode\Commit\Application\Commands\Interfaces\CommitStagedChangesInterface;
+use YSOCode\Commit\Application\Commands\Interfaces\FetchStagedChangesInterface;
+use YSOCode\Commit\Application\Commands\Interfaces\GenerateCommitMessageInterface;
 use YSOCode\Commit\Domain\Enums\AiProvider;
 use YSOCode\Commit\Domain\Enums\Language;
 use YSOCode\Commit\Domain\Types\Error;

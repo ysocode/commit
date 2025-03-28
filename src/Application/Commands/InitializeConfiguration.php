@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace YSOCode\Commit\Application\Console\Commands;
+namespace YSOCode\Commit\Application\Commands;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use YSOCode\Commit\Application\Console\Commands\Interfaces\CreateConfigurationFileInterface;
-use YSOCode\Commit\Application\Console\Commands\Traits\WithCommandToolsTrait;
+use YSOCode\Commit\Application\Commands\Interfaces\CreateConfigurationFileInterface;
+use YSOCode\Commit\Application\Commands\Traits\WithCommandToolsTrait;
 use YSOCode\Commit\Domain\Types\Error;
 
 class InitializeConfiguration extends Command

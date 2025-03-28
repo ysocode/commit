@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace YSOCode\Commit\Application\Actions;
 
 use Symfony\Component\Process\Process;
-use YSOCode\Commit\Application\Console\Commands\Interfaces\CommitStagedChangesInterface;
+use YSOCode\Commit\Application\Commands\Interfaces\CommitStagedChangesInterface;
 use YSOCode\Commit\Domain\Enums\Status;
 use YSOCode\Commit\Domain\Traits\WithObserverToolsTrait;
 use YSOCode\Commit\Domain\Types\Error;

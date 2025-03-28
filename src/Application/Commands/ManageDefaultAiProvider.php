@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace YSOCode\Commit\Application\Console\Commands;
+namespace YSOCode\Commit\Application\Commands;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
@@ -11,10 +11,10 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
-use YSOCode\Commit\Application\Console\Commands\Interfaces\FetchEnabledAiProvidersInterface;
-use YSOCode\Commit\Application\Console\Commands\Interfaces\GetDefaultAiProviderInterface;
-use YSOCode\Commit\Application\Console\Commands\Interfaces\SetDefaultAiProviderInterface;
-use YSOCode\Commit\Application\Console\Commands\Traits\WithCommandToolsTrait;
+use YSOCode\Commit\Application\Commands\Interfaces\FetchEnabledAiProvidersInterface;
+use YSOCode\Commit\Application\Commands\Interfaces\GetDefaultAiProviderInterface;
+use YSOCode\Commit\Application\Commands\Interfaces\SetDefaultAiProviderInterface;
+use YSOCode\Commit\Application\Commands\Traits\WithCommandToolsTrait;
 use YSOCode\Commit\Domain\Enums\AiProvider;
 use YSOCode\Commit\Domain\Types\Error;
 

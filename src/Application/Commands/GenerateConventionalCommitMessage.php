@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace YSOCode\Commit\Application\Console\Commands;
+namespace YSOCode\Commit\Application\Commands;
 
 use Exception;
 use Symfony\Component\Console\Command\Command;
@@ -13,13 +13,13 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
-use YSOCode\Commit\Application\Console\Commands\Interfaces\CheckAiProviderIsEnabledInterface;
-use YSOCode\Commit\Application\Console\Commands\Interfaces\CheckLanguageIsEnabledInterface;
-use YSOCode\Commit\Application\Console\Commands\Interfaces\CommitStagedChangesInterface;
-use YSOCode\Commit\Application\Console\Commands\Interfaces\FetchStagedChangesInterface;
-use YSOCode\Commit\Application\Console\Commands\Interfaces\GenerateCommitMessageInterface;
-use YSOCode\Commit\Application\Console\Commands\Interfaces\GetDefaultAiProviderInterface;
-use YSOCode\Commit\Application\Console\Commands\Interfaces\GetDefaultLanguageInterface;
+use YSOCode\Commit\Application\Commands\Interfaces\CheckAiProviderIsEnabledInterface;
+use YSOCode\Commit\Application\Commands\Interfaces\CheckLanguageIsEnabledInterface;
+use YSOCode\Commit\Application\Commands\Interfaces\CommitStagedChangesInterface;
+use YSOCode\Commit\Application\Commands\Interfaces\FetchStagedChangesInterface;
+use YSOCode\Commit\Application\Commands\Interfaces\GenerateCommitMessageInterface;
+use YSOCode\Commit\Application\Commands\Interfaces\GetDefaultAiProviderInterface;
+use YSOCode\Commit\Application\Commands\Interfaces\GetDefaultLanguageInterface;
 use YSOCode\Commit\Domain\Enums\AiProvider;
 use YSOCode\Commit\Domain\Enums\Language;
 use YSOCode\Commit\Domain\Enums\Status;

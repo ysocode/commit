@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace YSOCode\Commit\Application\Actions;
 
 use Symfony\Component\Process\Process;
-use YSOCode\Commit\Application\Console\Commands\Interfaces\FetchStagedChangesInterface;
+use YSOCode\Commit\Application\Commands\Interfaces\FetchStagedChangesInterface;
 use YSOCode\Commit\Domain\Types\Error;
 
 readonly class FetchStagedGitChanges implements FetchStagedChangesInterface
