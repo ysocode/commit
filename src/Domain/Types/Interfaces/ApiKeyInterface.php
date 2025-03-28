@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace YSOCode\Commit\Application\Services\Types\Interfaces;
+namespace YSOCode\Commit\Domain\Types\Interfaces;
 
 use Stringable;
 

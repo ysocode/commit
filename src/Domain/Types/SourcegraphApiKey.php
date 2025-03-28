@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace YSOCode\Commit\Application\Services\Types;
+namespace YSOCode\Commit\Domain\Types;
 
 use DomainException;
-use YSOCode\Commit\Application\Services\Types\Interfaces\ApiKeyInterface;
+use YSOCode\Commit\Domain\Types\Interfaces\ApiKeyInterface;
 
 readonly class SourcegraphApiKey implements ApiKeyInterface
 {
