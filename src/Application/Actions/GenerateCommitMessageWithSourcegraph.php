@@ -5,66 +5,78 @@ declare(strict_types=1);
 namespace YSOCode\Commit\Application\Actions;
 
 use Symfony\Component\Process\Process;
-use YSOCode\Commit\Application\Console\Commands\Abstracts\GenerateCommitMessageAbstract;
+use YSOCode\Commit\Application\Console\Commands\Interfaces\GenerateCommitMessageInterface;
+use YSOCode\Commit\Application\Console\Commands\Interfaces\GetApiKeyInterface;
 use YSOCode\Commit\Domain\Enums\AiProvider;
+use YSOCode\Commit\Domain\Enums\Status;
+use YSOCode\Commit\Domain\Traits\WithObserverToolsTrait;
 use YSOCode\Commit\Domain\Types\Error;
-use YSOCode\Commit\Foundation\Support\UserConfiguration;
 
-class GenerateCommitMessageWithSourcegraph extends GenerateCommitMessageAbstract
+class GenerateCommitMessageWithSourcegraph implements GenerateCommitMessageInterface
 {
-    public function __construct(
-        UserConfiguration $userConfiguration,
-        string $prompt,
-        string $diff
-    ) {
-        parent::__construct(
-            AiProvider::SOURCEGRAPH,
-            $userConfiguration,
-            $prompt,
-            $diff
-        );
-    }
+    use WithObserverToolsTrait;
 
-    protected function generateCommitMessage(string $apiKey): string|Error
+    public function __construct(
+        private readonly GetApiKeyInterface $getApiKey,
+    ) {}
+
+    public function execute(AiProvider $aiProvider, string $prompt, string $diff): string|Error
     {
+        $this->notify(Status::STARTED);
+
         $codyIsInstalled = $this->checkCodyIsInstalled();
         if (! $codyIsInstalled) {
+            $this->notify(Status::FAILED);
+
             return Error::parse('Cody is not installed.');
         }
 
-        $codyProcess = new Process(
-            ['cody', 'chat', '--stdin', '-m', $this->prompt],
+        $apiKey = $this->getApiKey->execute($aiProvider);
+        if ($apiKey instanceof Error) {
+            $this->notify(Status::FAILED);
+
+            return $apiKey;
+        }
+
+        $codyGenerateCommitMessageProcess = new Process(
+            ['cody', 'chat', '--stdin', '-m', $prompt],
             null,
             [
                 'SRC_ENDPOINT' => 'https://sourcegraph.com',
-                'SRC_ACCESS_TOKEN' => $apiKey,
+                'SRC_ACCESS_TOKEN' => (string) $apiKey,
             ],
-            $this->diff
+            $this->$diff
         );
 
-        $codyProcess->start();
+        $codyGenerateCommitMessageProcess->start();
 
-        while ($codyProcess->isRunning()) {
+        while ($codyGenerateCommitMessageProcess->isRunning()) {
             $this->notifyRunningStatus();
         }
 
-        if (! $codyProcess->isSuccessful()) {
-            return Error::parse($codyProcess->getErrorOutput());
+        if (! $codyGenerateCommitMessageProcess->isSuccessful()) {
+            $this->notify(Status::FAILED);
+
+            return Error::parse($codyGenerateCommitMessageProcess->getErrorOutput());
         }
 
-        $commitMessage = $codyProcess->getOutput();
+        $commitMessage = $codyGenerateCommitMessageProcess->getOutput();
         if ($commitMessage === '' || $commitMessage === '0') {
+            $this->notify(Status::FAILED);
+
             return Error::parse('Unable to generate commit message.');
         }
+
+        $this->notify(Status::FINISHED);
 
         return $commitMessage;
     }
 
     private function checkCodyIsInstalled(): bool
     {
-        $process = new Process(['which', 'cody']);
-        $process->run();
+        $checkCodyIsInstalledProcess = new Process(['which', 'cody']);
+        $checkCodyIsInstalledProcess->run();
 
-        return $process->isSuccessful();
+        return $checkCodyIsInstalledProcess->isSuccessful();
     }
 }
