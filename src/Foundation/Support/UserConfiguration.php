@@ -12,22 +12,22 @@ readonly class UserConfiguration
 
     public function getUserConfigurationDirPath(): string|Error
     {
-        $homeDirectory = $this->configuration->getValue('app.home_directory');
-        if (! is_string($homeDirectory)) {
+        $homeDirectory = $this->configuration->getValue('app.home_directory', '/tmp');
+        if (! $homeDirectory || ! is_string($homeDirectory)) {
             return Error::parse('Unable to locate home directory.');
         }
 
-        $mainDirectory = $this->configuration->getValue('app.main_directory');
-        if (! is_string($mainDirectory)) {
+        $mainDirectory = $this->configuration->getValue('app.main_directory', '/.ysocode');
+        if (! $mainDirectory || ! is_string($mainDirectory)) {
             return Error::parse('Unable to locate main directory.');
         }
 
-        $packageDirectory = $this->configuration->getValue('app.package_directory');
-        if (! is_string($packageDirectory)) {
+        $packageDirectory = $this->configuration->getValue('app.package_directory', '/commit');
+        if (! $packageDirectory || ! is_string($packageDirectory)) {
             return Error::parse('Unable to locate package directory.');
         }
 
-        return "{$homeDirectory}/{$mainDirectory}/{$packageDirectory}";
+        return $homeDirectory.$mainDirectory.$packageDirectory;
     }
 
     public function getUserConfigurationFilePath(): string|Error
@@ -124,23 +124,27 @@ readonly class UserConfiguration
             return $userConfigurationFileExistence;
         }
 
+        if (! $userConfigurationFileExistence) {
+            return Error::parse('User configuration file does not exist.');
+        }
+
         $userConfigurationFilePath = $this->getUserConfigurationFilePath();
         if ($userConfigurationFilePath instanceof Error) {
             return $userConfigurationFilePath;
         }
 
-        $userConfigurationDataAsJson = file_get_contents($userConfigurationFilePath);
-        if ($userConfigurationDataAsJson === false) {
+        $userConfigurationData = file_get_contents($userConfigurationFilePath);
+        if ($userConfigurationData === false) {
             return Error::parse('Unable to read user configuration file.');
         }
 
-        $userConfigurationData = json_decode($userConfigurationDataAsJson, true);
-        if (! is_array($userConfigurationData)) {
+        $userConfigurationDataConvertedToArray = json_decode($userConfigurationData, true);
+        if (! is_array($userConfigurationDataConvertedToArray)) {
             return Error::parse('Invalid user configuration file format.');
         }
 
-        /** @var array<string, string|int|float|bool|array<mixed>> $userConfigurationData */
-        return $userConfigurationData;
+        /** @var array<string, string|int|float|bool|array<mixed>> $userConfigurationDataConvertedToArray */
+        return $userConfigurationDataConvertedToArray;
     }
 
     /**
@@ -153,15 +157,17 @@ readonly class UserConfiguration
             return $userConfigurationFilePath;
         }
 
-        $options = JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES;
+        $userConfigurationFileDataConvertedToJson = json_encode(
+            $userConfigurationData,
+            JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+        );
 
-        $userConfigurationFileDataEncodedAsJson = json_encode($userConfigurationData, $options);
-        if ($userConfigurationFileDataEncodedAsJson === false) {
-            return Error::parse('Unable to encode user configuration data.');
+        if ($userConfigurationFileDataConvertedToJson === false) {
+            return Error::parse('Unable to convert user configuration data to JSON.');
         }
 
-        $result = file_put_contents($userConfigurationFilePath, $userConfigurationFileDataEncodedAsJson);
-        if ($result === false) {
+        $contentWritten = file_put_contents($userConfigurationFilePath, $userConfigurationFileDataConvertedToJson);
+        if ($contentWritten === false) {
             return Error::parse('Unable to write to user configuration file.');
         }
 

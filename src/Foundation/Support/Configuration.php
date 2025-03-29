@@ -12,18 +12,18 @@ readonly class Configuration
     /**
      * @var array<string, mixed>
      */
-    private array $data;
+    private array $configurationData;
 
     /**
-     * @param  string|array<string, mixed>  $configurationSourceOrData
+     * @param  string|array<string, mixed>  $configurationDirPathOrConfigurationData
      *
      * @throws InvalidArgumentException
      */
-    public function __construct(string|array $configurationSourceOrData)
+    public function __construct(string|array $configurationDirPathOrConfigurationData)
     {
-        $this->data = is_array($configurationSourceOrData)
-            ? $configurationSourceOrData
-            : $this->loadConfigurationFromDirectory($configurationSourceOrData);
+        $this->configurationData = is_array($configurationDirPathOrConfigurationData)
+            ? $configurationDirPathOrConfigurationData
+            : $this->loadConfigurationFromDir($configurationDirPathOrConfigurationData);
     }
 
     /**
@@ -31,40 +31,29 @@ readonly class Configuration
      *
      * @throws InvalidArgumentException
      */
-    private function loadConfigurationFromDirectory(string $directoryPath): array
+    private function loadConfigurationFromDir(string $directoryPath): array
     {
         if (! is_dir($directoryPath) || ! is_readable($directoryPath)) {
             throw new InvalidArgumentException(
-                sprintf('The configuration directory "%s" does not exist or cannot be read', $directoryPath)
+                sprintf('The configuration directory "%s" does not exist or cannot be read.', $directoryPath)
             );
         }
 
-        $data = [];
+        $configurationData = [];
         $phpFiles = glob($directoryPath.'/*.php') ?: [];
 
         foreach ($phpFiles as $filePath) {
             $fileName = pathinfo($filePath, PATHINFO_FILENAME);
-            $data[$fileName] = require $filePath;
+            $configurationData[$fileName] = require $filePath;
         }
 
-        return $data;
+        return $configurationData;
     }
 
     public function getValue(string $keyPath, mixed $defaultValue = null): mixed
     {
-        $value = $this->resolveNestedKeyPath($keyPath);
-
-        if ($value instanceof Error) {
-            return $defaultValue;
-        }
-
-        return $value;
-    }
-
-    private function resolveNestedKeyPath(string $keyPath): mixed
-    {
         $segments = explode('.', $keyPath);
-        $currentValue = $this->data;
+        $currentValue = $this->configurationData;
 
         foreach ($segments as $segment) {
             if (! is_array($currentValue) || ! array_key_exists($segment, $currentValue)) {
@@ -75,14 +64,6 @@ readonly class Configuration
             $currentValue = $currentValue[$segment];
         }
 
-        return $currentValue;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function getAllData(): array
-    {
-        return $this->data;
+        return $currentValue ?: $defaultValue;
     }
 }
