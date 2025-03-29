@@ -55,7 +55,7 @@ To display the current AI provider:
 commit ai:provider --get
 ```
 
-#### Managing API Keys
+#### Managing API keys
 
 ##### Set your API key for a specific AI provider
 
