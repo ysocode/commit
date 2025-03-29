@@ -53,6 +53,10 @@ class GenerateConventionalCommitMessageTest extends TestCase
 
     private string $expectedCommitMessage = 'feat: rename hello world function to hello YSO Code';
 
+    private AiProvider $aiProvider = AiProvider::SOURCEGRAPH;
+
+    private Language $language = Language::EN_US;
+
     /**
      * @throws PHPUnitMockObjectException
      * @throws Exception
@@ -61,13 +65,12 @@ class GenerateConventionalCommitMessageTest extends TestCase
     {
         self::setUpUserConfiguration();
 
-        self::removeUserConfigurationDir();
         self::createUserConfigurationFile();
 
         $this->setUpSymfonyConsoleApplication();
 
-        self::$userConfiguration->setValue('default_ai_provider', 'sourcegraph');
-        self::$userConfiguration->setValue('default_lang', 'en_US');
+        self::$userConfiguration->setValue('default_ai_provider', $this->aiProvider->value);
+        self::$userConfiguration->setValue('default_lang', $this->language->value);
 
         $this->mockFetchStagedChanges = $this->createMock(FetchStagedChangesInterface::class);
 
