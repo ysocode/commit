@@ -9,12 +9,25 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use YSOCode\Commit\Application\Commands\Interfaces\CheckAiProviderIsEnabledInterface;
+use YSOCode\Commit\Application\Commands\Interfaces\GetApiKeyInterface;
+use YSOCode\Commit\Application\Commands\Interfaces\GetDefaultAiProviderInterface;
 use YSOCode\Commit\Application\Commands\Traits\WithCommandToolsTrait;
+use YSOCode\Commit\Domain\Enums\AiProvider;
 use YSOCode\Commit\Domain\Types\Error;
+use YSOCode\Commit\Domain\Types\Interfaces\ApiKeyInterface;
 
 class ManageAiProviderApiKey extends Command
 {
     use WithCommandToolsTrait;
+
+    public function __construct(
+        private readonly CheckAiProviderIsEnabledInterface $checkAiProviderIsEnabled,
+        private readonly GetDefaultAiProviderInterface $getDefaultAiProvider,
+        private readonly GetApiKeyInterface $getApiKey
+    ) {
+        parent::__construct();
+    }
 
     protected function configure(): void
     {
@@ -56,21 +69,71 @@ class ManageAiProviderApiKey extends Command
             return Command::FAILURE;
         }
 
-        //        if ($get) {
-        //            $apiKey = $this->handleGetOption($input);
-        //            if ($apiKey instanceof Error) {
-        //                $output->writeln("<error>Error: {$apiKey}</error>");
-        //
-        //                return Command::FAILURE;
-        //            }
-        //
-        //            $output->writeln('');
-        //
-        //            return Command::SUCCESS;
-        //        }
+        if ($get) {
+            $apiKey = $this->handleGetOption($input);
+            if ($apiKey instanceof Error) {
+                $output->writeln("<error>Error: {$apiKey}</error>");
+
+                return Command::FAILURE;
+            }
+
+            $output->writeln('');
+
+            return Command::SUCCESS;
+        }
 
         return Command::SUCCESS;
     }
 
-    //    private function handleGetOption(InputInterface $input): ApiKeyInterface|Error {}
+    private function handleGetOption(InputInterface $input): ApiKeyInterface|Error
+    {
+        $apiKeyIsProvided = $this->checkArgumentIsProvided($input, 'api-key');
+        if ($apiKeyIsProvided instanceof Error) {
+            return $apiKeyIsProvided;
+        }
+
+        if ($apiKeyIsProvided) {
+            return Error::parse('The "--get" option cannot be used with the "api-key" argument.');
+        }
+
+        $aiProvider = $this->getAiProvider($input);
+        if ($aiProvider instanceof Error) {
+            return $aiProvider;
+        }
+
+        return $this->getApiKey->execute($aiProvider);
+    }
+
+    private function getAiProvider(InputInterface $input): AiProvider|Error
+    {
+        $customAiProvider = $input->getOption('provider');
+        if (! is_null($customAiProvider)) {
+            if (! $customAiProvider || ! is_string($customAiProvider)) {
+                return Error::parse('Invalid AI provider provided.');
+            }
+
+            $customAiProviderAsEnum = Aiprovider::parse($customAiProvider);
+            if ($customAiProviderAsEnum instanceof Error) {
+                return $customAiProviderAsEnum;
+            }
+
+            $customAiProviderIsEnabled = $this->checkAiProviderIsEnabled->execute($customAiProviderAsEnum);
+            if ($customAiProviderIsEnabled instanceof Error) {
+                return $customAiProviderIsEnabled;
+            }
+
+            if (! $customAiProviderIsEnabled) {
+                return Error::parse(
+                    sprintf(
+                        'The "%s" AI provider is not enabled.',
+                        $customAiProviderAsEnum->formattedValue()
+                    )
+                );
+            }
+
+            return $customAiProviderAsEnum;
+        }
+
+        return $this->getDefaultAiProvider->execute();
+    }
 }

@@ -77,8 +77,7 @@ Display the currently stored API key for the specified AI provider:
 commit ai:api-key --get --provider=openai
 ```
 
-If you don't specify a provider, an interactive prompt will appear with a list of enabled
-AIs for you to select from.
+If you don't specify a provider, the default AI provider will be selected automatically.
 
 ##### Sourcegraph Provider
 

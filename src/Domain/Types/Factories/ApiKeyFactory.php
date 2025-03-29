@@ -14,10 +14,21 @@ class ApiKeyFactory
     public static function create(AiProvider $aiProvider, string $apiKey): ApiKeyInterface|Error
     {
         return match ($aiProvider) {
-            AiProvider::SOURCEGRAPH => new SourcegraphApiKey($apiKey),
+            AiProvider::SOURCEGRAPH => self::createSourcegraphApiKey($apiKey),
             default => Error::parse(
                 sprintf('Could not create API key for the "%s" AI provider.', $aiProvider->formattedValue())
             ),
         };
+    }
+
+    private static function createSourcegraphApiKey(string $apiKey): SourcegraphApiKey|Error
+    {
+        if (SourcegraphApiKey::isValid($apiKey)) {
+            return new SourcegraphApiKey($apiKey);
+        }
+
+        return Error::parse(
+            sprintf('Invalid API key for the "%s" AI provider.', AiProvider::SOURCEGRAPH->formattedValue())
+        );
     }
 }

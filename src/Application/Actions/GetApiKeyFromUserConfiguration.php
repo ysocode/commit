@@ -18,10 +18,6 @@ readonly class GetApiKeyFromUserConfiguration implements GetApiKeyInterface
     public function execute(AiProvider $aiProvider): ApiKeyInterface|Error
     {
         $apiKey = $this->userConfiguration->getValue("ai_providers.{$aiProvider->value}.api_key");
-        if ($apiKey instanceof Error) {
-            return Error::parse(sprintf('Could not retrieve API key for "%s" AI provider.', $aiProvider->formattedValue()));
-        }
-
         if (! $apiKey || ! is_string($apiKey)) {
             return Error::parse(
                 sprintf('Invalid API key for "%s" AI provider.', $aiProvider->formattedValue())

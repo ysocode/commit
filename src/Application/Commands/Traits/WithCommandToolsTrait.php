@@ -21,7 +21,7 @@ trait WithCommandToolsTrait
     private function checkOptionIsProvided(InputInterface $input, string $option): bool|Error
     {
         if (! $input->hasOption($option)) {
-            return Error::parse(sprintf('Option "%s" is not defined in the command.', $option));
+            return Error::parse(sprintf('Option "--%s" is not defined in the command.', $option));
         }
 
         return ! is_null($input->getOption($option));
@@ -30,12 +30,12 @@ trait WithCommandToolsTrait
     private function getBooleanOption(InputInterface $input, string $option): bool|Error
     {
         if (! $input->hasOption($option)) {
-            return Error::parse(sprintf('Option "%s" is not defined in the command.', $option));
+            return Error::parse(sprintf('Option "--%s" is not defined in the command.', $option));
         }
 
         $optionValue = $input->getOption($option);
         if (! is_bool($optionValue)) {
-            return Error::parse(sprintf('Invalid "%s" option provided.', $option));
+            return Error::parse(sprintf('Invalid "--%s" option provided.', $option));
         }
 
         return $optionValue;

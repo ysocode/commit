@@ -47,13 +47,14 @@ $userConfiguration = new UserConfiguration(
 
 $checkAiProviderIsEnabled = new CheckAiProviderIsEnabledInUserConfiguration($userConfiguration);
 $checkLanguageIsEnabled = new CheckLanguageIsEnabledInUserConfiguration($userConfiguration);
+$getDefaultAiProvider = new GetDefaultAiProviderFromUserConfiguration($userConfiguration, $checkAiProviderIsEnabled);
 
 $app = new Application('YSO Code', '3.0.0');
 $app->add(
     new GenerateConventionalCommitMessage(
         $checkAiProviderIsEnabled,
         $checkLanguageIsEnabled,
-        new GetDefaultAiProviderFromUserConfiguration($userConfiguration, $checkAiProviderIsEnabled),
+        $getDefaultAiProvider,
         new GetDefaultLanguageFromUserConfiguration($userConfiguration, $checkLanguageIsEnabled),
         new FetchStagedGitChanges,
         new GenerateCommitMessageWithAiProvider(
@@ -71,14 +72,18 @@ $app->add(
 
 $app->add(
     new ManageDefaultAiProvider(
-        new GetDefaultAiProviderFromUserConfiguration($userConfiguration, $checkAiProviderIsEnabled),
+        $getDefaultAiProvider,
         new SetDefaultAiProviderInUserConfiguration($userConfiguration),
         new FetchEnabledAiProvidersFromUserConfiguration($userConfiguration)
     )
 );
 
 $app->add(
-    new ManageAiProviderApiKey
+    new ManageAiProviderApiKey(
+        $checkAiProviderIsEnabled,
+        $getDefaultAiProvider,
+        new GetApiKeyFromUserConfiguration($userConfiguration)
+    )
 );
 
 $app->run();
