@@ -77,7 +77,7 @@ class ManageAiProviderApiKey extends Command
                 return Command::FAILURE;
             }
 
-            $output->writeln('');
+            $output->writeln("<info>API key: {$apiKey}</info>");
 
             return Command::SUCCESS;
         }
