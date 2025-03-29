@@ -34,24 +34,7 @@ class GenerateConventionalCommitMessageTest extends TestCase
 
     private MockObject $mockCommitStagedChanges;
 
-    private string $diff;
-
-    private string $expectedCommitMessage;
-
-    /**
-     * @throws PHPUnitMockObjectException
-     * @throws Exception
-     */
-    protected function setUp(): void
-    {
-        self::setUpUserConfiguration();
-
-        self::removeUserConfigurationDir();
-        self::createUserConfigurationFile();
-
-        $this->setUpSymfonyConsoleApplication();
-
-        $this->diff = <<<'DIFF'
+    private string $diff = <<<'DIFF'
         index 6711592..6108c39 100644
         --- a/Example.php
         +++ b/Example.php
@@ -68,7 +51,20 @@ class GenerateConventionalCommitMessageTest extends TestCase
          }
         DIFF;
 
-        $this->expectedCommitMessage = 'feat: rename hello world function to hello YSO Code';
+    private string $expectedCommitMessage = 'feat: rename hello world function to hello YSO Code';
+
+    /**
+     * @throws PHPUnitMockObjectException
+     * @throws Exception
+     */
+    protected function setUp(): void
+    {
+        self::setUpUserConfiguration();
+
+        self::removeUserConfigurationDir();
+        self::createUserConfigurationFile();
+
+        $this->setUpSymfonyConsoleApplication();
 
         self::$userConfiguration->setValue('default_ai_provider', 'sourcegraph');
         self::$userConfiguration->setValue('default_lang', 'en_US');

@@ -250,7 +250,6 @@ class ManageDefaultAiProviderTest extends TestCase
     public function test_it_display_error_when_ai_providers_are_not_enabled(): void
     {
         $aiProviders = self::$userConfiguration->getValue('ai_providers');
-
         if ($aiProviders instanceof Error) {
             throw new Exception((string) $aiProviders);
         }
