@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace YSOCode\Commit\Domain\Types\Interfaces;
 
 use Stringable;
+use YSOCode\Commit\Domain\Types\Error;
 
 interface ApiKeyInterface extends Stringable
 {
@@ -12,7 +13,5 @@ interface ApiKeyInterface extends Stringable
 
     public function getValue(): string;
 
-    public static function parse(string $value): self;
-
-    public static function isValid(string $value): bool;
+    public static function parse(string $value): self|Error;
 }

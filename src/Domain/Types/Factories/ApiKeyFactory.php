@@ -23,12 +23,6 @@ class ApiKeyFactory
 
     private static function createSourcegraphApiKey(string $apiKey): SourcegraphApiKey|Error
     {
-        if (SourcegraphApiKey::isValid($apiKey)) {
-            return new SourcegraphApiKey($apiKey);
-        }
-
-        return Error::parse(
-            sprintf('Invalid API key for the "%s" AI provider.', AiProvider::SOURCEGRAPH->getFormattedValue())
-        );
+        return SourcegraphApiKey::parse($apiKey);
     }
 }
