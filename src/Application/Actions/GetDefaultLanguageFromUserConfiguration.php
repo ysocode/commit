@@ -38,7 +38,7 @@ readonly class GetDefaultLanguageFromUserConfiguration implements GetDefaultLang
             return Error::parse(
                 sprintf(
                     'The "%s" language is not enabled.',
-                    $defaultLanguageAsEnum->formattedValue()
+                    $defaultLanguageAsEnum->getFormattedValue()
                 )
             );
         }

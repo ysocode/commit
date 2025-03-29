@@ -81,7 +81,7 @@ class ManageDefaultAiProviderTest extends TestCase
             }
 
             if (! is_array($aiProviderConfigurations)) {
-                throw new Exception("{$convertedAiProvider->formattedValue()} AI provider configurations should be an array.");
+                throw new Exception("{$convertedAiProvider->getFormattedValue()} AI provider configurations should be an array.");
             }
 
             if (! $aiProviderConfigurations['enabled']) {
@@ -121,7 +121,7 @@ class ManageDefaultAiProviderTest extends TestCase
         $enabledAiProviders = $this->getEnabledAiProviders();
         foreach ($enabledAiProviders as $aiProvider) {
             $this->assertStringContainsString(
-                $aiProvider->formattedValue(),
+                $aiProvider->getFormattedValue(),
                 $output
             );
         }
@@ -160,7 +160,7 @@ class ManageDefaultAiProviderTest extends TestCase
         $tester->assertCommandIsSuccessful();
 
         $this->assertStringContainsString(
-            "The current default AI provider is: {$this->aiProvider->formattedValue()}",
+            "The current default AI provider is: {$this->aiProvider->getFormattedValue()}",
             $output
         );
     }
@@ -217,7 +217,7 @@ class ManageDefaultAiProviderTest extends TestCase
         $tester->assertCommandIsSuccessful();
 
         $this->assertStringContainsString(
-            "The default AI provider has been set to: {$this->aiProvider->formattedValue()}",
+            "The default AI provider has been set to: {$this->aiProvider->getFormattedValue()}",
             $output
         );
     }
@@ -239,7 +239,7 @@ class ManageDefaultAiProviderTest extends TestCase
             $output
         );
         $this->assertStringContainsString(
-            "The default AI provider has been set to: {$this->aiProvider->formattedValue()}",
+            "The default AI provider has been set to: {$this->aiProvider->getFormattedValue()}",
             $output
         );
     }

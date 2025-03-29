@@ -20,7 +20,7 @@ readonly class GetApiKeyFromUserConfiguration implements GetApiKeyInterface
         $apiKey = $this->userConfiguration->getValue("ai_providers.{$aiProvider->value}.api_key");
         if (! $apiKey || ! is_string($apiKey)) {
             return Error::parse(
-                sprintf('Invalid API key for "%s" AI provider.', $aiProvider->formattedValue())
+                sprintf('Invalid API key for "%s" AI provider.', $aiProvider->getFormattedValue())
             );
         }
 

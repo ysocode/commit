@@ -16,7 +16,7 @@ class ApiKeyFactory
         return match ($aiProvider) {
             AiProvider::SOURCEGRAPH => self::createSourcegraphApiKey($apiKey),
             default => Error::parse(
-                sprintf('Could not create API key for the "%s" AI provider.', $aiProvider->formattedValue())
+                sprintf('Could not create API key for the "%s" AI provider.', $aiProvider->getFormattedValue())
             ),
         };
     }
@@ -28,7 +28,7 @@ class ApiKeyFactory
         }
 
         return Error::parse(
-            sprintf('Invalid API key for the "%s" AI provider.', AiProvider::SOURCEGRAPH->formattedValue())
+            sprintf('Invalid API key for the "%s" AI provider.', AiProvider::SOURCEGRAPH->getFormattedValue())
         );
     }
 }

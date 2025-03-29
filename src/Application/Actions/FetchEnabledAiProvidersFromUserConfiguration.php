@@ -36,7 +36,7 @@ readonly class FetchEnabledAiProvidersFromUserConfiguration implements FetchEnab
 
             if (! is_array($aiProviderConfigurations)) {
                 return Error::parse(
-                    "{$aiProviderAsEnum->formattedValue()} AI provider configurations should be an array."
+                    "{$aiProviderAsEnum->getFormattedValue()} AI provider configurations should be an array."
                 );
             }
 

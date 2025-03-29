@@ -20,7 +20,7 @@ readonly class CheckLanguageIsEnabledInUserConfiguration implements CheckLanguag
             return Error::parse(
                 sprintf(
                     'Unable to check if "%s" language is enabled.',
-                    $language->formattedValue()
+                    $language->getFormattedValue()
                 )
             );
         }

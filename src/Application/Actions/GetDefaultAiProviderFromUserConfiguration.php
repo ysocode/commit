@@ -38,7 +38,7 @@ readonly class GetDefaultAiProviderFromUserConfiguration implements GetDefaultAi
             return Error::parse(
                 sprintf(
                     'The "%s" AI provider is not enabled.',
-                    $defaultAiProviderAsEnum->formattedValue()
+                    $defaultAiProviderAsEnum->getFormattedValue()
                 )
             );
         }

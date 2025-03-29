@@ -10,7 +10,7 @@ interface EnumInterface
 {
     public static function parse(string $value): self|Error;
 
-    public function formattedValue(): string;
+    public function getFormattedValue(): string;
 
     /**
      * @return array<string|int|float>

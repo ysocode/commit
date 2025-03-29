@@ -20,7 +20,7 @@ readonly class CheckAiProviderIsEnabledInUserConfiguration implements CheckAiPro
             return Error::parse(
                 sprintf(
                     'Unable to check if "%s" AI provider is enabled.',
-                    $aiProvider->formattedValue()
+                    $aiProvider->getFormattedValue()
                 )
             );
         }

@@ -126,7 +126,7 @@ class ManageAiProviderApiKey extends Command
                 return Error::parse(
                     sprintf(
                         'The "%s" AI provider is not enabled.',
-                        $customAiProviderAsEnum->formattedValue()
+                        $customAiProviderAsEnum->getFormattedValue()
                     )
                 );
             }

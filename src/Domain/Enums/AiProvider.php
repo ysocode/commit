@@ -28,7 +28,7 @@ enum AiProvider: string implements EnumInterface
         };
     }
 
-    public function formattedValue(): string
+    public function getFormattedValue(): string
     {
         return match ($this) {
             self::COHERE => 'Cohere',

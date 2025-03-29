@@ -78,7 +78,7 @@ class ManageDefaultAiProvider extends Command
             }
 
             $formattedProviders = array_map(
-                fn ($aiProvider): string => sprintf('<info>• %s</info>', $aiProvider->formattedValue()),
+                fn ($aiProvider): string => sprintf('<info>• %s</info>', $aiProvider->getFormattedValue()),
                 $enabledAiProviders
             );
 
@@ -108,7 +108,7 @@ class ManageDefaultAiProvider extends Command
             }
 
             $output->writeln(
-                "The current default AI provider is: {$defaultAiProvider->formattedValue()}"
+                "The current default AI provider is: {$defaultAiProvider->getFormattedValue()}"
             );
 
             return Command::SUCCESS;
@@ -140,7 +140,7 @@ class ManageDefaultAiProvider extends Command
         }
 
         $output->writeln(
-            "The default AI provider has been set to: {$aiProvider->formattedValue()}"
+            "The default AI provider has been set to: {$aiProvider->getFormattedValue()}"
         );
 
         return Command::SUCCESS;

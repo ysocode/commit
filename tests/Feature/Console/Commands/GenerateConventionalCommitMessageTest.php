@@ -307,7 +307,7 @@ class GenerateConventionalCommitMessageTest extends TestCase
 
         $tester->assertCommandIsSuccessful();
 
-        $this->assertStringContainsString("Below is the generated commit message [AI: {$aiProvider->formattedValue()} | Lang: {$language->formattedValue()}]:", $output);
+        $this->assertStringContainsString("Below is the generated commit message [AI: {$aiProvider->getFormattedValue()} | Lang: {$language->getFormattedValue()}]:", $output);
         $this->assertStringContainsString($this->expectedCommitMessage, $output);
         $this->assertStringContainsString('Success: No commit made.', $output);
     }
@@ -347,7 +347,7 @@ class GenerateConventionalCommitMessageTest extends TestCase
         $this->assertStringContainsString(
             sprintf(
                 'Error: The "%s" AI provider is not enabled.',
-                $defaultAiProvider->formattedValue()
+                $defaultAiProvider->getFormattedValue()
             ),
             $output
         );
@@ -390,7 +390,7 @@ class GenerateConventionalCommitMessageTest extends TestCase
         $this->assertStringContainsString(
             sprintf(
                 'Error: The "%s" AI provider is not enabled.',
-                $aiProvider->formattedValue()
+                $aiProvider->getFormattedValue()
             ),
             $output
         );
@@ -441,7 +441,7 @@ class GenerateConventionalCommitMessageTest extends TestCase
 
         $tester->assertCommandIsSuccessful();
 
-        $this->assertStringContainsString("Below is the generated commit message [AI: {$aiProvider->formattedValue()} | Lang: {$language->formattedValue()}]:", $output);
+        $this->assertStringContainsString("Below is the generated commit message [AI: {$aiProvider->getFormattedValue()} | Lang: {$language->getFormattedValue()}]:", $output);
         $this->assertStringContainsString($this->expectedCommitMessage, $output);
         $this->assertStringContainsString('Success: No commit made.', $output);
     }
@@ -481,7 +481,7 @@ class GenerateConventionalCommitMessageTest extends TestCase
         $this->assertStringContainsString(
             sprintf(
                 'Error: The "%s" language is not enabled.',
-                $defaultLanguage->formattedValue()
+                $defaultLanguage->getFormattedValue()
             ),
             $output
         );
@@ -521,7 +521,7 @@ class GenerateConventionalCommitMessageTest extends TestCase
         $this->assertStringContainsString(
             sprintf(
                 'Error: The "%s" language is not enabled.',
-                $language->formattedValue()
+                $language->getFormattedValue()
             ),
             $output
         );

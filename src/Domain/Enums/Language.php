@@ -26,7 +26,7 @@ enum Language: string implements EnumInterface
         };
     }
 
-    public function formattedValue(): string
+    public function getFormattedValue(): string
     {
         return match ($this) {
             self::EN_US => 'English (United States)',

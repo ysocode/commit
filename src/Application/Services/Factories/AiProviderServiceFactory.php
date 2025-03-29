@@ -19,14 +19,14 @@ class AiProviderServiceFactory
             AiProvider::SOURCEGRAPH => function (ApiKeyInterface $apiKey) use ($aiProvider): AiProviderServiceInterface|Error {
                 if (! $apiKey instanceof SourcegraphApiKey) {
                     return Error::parse(
-                        sprintf('Invalid API key for "%s" AI provider service.', $aiProvider->formattedValue())
+                        sprintf('Invalid API key for "%s" AI provider service.', $aiProvider->getFormattedValue())
                     );
                 }
 
                 return new Sourcegraph($apiKey);
             },
             default => Error::parse(
-                sprintf('Could not find "%s" AI provider service.', $aiProvider->formattedValue())
+                sprintf('Could not find "%s" AI provider service.', $aiProvider->getFormattedValue())
             )
         };
 

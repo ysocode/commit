@@ -102,7 +102,7 @@ class GenerateConventionalCommitMessage extends Command
 
         $this->generateCommitMessage->subscribe(function (Status $status) use ($generateCommitMessageProgressIndicator, $aiProvider): void {
             match ($status) {
-                Status::STARTED => $generateCommitMessageProgressIndicator->start("Processing with {$aiProvider->formattedValue()}..."),
+                Status::STARTED => $generateCommitMessageProgressIndicator->start("Processing with {$aiProvider->getFormattedValue()}..."),
                 Status::RUNNING => $generateCommitMessageProgressIndicator->advance(),
                 Status::FAILED => $generateCommitMessageProgressIndicator->finish('Failed'),
                 Status::FINISHED => $generateCommitMessageProgressIndicator->finish('Finished'),
@@ -114,7 +114,7 @@ class GenerateConventionalCommitMessage extends Command
         ALWAYS wrap the entire commit message between ``` delimiters.
         Do NOT use scopes. 
         EACH line must not exceed 72 characters.
-        Write the commit message in {$language->formattedValue()} language without any accents.
+        Write the commit message in {$language->getFormattedValue()} language without any accents.
         If there are multiple modifications in different contexts, write the body using a list format.
         Otherwise, use a regular paragraph format that ends with a period.
         If the body is a list, DO NOT add a period at the end of each list item, as in the following example:
@@ -210,7 +210,7 @@ class GenerateConventionalCommitMessage extends Command
                 return Error::parse(
                     sprintf(
                         'The "%s" AI provider is not enabled.',
-                        $customAiProviderAsEnum->formattedValue()
+                        $customAiProviderAsEnum->getFormattedValue()
                     )
                 );
             }
@@ -243,7 +243,7 @@ class GenerateConventionalCommitMessage extends Command
                 return Error::parse(
                     sprintf(
                         'The "%s" language is not enabled.',
-                        $customLanguageAsEnum->formattedValue()
+                        $customLanguageAsEnum->getFormattedValue()
                     )
                 );
             }
@@ -276,7 +276,7 @@ class GenerateConventionalCommitMessage extends Command
         string $conventionalCommitMessage
     ): bool|Error {
         $output->writeln([
-            "<info>Below is the generated commit message [AI: {$aiProvider->formattedValue()} | Lang: {$language->formattedValue()}]:</info>",
+            "<info>Below is the generated commit message [AI: {$aiProvider->getFormattedValue()} | Lang: {$language->getFormattedValue()}]:</info>",
             '',
             "<fg=yellow>{$conventionalCommitMessage}</fg=yellow>",
             '',
