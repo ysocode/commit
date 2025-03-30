@@ -74,4 +74,43 @@ class ManageAiProviderApiKeyTest extends TestCase
 
         $this->assertStringContainsString("API key: {$this->fakeApiKey}", $output);
     }
+
+    public function test_it_should_display_error_when_no_api_key_found(): void
+    {
+        self::$userConfiguration->setValue("ai_providers.{$this->aiProvider->value}.api_key", '');
+
+        $tester = new CommandTester($this->app->find('ai:api-key'));
+        $tester->execute([
+            '--get' => true,
+        ]);
+
+        $output = $tester->getDisplay();
+
+        $this->assertEquals(
+            1,
+            $tester->getStatusCode(),
+        );
+
+        $this->assertStringContainsString(
+            sprintf('Error: Invalid API key for "%s" AI provider.', $this->aiProvider->getFormattedValue()),
+            $output
+        );
+    }
+
+    public function test_it_should_use_provided_ai_provider_option_instead_of_default(): void
+    {
+        self::$userConfiguration->setValue("ai_providers.{$this->aiProvider->value}.api_key", $this->fakeApiKey);
+
+        $tester = new CommandTester($this->app->find('ai:api-key'));
+        $tester->execute([
+            '--get' => true,
+            '--provider' => $this->aiProvider->value,
+        ]);
+
+        $output = $tester->getDisplay();
+
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString("API key: {$this->fakeApiKey}", $output);
+    }
 }
