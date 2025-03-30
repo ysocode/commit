@@ -138,13 +138,13 @@ readonly class UserConfiguration
             return Error::parse('Unable to read user configuration file.');
         }
 
-        $userConfigurationDataConvertedToArray = json_decode($userConfigurationData, true);
-        if (! is_array($userConfigurationDataConvertedToArray)) {
+        $userConfigurationDataArray = json_decode($userConfigurationData, true);
+        if (! is_array($userConfigurationDataArray)) {
             return Error::parse('Invalid user configuration file format.');
         }
 
-        /** @var array<string, string|int|float|bool|array<mixed>> $userConfigurationDataConvertedToArray */
-        return $userConfigurationDataConvertedToArray;
+        /** @var array<string, string|int|float|bool|array<mixed>> $userConfigurationDataArray */
+        return $userConfigurationDataArray;
     }
 
     /**
@@ -157,16 +157,16 @@ readonly class UserConfiguration
             return $userConfigurationFilePath;
         }
 
-        $userConfigurationFileDataConvertedToJson = json_encode(
+        $userConfigurationFileDataJson = json_encode(
             $userConfigurationData,
             JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
         );
 
-        if ($userConfigurationFileDataConvertedToJson === false) {
+        if ($userConfigurationFileDataJson === false) {
             return Error::parse('Unable to convert user configuration data to JSON.');
         }
 
-        $contentWritten = file_put_contents($userConfigurationFilePath, $userConfigurationFileDataConvertedToJson);
+        $contentWritten = file_put_contents($userConfigurationFilePath, $userConfigurationFileDataJson);
         if ($contentWritten === false) {
             return Error::parse('Unable to write to user configuration file.');
         }
