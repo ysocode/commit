@@ -19,7 +19,7 @@ class ManageAiProviderApiKeyTest extends TestCase
 {
     use WithConfigurationToolsTrait, WithSymfonyConsoleApplicationTrait;
 
-    private AiProvider $aiProvider;
+    private AiProvider $aiProvider = AiProvider::SOURCEGRAPH;
 
     private string $fakeApiKey = 'sgp_deadbeefcafebabe_ffffffffffffffffffffffffffffffffffffffff';
 
@@ -35,7 +35,6 @@ class ManageAiProviderApiKeyTest extends TestCase
 
         $this->setUpSymfonyConsoleApplication();
 
-        $this->aiProvider = AiProvider::SOURCEGRAPH;
         self::$userConfiguration->setValue('default_ai_provider', $this->aiProvider->value);
 
         $checkAiProviderIsEnabled = new CheckAiProviderIsEnabledInUserConfiguration(self::$userConfiguration);
@@ -60,14 +59,13 @@ class ManageAiProviderApiKeyTest extends TestCase
     /**
      * @throws Exception
      */
-    public function test_it_should_get_the_current_api_key_when_provider_argument_is_provided(): void
+    public function test_it_should_get_the_current_api_key(): void
     {
         self::$userConfiguration->setValue("ai_providers.{$this->aiProvider->value}.api_key", $this->fakeApiKey);
 
         $tester = new CommandTester($this->app->find('ai:api-key'));
         $tester->execute([
             '--get' => true,
-            '--provider' => $this->aiProvider->value,
         ]);
 
         $output = $tester->getDisplay();
