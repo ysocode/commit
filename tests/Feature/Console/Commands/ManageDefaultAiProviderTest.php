@@ -21,7 +21,7 @@ class ManageDefaultAiProviderTest extends TestCase
 {
     use WithConfigurationToolsTrait, WithSymfonyConsoleApplicationTrait;
 
-    private AiProvider $aiProvider;
+    private AiProvider $aiProvider = AiProvider::SOURCEGRAPH;
 
     /**
      * @throws Exception
@@ -34,7 +34,6 @@ class ManageDefaultAiProviderTest extends TestCase
 
         $this->setUpSymfonyConsoleApplication();
 
-        $this->aiProvider = AiProvider::SOURCEGRAPH;
         self::$userConfiguration->setValue('default_ai_provider', $this->aiProvider->value);
 
         $this->app->add(
