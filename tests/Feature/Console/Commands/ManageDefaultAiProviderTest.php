@@ -69,8 +69,8 @@ class ManageDefaultAiProviderTest extends TestCase
             throw new Exception((string) $aiProviders);
         }
 
-        if (! is_array($aiProviders)) {
-            throw new Exception('AI providers should be an array.');
+        if (! $aiProviders || ! is_array($aiProviders)) {
+            throw new Exception('Unable to get AI providers.');
         }
         $convertedAiProviders = [];
 

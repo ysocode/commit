@@ -421,7 +421,7 @@ class GenerateConventionalCommitMessageTest extends TestCase
         }
 
         if (! $defaultAiProvider || ! is_string($defaultAiProvider)) {
-            throw new Exception('Default AI provider should be a string.');
+            throw new Exception('Unable to get default AI provider.');
         }
 
         $aiProvider = AiProvider::parse($defaultAiProvider);
