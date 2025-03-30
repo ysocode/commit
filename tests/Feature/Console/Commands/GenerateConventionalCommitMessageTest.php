@@ -281,8 +281,6 @@ class GenerateConventionalCommitMessageTest extends TestCase
             ->expects($this->never())
             ->method('execute');
 
-        $aiProvider = AiProvider::SOURCEGRAPH;
-
         $defaultLanguage = self::$userConfiguration->getValue('default_lang');
         if ($defaultLanguage instanceof Error) {
             throw new Exception((string) $defaultLanguage);
@@ -300,14 +298,14 @@ class GenerateConventionalCommitMessageTest extends TestCase
         $tester = new CommandTester($this->app->find('generate'));
         $tester->setInputs(['n']);
         $tester->execute([
-            '--provider' => $aiProvider->value,
+            '--provider' => $this->aiProvider->value,
         ]);
 
         $output = $tester->getDisplay();
 
         $tester->assertCommandIsSuccessful();
 
-        $this->assertStringContainsString("Below is the generated commit message [AI: {$aiProvider->getFormattedValue()} | Lang: {$language->getFormattedValue()}]:", $output);
+        $this->assertStringContainsString("Below is the generated commit message [AI: {$this->aiProvider->getFormattedValue()} | Lang: {$language->getFormattedValue()}]:", $output);
         $this->assertStringContainsString($this->expectedCommitMessage, $output);
         $this->assertStringContainsString('Success: No commit made.', $output);
     }
@@ -371,13 +369,11 @@ class GenerateConventionalCommitMessageTest extends TestCase
             ->expects($this->never())
             ->method('execute');
 
-        $aiProvider = AiProvider::SOURCEGRAPH;
-
-        self::$userConfiguration->setValue("ai_providers.{$aiProvider->value}.enabled", false);
+        self::$userConfiguration->setValue("ai_providers.{$this->aiProvider->value}.enabled", false);
 
         $tester = new CommandTester($this->app->find('generate'));
         $tester->execute([
-            '--provider' => $aiProvider->value,
+            '--provider' => $this->aiProvider->value,
         ]);
 
         $output = $tester->getDisplay();
@@ -390,7 +386,7 @@ class GenerateConventionalCommitMessageTest extends TestCase
         $this->assertStringContainsString(
             sprintf(
                 'Error: The "%s" AI provider is not enabled.',
-                $aiProvider->getFormattedValue()
+                $this->aiProvider->getFormattedValue()
             ),
             $output
         );
