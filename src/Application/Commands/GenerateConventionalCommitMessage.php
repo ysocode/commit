@@ -190,18 +190,18 @@ class GenerateConventionalCommitMessage extends Command
 
     private function getAiProvider(InputInterface $input): AiProvider|Error
     {
-        $customAiProvider = $input->getOption('provider');
-        if (! is_null($customAiProvider)) {
-            if (! $customAiProvider || ! is_string($customAiProvider)) {
+        $customAiProviderName = $input->getOption('provider');
+        if (! is_null($customAiProviderName)) {
+            if (! $customAiProviderName || ! is_string($customAiProviderName)) {
                 return Error::parse('Invalid AI provider provided.');
             }
 
-            $customAiProviderAsEnum = Aiprovider::parse($customAiProvider);
-            if ($customAiProviderAsEnum instanceof Error) {
-                return $customAiProviderAsEnum;
+            $customAiProvider = Aiprovider::parse($customAiProviderName);
+            if ($customAiProvider instanceof Error) {
+                return $customAiProvider;
             }
 
-            $customAiProviderIsEnabled = $this->checkAiProviderIsEnabled->execute($customAiProviderAsEnum);
+            $customAiProviderIsEnabled = $this->checkAiProviderIsEnabled->execute($customAiProvider);
             if ($customAiProviderIsEnabled instanceof Error) {
                 return $customAiProviderIsEnabled;
             }
@@ -210,12 +210,12 @@ class GenerateConventionalCommitMessage extends Command
                 return Error::parse(
                     sprintf(
                         'The "%s" AI provider is not enabled.',
-                        $customAiProviderAsEnum->getFormattedValue()
+                        $customAiProvider->getFormattedValue()
                     )
                 );
             }
 
-            return $customAiProviderAsEnum;
+            return $customAiProvider;
         }
 
         return $this->getDefaultAiProvider->execute();
@@ -223,18 +223,18 @@ class GenerateConventionalCommitMessage extends Command
 
     private function getLanguage(InputInterface $input): Language|Error
     {
-        $customLanguage = $input->getOption('lang');
-        if (! is_null($customLanguage)) {
-            if (! $customLanguage || ! is_string($customLanguage)) {
+        $customLanguageName = $input->getOption('lang');
+        if (! is_null($customLanguageName)) {
+            if (! $customLanguageName || ! is_string($customLanguageName)) {
                 return Error::parse('Invalid language provided.');
             }
 
-            $customLanguageAsEnum = Language::parse($customLanguage);
-            if ($customLanguageAsEnum instanceof Error) {
-                return $customLanguageAsEnum;
+            $customLanguage = Language::parse($customLanguageName);
+            if ($customLanguage instanceof Error) {
+                return $customLanguage;
             }
 
-            $customLanguageIsEnabled = $this->checkLanguageIsEnabled->execute($customLanguageAsEnum);
+            $customLanguageIsEnabled = $this->checkLanguageIsEnabled->execute($customLanguage);
             if ($customLanguageIsEnabled instanceof Error) {
                 return $customLanguageIsEnabled;
             }
@@ -243,12 +243,12 @@ class GenerateConventionalCommitMessage extends Command
                 return Error::parse(
                     sprintf(
                         'The "%s" language is not enabled.',
-                        $customLanguageAsEnum->getFormattedValue()
+                        $customLanguage->getFormattedValue()
                     )
                 );
             }
 
-            return $customLanguageAsEnum;
+            return $customLanguage;
         }
 
         return $this->getDefaultLanguage->execute();

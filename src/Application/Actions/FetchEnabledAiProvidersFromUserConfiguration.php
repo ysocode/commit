@@ -18,25 +18,25 @@ readonly class FetchEnabledAiProvidersFromUserConfiguration implements FetchEnab
      */
     public function execute(): array|Error
     {
-        $aiProviders = $this->userConfiguration->getValue('ai_providers');
-        if ($aiProviders instanceof Error) {
+        $aiProviderNames = $this->userConfiguration->getValue('ai_providers');
+        if ($aiProviderNames instanceof Error) {
             return Error::parse('Unable to fetch AI providers.');
         }
 
-        if (! is_array($aiProviders)) {
+        if (! is_array($aiProviderNames)) {
             return Error::parse('AI providers should be an array.');
         }
 
         $enabledAiProviders = [];
-        foreach ($aiProviders as $aiProvider => $aiProviderConfigurations) {
-            $aiProviderAsEnum = AiProvider::parse($aiProvider);
-            if ($aiProviderAsEnum instanceof Error) {
-                return $aiProviderAsEnum;
+        foreach ($aiProviderNames as $aiProviderName => $aiProviderConfigurations) {
+            $aiProvider = AiProvider::parse($aiProviderName);
+            if ($aiProvider instanceof Error) {
+                return $aiProvider;
             }
 
             if (! is_array($aiProviderConfigurations)) {
                 return Error::parse(
-                    "{$aiProviderAsEnum->getFormattedValue()} AI provider configurations should be an array."
+                    "{$aiProvider->getFormattedValue()} AI provider configurations should be an array."
                 );
             }
 
@@ -44,7 +44,7 @@ readonly class FetchEnabledAiProvidersFromUserConfiguration implements FetchEnab
                 continue;
             }
 
-            $enabledAiProviders[] = $aiProviderAsEnum;
+            $enabledAiProviders[] = $aiProvider;
         }
 
         if ($enabledAiProviders === []) {

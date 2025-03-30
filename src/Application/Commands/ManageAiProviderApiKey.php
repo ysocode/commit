@@ -106,18 +106,18 @@ class ManageAiProviderApiKey extends Command
 
     private function getAiProvider(InputInterface $input): AiProvider|Error
     {
-        $customAiProvider = $input->getOption('provider');
-        if (! is_null($customAiProvider)) {
-            if (! $customAiProvider || ! is_string($customAiProvider)) {
+        $customAiProviderName = $input->getOption('provider');
+        if (! is_null($customAiProviderName)) {
+            if (! $customAiProviderName || ! is_string($customAiProviderName)) {
                 return Error::parse('Invalid AI provider provided.');
             }
 
-            $customAiProviderAsEnum = Aiprovider::parse($customAiProvider);
-            if ($customAiProviderAsEnum instanceof Error) {
-                return $customAiProviderAsEnum;
+            $customAiProvider = Aiprovider::parse($customAiProviderName);
+            if ($customAiProvider instanceof Error) {
+                return $customAiProvider;
             }
 
-            $customAiProviderIsEnabled = $this->checkAiProviderIsEnabled->execute($customAiProviderAsEnum);
+            $customAiProviderIsEnabled = $this->checkAiProviderIsEnabled->execute($customAiProvider);
             if ($customAiProviderIsEnabled instanceof Error) {
                 return $customAiProviderIsEnabled;
             }
@@ -126,12 +126,12 @@ class ManageAiProviderApiKey extends Command
                 return Error::parse(
                     sprintf(
                         'The "%s" AI provider is not enabled.',
-                        $customAiProviderAsEnum->getFormattedValue()
+                        $customAiProvider->getFormattedValue()
                     )
                 );
             }
 
-            return $customAiProviderAsEnum;
+            return $customAiProvider;
         }
 
         return $this->getDefaultAiProvider->execute();

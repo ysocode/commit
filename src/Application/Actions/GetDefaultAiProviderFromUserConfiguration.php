@@ -19,17 +19,17 @@ readonly class GetDefaultAiProviderFromUserConfiguration implements GetDefaultAi
 
     public function execute(): AiProvider|Error
     {
-        $defaultAiProvider = $this->userConfiguration->getValue('default_ai_provider');
-        if (! $defaultAiProvider || ! is_string($defaultAiProvider)) {
+        $defaultAiProviderName = $this->userConfiguration->getValue('default_ai_provider');
+        if (! $defaultAiProviderName || ! is_string($defaultAiProviderName)) {
             return Error::parse('Unable to get default AI provider.');
         }
 
-        $defaultAiProviderAsEnum = AiProvider::parse($defaultAiProvider);
-        if ($defaultAiProviderAsEnum instanceof Error) {
-            return $defaultAiProviderAsEnum;
+        $defaultAiProvider = AiProvider::parse($defaultAiProviderName);
+        if ($defaultAiProvider instanceof Error) {
+            return $defaultAiProvider;
         }
 
-        $defaultAiProviderIsEnabled = $this->checkAiProviderIsEnabled->execute($defaultAiProviderAsEnum);
+        $defaultAiProviderIsEnabled = $this->checkAiProviderIsEnabled->execute($defaultAiProvider);
         if ($defaultAiProviderIsEnabled instanceof Error) {
             return $defaultAiProviderIsEnabled;
         }
@@ -38,11 +38,11 @@ readonly class GetDefaultAiProviderFromUserConfiguration implements GetDefaultAi
             return Error::parse(
                 sprintf(
                     'The "%s" AI provider is not enabled.',
-                    $defaultAiProviderAsEnum->getFormattedValue()
+                    $defaultAiProvider->getFormattedValue()
                 )
             );
         }
 
-        return $defaultAiProviderAsEnum;
+        return $defaultAiProvider;
     }
 }
