@@ -137,8 +137,8 @@ class GenerateConventionalCommitMessageTest extends TestCase
             throw new Exception((string) $defaultAiProvider);
         }
 
-        if (! is_string($defaultAiProvider)) {
-            throw new Exception('Default AI provider should be a string.');
+        if (! $defaultAiProvider || ! is_string($defaultAiProvider)) {
+            throw new Exception('Unable to get default AI provider.');
         }
 
         $defaultAiProviderAsEnum = AiProvider::parse($defaultAiProvider);
@@ -160,7 +160,7 @@ class GenerateConventionalCommitMessageTest extends TestCase
         }
 
         if (! is_string($defaultLanguage)) {
-            throw new Exception('Default language should be a string.');
+            throw new Exception('Unable to get default language.');
         }
 
         $defaultLanguageAsEnum = Language::parse($defaultLanguage);
@@ -289,7 +289,7 @@ class GenerateConventionalCommitMessageTest extends TestCase
         }
 
         if (! is_string($defaultLanguage)) {
-            throw new Exception('Default language should be a string.');
+            throw new Exception('Unable to get default language.');
         }
 
         $language = Language::parse($defaultLanguage);
@@ -420,7 +420,7 @@ class GenerateConventionalCommitMessageTest extends TestCase
             throw new Exception((string) $defaultAiProvider);
         }
 
-        if (! is_string($defaultAiProvider)) {
+        if (! $defaultAiProvider || ! is_string($defaultAiProvider)) {
             throw new Exception('Default AI provider should be a string.');
         }
 
