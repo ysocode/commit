@@ -132,21 +132,21 @@ class GenerateConventionalCommitMessageTest extends TestCase
      */
     private function getDefaultAiProvider(): AiProvider
     {
-        $defaultAiProvider = self::$userConfiguration->getValue('default_ai_provider');
+        $defaultAiProviderName = self::$userConfiguration->getValue('default_ai_provider');
+        if ($defaultAiProviderName instanceof Error) {
+            throw new Exception((string) $defaultAiProviderName);
+        }
+
+        if (! $defaultAiProviderName || ! is_string($defaultAiProviderName)) {
+            throw new Exception('Unable to get default AI provider.');
+        }
+
+        $defaultAiProvider = AiProvider::parse($defaultAiProviderName);
         if ($defaultAiProvider instanceof Error) {
             throw new Exception((string) $defaultAiProvider);
         }
 
-        if (! $defaultAiProvider || ! is_string($defaultAiProvider)) {
-            throw new Exception('Unable to get default AI provider.');
-        }
-
-        $defaultAiProviderAsEnum = AiProvider::parse($defaultAiProvider);
-        if ($defaultAiProviderAsEnum instanceof Error) {
-            throw new Exception((string) $defaultAiProviderAsEnum);
-        }
-
-        return $defaultAiProviderAsEnum;
+        return $defaultAiProvider;
     }
 
     /**
@@ -154,21 +154,21 @@ class GenerateConventionalCommitMessageTest extends TestCase
      */
     private function getDefaultLanguage(): Language
     {
-        $defaultLanguage = self::$userConfiguration->getValue('default_lang');
+        $defaultLanguageName = self::$userConfiguration->getValue('default_lang');
+        if ($defaultLanguageName instanceof Error) {
+            throw new Exception((string) $defaultLanguageName);
+        }
+
+        if (! is_string($defaultLanguageName)) {
+            throw new Exception('Unable to get default language.');
+        }
+
+        $defaultLanguage = Language::parse($defaultLanguageName);
         if ($defaultLanguage instanceof Error) {
             throw new Exception((string) $defaultLanguage);
         }
 
-        if (! is_string($defaultLanguage)) {
-            throw new Exception('Unable to get default language.');
-        }
-
-        $defaultLanguageAsEnum = Language::parse($defaultLanguage);
-        if ($defaultLanguageAsEnum instanceof Error) {
-            throw new Exception((string) $defaultLanguageAsEnum);
-        }
-
-        return $defaultLanguageAsEnum;
+        return $defaultLanguage;
     }
 
     public function test_it_should_fetch_staged_changes(): void
