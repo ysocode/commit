@@ -286,7 +286,7 @@ class GenerateConventionalCommitMessageTest extends TestCase
             throw new Exception((string) $defaultLanguage);
         }
 
-        if (! is_string($defaultLanguage)) {
+        if (! $defaultLanguage || ! is_string($defaultLanguage)) {
             throw new Exception('Unable to get default language.');
         }
 
