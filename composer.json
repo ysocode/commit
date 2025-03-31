@@ -25,6 +25,8 @@
     "minimum-stability": "stable",
     "require": {
         "php": "^8.3",
+        "symfony/console": "^7.2",
+        "symfony/process": "^7.2",
         "symfony/http-client": "^7.2"
     },
     "require-dev": {
