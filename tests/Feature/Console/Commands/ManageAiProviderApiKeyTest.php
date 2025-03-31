@@ -63,7 +63,7 @@ class ManageAiProviderApiKeyTest extends TestCase
     /**
      * @throws Exception
      */
-    public function test_it_should_get_the_current_api_key(): void
+    public function test_it_should_get_the_api_key(): void
     {
         self::$userConfiguration->setValue("ai_providers.{$this->aiProvider->value}.api_key", $this->fakeApiKey);
 
@@ -116,5 +116,24 @@ class ManageAiProviderApiKeyTest extends TestCase
         $tester->assertCommandIsSuccessful();
 
         $this->assertStringContainsString($this->fakeApiKey, $output);
+    }
+
+    public function test_it_should_remove_the_api_key(): void
+    {
+        self::$userConfiguration->setValue("ai_providers.{$this->aiProvider->value}.api_key", $this->fakeApiKey);
+
+        $tester = new CommandTester($this->app->find('ai:api-key'));
+        $tester->execute([
+            '--remove' => true,
+        ]);
+
+        $output = $tester->getDisplay();
+
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('Success: API key removed successfully!', $output);
+
+        $apiKey = self::$userConfiguration->getValue("ai_providers.{$this->aiProvider->value}.api_key");
+        $this->assertNull($apiKey);
     }
 }

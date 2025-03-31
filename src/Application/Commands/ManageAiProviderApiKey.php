@@ -109,7 +109,7 @@ class ManageAiProviderApiKey extends Command
                 return Command::FAILURE;
             }
 
-            $output->writeln('<info>API key removed successfully!</info>');
+            $output->writeln('<info>Success: API key removed successfully!</info>');
 
             return Command::SUCCESS;
         }

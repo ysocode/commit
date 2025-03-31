@@ -78,12 +78,12 @@ class ManageDefaultAiProvider extends Command
             }
 
             $formattedProviders = array_map(
-                fn ($aiProvider): string => sprintf('<info>• %s</info>', $aiProvider->getFormattedValue()),
+                fn ($aiProvider): string => sprintf('<comment>• %s</comment>', $aiProvider->getFormattedValue()),
                 $enabledAiProviders
             );
 
             $output->writeln([
-                '<comment>Enabled AI Providers:</comment>',
+                '<info>Enabled AI Providers:</info>',
                 '',
                 ...$formattedProviders,
                 '',

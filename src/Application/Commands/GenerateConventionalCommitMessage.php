@@ -278,7 +278,7 @@ class GenerateConventionalCommitMessage extends Command
         $output->writeln([
             "<info>Below is the generated commit message [AI: {$aiProvider->getFormattedValue()} | Lang: {$language->getFormattedValue()}]:</info>",
             '',
-            "<fg=yellow>{$conventionalCommitMessage}</fg=yellow>",
+            "<comment>{$conventionalCommitMessage}</comment>",
             '',
         ]);
 
