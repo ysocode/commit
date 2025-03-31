@@ -33,6 +33,7 @@ use YSOCode\Commit\Application\Actions\GetDefaultAiProviderFromUserConfiguration
 use YSOCode\Commit\Application\Actions\GetDefaultLanguageFromUserConfiguration;
 use YSOCode\Commit\Application\Actions\GetDefaultModelFromUserConfiguration;
 use YSOCode\Commit\Application\Actions\RemoveApiKeyFromUserConfiguration;
+use YSOCode\Commit\Application\Actions\SetApiKeyInUserConfiguration;
 use YSOCode\Commit\Application\Actions\SetDefaultAiProviderInUserConfiguration;
 use YSOCode\Commit\Application\Commands\GenerateConventionalCommitMessage;
 use YSOCode\Commit\Application\Commands\InitializeConfiguration;
@@ -89,7 +90,8 @@ $app->add(
         $checkAiProviderIsEnabled,
         $getDefaultAiProvider,
         new GetApiKeyFromUserConfiguration($userConfiguration),
-        new RemoveApiKeyFromUserConfiguration($userConfiguration)
+        new RemoveApiKeyFromUserConfiguration($userConfiguration),
+        new SetApiKeyInUserConfiguration($userConfiguration)
     )
 );
 

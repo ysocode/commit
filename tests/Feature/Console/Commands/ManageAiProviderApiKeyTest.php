@@ -13,6 +13,7 @@ use YSOCode\Commit\Application\Actions\CheckAiProviderIsEnabledInUserConfigurati
 use YSOCode\Commit\Application\Actions\GetApiKeyFromUserConfiguration;
 use YSOCode\Commit\Application\Actions\GetDefaultAiProviderFromUserConfiguration;
 use YSOCode\Commit\Application\Actions\RemoveApiKeyFromUserConfiguration;
+use YSOCode\Commit\Application\Actions\SetApiKeyInUserConfiguration;
 use YSOCode\Commit\Application\Commands\ManageAiProviderApiKey;
 use YSOCode\Commit\Domain\Enums\AiProvider;
 
@@ -45,7 +46,8 @@ class ManageAiProviderApiKeyTest extends TestCase
                 $checkAiProviderIsEnabled,
                 new GetDefaultAiProviderFromUserConfiguration(self::$userConfiguration, $checkAiProviderIsEnabled),
                 new GetApiKeyFromUserConfiguration(self::$userConfiguration),
-                new RemoveApiKeyFromUserConfiguration(self::$userConfiguration)
+                new RemoveApiKeyFromUserConfiguration(self::$userConfiguration),
+                new SetApiKeyInUserConfiguration(self::$userConfiguration)
             )
         );
     }

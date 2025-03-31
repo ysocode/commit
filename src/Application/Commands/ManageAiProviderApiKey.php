@@ -13,9 +13,11 @@ use YSOCode\Commit\Application\Commands\Interfaces\CheckAiProviderIsEnabledInter
 use YSOCode\Commit\Application\Commands\Interfaces\GetApiKeyInterface;
 use YSOCode\Commit\Application\Commands\Interfaces\GetDefaultAiProviderInterface;
 use YSOCode\Commit\Application\Commands\Interfaces\RemoveApiKeyInterface;
+use YSOCode\Commit\Application\Commands\Interfaces\SetApiKeyInterface;
 use YSOCode\Commit\Application\Commands\Traits\WithCommandToolsTrait;
 use YSOCode\Commit\Domain\Enums\AiProvider;
 use YSOCode\Commit\Domain\Types\Error;
+use YSOCode\Commit\Domain\Types\Factories\ApiKeyFactory;
 use YSOCode\Commit\Domain\Types\Interfaces\ApiKeyInterface;
 
 class ManageAiProviderApiKey extends Command
@@ -26,7 +28,8 @@ class ManageAiProviderApiKey extends Command
         private readonly CheckAiProviderIsEnabledInterface $checkAiProviderIsEnabled,
         private readonly GetDefaultAiProviderInterface $getDefaultAiProvider,
         private readonly GetApiKeyInterface $getApiKey,
-        private readonly RemoveApiKeyInterface $removeApiKey
+        private readonly RemoveApiKeyInterface $removeApiKey,
+        private readonly SetApiKeyInterface $setApiKey
     ) {
         parent::__construct();
     }
@@ -109,6 +112,27 @@ class ManageAiProviderApiKey extends Command
             $output->writeln('<info>API key removed successfully!</info>');
 
             return Command::SUCCESS;
+        }
+
+        $apiKey = $input->getArgument('api-key');
+        if (! $apiKey || ! is_string($apiKey)) {
+            $output->writeln('<error>Error: Invalid API key provided.</error>');
+
+            return Command::FAILURE;
+        }
+
+        $apiKeyType = ApiKeyFactory::create($aiProvider, $apiKey);
+        if ($apiKeyType instanceof Error) {
+            $output->writeln("<error>Error: {$apiKeyType}</error>");
+
+            return Command::FAILURE;
+        }
+
+        $apiKeyIsSet = $this->setApiKey->execute($aiProvider, $apiKeyType);
+        if ($apiKeyIsSet instanceof Error) {
+            $output->writeln("<error>Error: {$apiKeyIsSet}</error>");
+
+            return Command::FAILURE;
         }
 
         return Command::SUCCESS;

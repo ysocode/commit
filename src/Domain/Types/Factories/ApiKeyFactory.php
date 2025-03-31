@@ -15,21 +15,11 @@ class ApiKeyFactory
     public static function create(AiProvider $aiProvider, string $apiKey): ApiKeyInterface|Error
     {
         return match ($aiProvider) {
-            AiProvider::COHERE => self::createCohereApiKey($apiKey),
-            AiProvider::SOURCEGRAPH => self::createSourcegraphApiKey($apiKey),
+            AiProvider::COHERE => CohereApiKey::parse($apiKey),
+            AiProvider::SOURCEGRAPH => SourcegraphApiKey::parse($apiKey),
             default => Error::parse(
                 sprintf('Could not create API key for the "%s" AI provider.', $aiProvider->getFormattedValue())
             ),
         };
-    }
-
-    private static function createCohereApiKey(string $apiKey): CohereApiKey|Error
-    {
-        return CohereApiKey::parse($apiKey);
-    }
-
-    private static function createSourcegraphApiKey(string $apiKey): SourcegraphApiKey|Error
-    {
-        return SourcegraphApiKey::parse($apiKey);
     }
 }
