@@ -60,9 +60,41 @@ class ManageAiProviderApiKeyTest extends TestCase
         self::removeUserConfigurationDir();
     }
 
-    /**
-     * @throws Exception
-     */
+    public function test_it_should_set_the_api_key(): void
+    {
+        $tester = new CommandTester($this->app->find('ai:api-key'));
+        $tester->execute([
+            'api-key' => $this->fakeApiKey,
+        ]);
+
+        $output = $tester->getDisplay();
+
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('Success: API key set successfully!', $output);
+
+        $apiKey = self::$userConfiguration->getValue("ai_providers.{$this->aiProvider->value}.api_key");
+        $this->assertEquals(
+            $apiKey,
+            $this->fakeApiKey
+        );
+    }
+
+    public function test_it_should_display_error_when_no_api_key_argument_is_not_provided(): void
+    {
+        $tester = new CommandTester($this->app->find('ai:api-key'));
+        $tester->execute([]);
+
+        $output = $tester->getDisplay();
+
+        $this->assertEquals(
+            1,
+            $tester->getStatusCode()
+        );
+
+        $this->assertStringContainsString('Error: Invalid API key provided.', $output);
+    }
+
     public function test_it_should_get_the_api_key(): void
     {
         self::$userConfiguration->setValue("ai_providers.{$this->aiProvider->value}.api_key", $this->fakeApiKey);
@@ -101,6 +133,24 @@ class ManageAiProviderApiKeyTest extends TestCase
         );
     }
 
+    public function test_it_should_display_erro_when_api_key_argument_is_provided_with_get_option(): void
+    {
+        $tester = new CommandTester($this->app->find('ai:api-key'));
+        $tester->execute([
+            '--get' => true,
+            'api-key' => $this->fakeApiKey,
+        ]);
+
+        $output = $tester->getDisplay();
+
+        $this->assertEquals(
+            1,
+            $tester->getStatusCode()
+        );
+
+        $this->assertStringContainsString('The "--get" option cannot be used with the "api-key" argument.', $output);
+    }
+
     public function test_it_should_use_provided_ai_provider_option_instead_of_default(): void
     {
         self::$userConfiguration->setValue("ai_providers.{$this->aiProvider->value}.api_key", $this->fakeApiKey);
@@ -135,5 +185,42 @@ class ManageAiProviderApiKeyTest extends TestCase
 
         $apiKey = self::$userConfiguration->getValue("ai_providers.{$this->aiProvider->value}.api_key");
         $this->assertNull($apiKey);
+    }
+
+    public function test_it_should_not_display_error_when_no_api_key_found(): void
+    {
+        self::$userConfiguration->setValue("ai_providers.{$this->aiProvider->value}.api_key", null);
+
+        $tester = new CommandTester($this->app->find('ai:api-key'));
+        $tester->execute([
+            '--remove' => true,
+        ]);
+
+        $output = $tester->getDisplay();
+
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('Success: API key removed successfully!', $output);
+
+        $apiKey = self::$userConfiguration->getValue("ai_providers.{$this->aiProvider->value}.api_key");
+        $this->assertNull($apiKey);
+    }
+
+    public function test_it_should_display_erro_when_api_key_argument_is_provided_with_remove_option(): void
+    {
+        $tester = new CommandTester($this->app->find('ai:api-key'));
+        $tester->execute([
+            '--remove' => true,
+            'api-key' => $this->fakeApiKey,
+        ]);
+
+        $output = $tester->getDisplay();
+
+        $this->assertEquals(
+            1,
+            $tester->getStatusCode()
+        );
+
+        $this->assertStringContainsString('The "--get" option cannot be used with the "api-key" argument.', $output);
     }
 }

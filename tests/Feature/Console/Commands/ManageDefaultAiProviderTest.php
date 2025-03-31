@@ -216,7 +216,7 @@ class ManageDefaultAiProviderTest extends TestCase
         $tester->assertCommandIsSuccessful();
 
         $this->assertStringContainsString(
-            "The default AI provider has been set to: {$this->aiProvider->getFormattedValue()}",
+            'Success: Default AI provider set successfully!',
             $output
         );
     }
@@ -238,7 +238,7 @@ class ManageDefaultAiProviderTest extends TestCase
             $output
         );
         $this->assertStringContainsString(
-            "The default AI provider has been set to: {$this->aiProvider->getFormattedValue()}",
+            'Success: Default AI provider set successfully!',
             $output
         );
     }

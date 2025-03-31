@@ -138,7 +138,7 @@ class ManageDefaultAiProvider extends Command
         }
 
         $output->writeln(
-            "The default AI provider has been set to: {$aiProvider->getFormattedValue()}"
+            '<info>Success: Default AI provider set successfully!</info>'
         );
 
         return Command::SUCCESS;
