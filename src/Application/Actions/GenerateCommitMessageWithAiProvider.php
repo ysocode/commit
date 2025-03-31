@@ -16,7 +16,10 @@ class GenerateCommitMessageWithAiProvider implements GenerateCommitMessageInterf
 {
     use WithObserverToolsTrait;
 
-    public function __construct(private readonly GetApiKeyInterface $getApiKey) {}
+    public function __construct(
+        private readonly GetApiKeyInterface $getApiKey,
+        private readonly AiProviderServiceFactory $aiProviderServiceFactory
+    ) {}
 
     public function execute(AiProvider $aiProvider, string $prompt, string $diff): string|Error
     {
@@ -29,7 +32,7 @@ class GenerateCommitMessageWithAiProvider implements GenerateCommitMessageInterf
             return $apiKey;
         }
 
-        $aiProviderService = AiProviderServiceFactory::create($aiProvider, $apiKey);
+        $aiProviderService = $this->aiProviderServiceFactory->create($aiProvider, $apiKey);
         if ($aiProviderService instanceof Error) {
             $this->notify(Status::FAILED);
 

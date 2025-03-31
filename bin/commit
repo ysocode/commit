@@ -31,11 +31,13 @@ use YSOCode\Commit\Application\Actions\GenerateCommitMessageWithAiProvider;
 use YSOCode\Commit\Application\Actions\GetApiKeyFromUserConfiguration;
 use YSOCode\Commit\Application\Actions\GetDefaultAiProviderFromUserConfiguration;
 use YSOCode\Commit\Application\Actions\GetDefaultLanguageFromUserConfiguration;
+use YSOCode\Commit\Application\Actions\GetDefaultModelFromUserConfiguration;
 use YSOCode\Commit\Application\Actions\SetDefaultAiProviderInUserConfiguration;
 use YSOCode\Commit\Application\Commands\GenerateConventionalCommitMessage;
 use YSOCode\Commit\Application\Commands\InitializeConfiguration;
 use YSOCode\Commit\Application\Commands\ManageAiProviderApiKey;
 use YSOCode\Commit\Application\Commands\ManageDefaultAiProvider;
+use YSOCode\Commit\Application\Services\Factories\AiProviderServiceFactory;
 use YSOCode\Commit\Foundation\Support\Configuration;
 use YSOCode\Commit\Foundation\Support\UserConfiguration;
 
@@ -59,6 +61,9 @@ $app->add(
         new FetchStagedGitChanges,
         new GenerateCommitMessageWithAiProvider(
             new GetApiKeyFromUserConfiguration($userConfiguration),
+            new AiProviderServiceFactory(
+                new GetDefaultModelFromUserConfiguration($userConfiguration)
+            ),
         ),
         new CommitGitStagedChanges
     )

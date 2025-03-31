@@ -4,36 +4,55 @@ declare(strict_types=1);
 
 namespace YSOCode\Commit\Application\Services\Factories;
 
+use YSOCode\Commit\Application\Commands\Interfaces\GetDefaultModelInterface;
+use YSOCode\Commit\Application\Services\Cohere;
 use YSOCode\Commit\Application\Services\Interfaces\AiProviderServiceInterface;
 use YSOCode\Commit\Application\Services\Sourcegraph;
 use YSOCode\Commit\Domain\Enums\AiProvider;
+use YSOCode\Commit\Domain\Types\CohereApiKey;
 use YSOCode\Commit\Domain\Types\Error;
 use YSOCode\Commit\Domain\Types\Interfaces\ApiKeyInterface;
 use YSOCode\Commit\Domain\Types\SourcegraphApiKey;
 
-class AiProviderServiceFactory
+readonly class AiProviderServiceFactory
 {
-    public static function create(AiProvider $aiProvider, ApiKeyInterface $apiKey): AiProviderServiceInterface|Error
-    {
-        $createAiProviderService = match ($aiProvider) {
-            AiProvider::SOURCEGRAPH => function (ApiKeyInterface $apiKey) use ($aiProvider): AiProviderServiceInterface|Error {
-                if (! $apiKey instanceof SourcegraphApiKey) {
-                    return Error::parse(
-                        sprintf('Invalid API key for "%s" AI provider service.', $aiProvider->getFormattedValue())
-                    );
-                }
+    public function __construct(private GetDefaultModelInterface $getDefaultModel) {}
 
-                return new Sourcegraph($apiKey);
-            },
+    public function create(AiProvider $aiProvider, ApiKeyInterface $apiKey): AiProviderServiceInterface|Error
+    {
+        return match ($aiProvider) {
+            AiProvider::COHERE => self::createCohereService($aiProvider, $apiKey),
+            AiProvider::SOURCEGRAPH => self::createSourcegraphService($aiProvider, $apiKey),
             default => Error::parse(
                 sprintf('Could not find "%s" AI provider service.', $aiProvider->getFormattedValue())
             )
         };
+    }
 
-        if ($createAiProviderService instanceof Error) {
-            return $createAiProviderService;
+    private function createCohereService(AiProvider $aiProvider, ApiKeyInterface $apiKey): Cohere|Error
+    {
+        if (! $apiKey instanceof CohereApiKey) {
+            return Error::parse(
+                sprintf('Invalid API key for "%s" AI provider service.', $aiProvider->getFormattedValue())
+            );
         }
 
-        return $createAiProviderService($apiKey);
+        $defaultModel = $this->getDefaultModel->execute($aiProvider);
+        if ($defaultModel instanceof Error) {
+            return $defaultModel;
+        }
+
+        return new Cohere($apiKey, $defaultModel, 0.2);
+    }
+
+    private function createSourcegraphService(AiProvider $aiProvider, ApiKeyInterface $apiKey): Sourcegraph|Error
+    {
+        if (! $apiKey instanceof SourcegraphApiKey) {
+            return Error::parse(
+                sprintf('Invalid API key for "%s" AI provider service.', $aiProvider->getFormattedValue())
+            );
+        }
+
+        return new Sourcegraph($apiKey);
     }
 }
