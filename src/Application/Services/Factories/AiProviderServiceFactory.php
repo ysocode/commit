@@ -53,6 +53,11 @@ readonly class AiProviderServiceFactory
             );
         }
 
-        return new Sourcegraph($apiKey);
+        $defaultModel = $this->getDefaultModel->execute($aiProvider);
+        if ($defaultModel instanceof Error) {
+            return $defaultModel;
+        }
+
+        return new Sourcegraph($apiKey, $defaultModel);
     }
 }

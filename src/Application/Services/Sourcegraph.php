@@ -12,7 +12,10 @@ use YSOCode\Commit\Domain\Types\SourcegraphApiKey;
 
 readonly class Sourcegraph implements AiProviderServiceInterface
 {
-    public function __construct(private SourcegraphApiKey $apiKey) {}
+    public function __construct(
+        private SourcegraphApiKey $apiKey,
+        private string $model
+    ) {}
 
     public function generateCommitMessage(string $prompt, string $diff, Closure $onProgress): string|Error
     {
@@ -22,7 +25,7 @@ readonly class Sourcegraph implements AiProviderServiceInterface
         }
 
         $codyGenerateCommitMessageProcess = new Process(
-            ['cody', 'chat', '--stdin', '-m', $prompt],
+            ['cody', 'chat', '--stdin', '-m', $prompt, '--model', $this->model],
             null,
             [
                 'SRC_ENDPOINT' => 'https://sourcegraph.com',
