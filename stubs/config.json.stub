@@ -1,9 +1,9 @@
 {
-    "default_ai_provider": "",
+    "default_ai_provider": null,
     "default_lang": "en_US",
     "ai_providers": {
         "cohere": {
-            "api_key": "",
+            "api_key": null,
             "models": [
                 "command-r7b-12-2024",
                 "command-r-plus-08-2024"
@@ -15,7 +15,7 @@
             }
         },
         "openai": {
-            "api_key": "",
+            "api_key": null,
             "models": [
                 "gpt-4o",
                 "gpt-4o-mini"
@@ -27,7 +27,7 @@
             }
         },
         "deepseek": {
-            "api_key": "",
+            "api_key": null,
             "models": [
                 "deepseek-reasoner",
                 "deepseek-chat"
@@ -39,7 +39,7 @@
             }
         },
         "sourcegraph": {
-            "api_key": "",
+            "api_key": null,
             "models": [
                 "openai/gpt-4o-mini",
                 "anthropic/claude-3.5-sonnet"

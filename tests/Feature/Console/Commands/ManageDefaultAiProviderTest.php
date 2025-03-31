@@ -159,7 +159,7 @@ class ManageDefaultAiProviderTest extends TestCase
         $tester->assertCommandIsSuccessful();
 
         $this->assertStringContainsString(
-            "The current default AI provider is: {$this->aiProvider->getFormattedValue()}",
+            $this->aiProvider->getFormattedValue(),
             $output
         );
     }

@@ -107,9 +107,7 @@ class ManageDefaultAiProvider extends Command
                 return Command::FAILURE;
             }
 
-            $output->writeln(
-                "The current default AI provider is: {$defaultAiProvider->getFormattedValue()}"
-            );
+            $output->writeln($defaultAiProvider->getFormattedValue());
 
             return Command::SUCCESS;
         }

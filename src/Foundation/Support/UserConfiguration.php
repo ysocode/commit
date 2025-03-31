@@ -61,9 +61,9 @@ readonly class UserConfiguration
     }
 
     /**
-     * @return string|int|float|bool|array<string, mixed>|Error
+     * @return string|int|float|bool|array<string, mixed>|null|Error
      */
-    public function getValue(string $key): string|int|float|bool|array|Error
+    public function getValue(string $key): string|int|float|bool|array|null|Error
     {
         $userConfigurationData = $this->getUserConfigurationFileData();
         if ($userConfigurationData instanceof Error) {
@@ -80,14 +80,14 @@ readonly class UserConfiguration
             $currentValue = $currentValue[$segment];
         }
 
-        /** @var string|int|float|bool|array<string, mixed> $currentValue */
+        /** @var string|int|float|bool|array<string, mixed>|null $currentValue */
         return $currentValue;
     }
 
     /**
-     * @param  string|int|float|bool|array<string, mixed>  $value
+     * @param  string|int|float|bool|array<string, mixed>|null  $value
      */
-    public function setValue(string $key, string|int|float|bool|array $value): true|Error
+    public function setValue(string $key, string|int|float|bool|array|null $value): true|Error
     {
         $userConfigurationData = $this->getUserConfigurationFileData();
         if ($userConfigurationData instanceof Error) {
@@ -115,7 +115,7 @@ readonly class UserConfiguration
     }
 
     /**
-     * @return array<string, string|int|float|bool|array<mixed>>|Error
+     * @return array<string, string|int|float|bool|array<mixed>|null>|Error
      */
     private function getUserConfigurationFileData(): array|Error
     {
@@ -143,12 +143,12 @@ readonly class UserConfiguration
             return Error::parse('Invalid user configuration file format.');
         }
 
-        /** @var array<string, string|int|float|bool|array<mixed>> $userConfigurationDataArray */
+        /** @var array<string, string|int|float|bool|array<mixed>|null> $userConfigurationDataArray */
         return $userConfigurationDataArray;
     }
 
     /**
-     * @param  array<string, string|int|float|bool|array<mixed>>  $userConfigurationData
+     * @param  array<string, string|int|float|bool|array<mixed>|null>  $userConfigurationData
      */
     private function setConfigurationFileData(array $userConfigurationData): true|Error
     {

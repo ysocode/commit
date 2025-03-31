@@ -12,6 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use YSOCode\Commit\Application\Commands\Interfaces\CheckAiProviderIsEnabledInterface;
 use YSOCode\Commit\Application\Commands\Interfaces\GetApiKeyInterface;
 use YSOCode\Commit\Application\Commands\Interfaces\GetDefaultAiProviderInterface;
+use YSOCode\Commit\Application\Commands\Interfaces\RemoveApiKeyInterface;
 use YSOCode\Commit\Application\Commands\Traits\WithCommandToolsTrait;
 use YSOCode\Commit\Domain\Enums\AiProvider;
 use YSOCode\Commit\Domain\Types\Error;
@@ -24,7 +25,8 @@ class ManageAiProviderApiKey extends Command
     public function __construct(
         private readonly CheckAiProviderIsEnabledInterface $checkAiProviderIsEnabled,
         private readonly GetDefaultAiProviderInterface $getDefaultAiProvider,
-        private readonly GetApiKeyInterface $getApiKey
+        private readonly GetApiKeyInterface $getApiKey,
+        private readonly RemoveApiKeyInterface $removeApiKey
     ) {
         parent::__construct();
     }
@@ -62,6 +64,13 @@ class ManageAiProviderApiKey extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $aiProvider = $this->getAiProvider($input);
+        if ($aiProvider instanceof Error) {
+            $output->writeln("<error>Error: {$aiProvider}</error>");
+
+            return Command::FAILURE;
+        }
+
         $get = $this->getBooleanOption($input, 'get');
         if ($get instanceof Error) {
             $output->writeln("<error>Error: {$get}</error>");
@@ -70,38 +79,39 @@ class ManageAiProviderApiKey extends Command
         }
 
         if ($get) {
-            $apiKey = $this->handleGetOption($input);
+            $apiKey = $this->handleGetOption($input, $aiProvider);
             if ($apiKey instanceof Error) {
                 $output->writeln("<error>Error: {$apiKey}</error>");
 
                 return Command::FAILURE;
             }
 
-            $output->writeln("<info>API key: {$apiKey}</info>");
+            $output->writeln((string) $apiKey);
+
+            return Command::SUCCESS;
+        }
+
+        $remove = $this->getBooleanOption($input, 'remove');
+        if ($remove instanceof Error) {
+            $output->writeln("<error>Error: {$remove}</error>");
+
+            return Command::FAILURE;
+        }
+
+        if ($remove) {
+            $apiKeyIsRemoved = $this->handleRemoveOption($input, $aiProvider);
+            if ($apiKeyIsRemoved instanceof Error) {
+                $output->writeln("<error>Error: {$apiKeyIsRemoved}</error>");
+
+                return Command::FAILURE;
+            }
+
+            $output->writeln('<info>API key removed successfully!</info>');
 
             return Command::SUCCESS;
         }
 
         return Command::SUCCESS;
-    }
-
-    private function handleGetOption(InputInterface $input): ApiKeyInterface|Error
-    {
-        $apiKeyIsProvided = $this->checkArgumentIsProvided($input, 'api-key');
-        if ($apiKeyIsProvided instanceof Error) {
-            return $apiKeyIsProvided;
-        }
-
-        if ($apiKeyIsProvided) {
-            return Error::parse('The "--get" option cannot be used with the "api-key" argument.');
-        }
-
-        $aiProvider = $this->getAiProvider($input);
-        if ($aiProvider instanceof Error) {
-            return $aiProvider;
-        }
-
-        return $this->getApiKey->execute($aiProvider);
     }
 
     private function getAiProvider(InputInterface $input): AiProvider|Error
@@ -135,5 +145,33 @@ class ManageAiProviderApiKey extends Command
         }
 
         return $this->getDefaultAiProvider->execute();
+    }
+
+    private function handleGetOption(InputInterface $input, AiProvider $aiProvider): ApiKeyInterface|Error
+    {
+        $apiKeyIsProvided = $this->checkArgumentIsProvided($input, 'api-key');
+        if ($apiKeyIsProvided instanceof Error) {
+            return $apiKeyIsProvided;
+        }
+
+        if ($apiKeyIsProvided) {
+            return Error::parse('The "--get" option cannot be used with the "api-key" argument.');
+        }
+
+        return $this->getApiKey->execute($aiProvider);
+    }
+
+    private function handleRemoveOption(InputInterface $input, AiProvider $aiProvider): true|Error
+    {
+        $apiKeyIsProvided = $this->checkArgumentIsProvided($input, 'api-key');
+        if ($apiKeyIsProvided instanceof Error) {
+            return $apiKeyIsProvided;
+        }
+
+        if ($apiKeyIsProvided) {
+            return Error::parse('The "--get" option cannot be used with the "api-key" argument.');
+        }
+
+        return $this->removeApiKey->execute($aiProvider);
     }
 }

@@ -12,6 +12,7 @@ use Tests\Feature\Console\Commands\Traits\WithSymfonyConsoleApplicationTrait;
 use YSOCode\Commit\Application\Actions\CheckAiProviderIsEnabledInUserConfiguration;
 use YSOCode\Commit\Application\Actions\GetApiKeyFromUserConfiguration;
 use YSOCode\Commit\Application\Actions\GetDefaultAiProviderFromUserConfiguration;
+use YSOCode\Commit\Application\Actions\RemoveApiKeyFromUserConfiguration;
 use YSOCode\Commit\Application\Commands\ManageAiProviderApiKey;
 use YSOCode\Commit\Domain\Enums\AiProvider;
 
@@ -43,7 +44,8 @@ class ManageAiProviderApiKeyTest extends TestCase
             new ManageAiProviderApiKey(
                 $checkAiProviderIsEnabled,
                 new GetDefaultAiProviderFromUserConfiguration(self::$userConfiguration, $checkAiProviderIsEnabled),
-                new GetApiKeyFromUserConfiguration(self::$userConfiguration)
+                new GetApiKeyFromUserConfiguration(self::$userConfiguration),
+                new RemoveApiKeyFromUserConfiguration(self::$userConfiguration)
             )
         );
     }
@@ -72,7 +74,7 @@ class ManageAiProviderApiKeyTest extends TestCase
 
         $tester->assertCommandIsSuccessful();
 
-        $this->assertStringContainsString("API key: {$this->fakeApiKey}", $output);
+        $this->assertStringContainsString($this->fakeApiKey, $output);
     }
 
     public function test_it_should_display_error_when_no_api_key_found(): void
@@ -111,6 +113,6 @@ class ManageAiProviderApiKeyTest extends TestCase
 
         $tester->assertCommandIsSuccessful();
 
-        $this->assertStringContainsString("API key: {$this->fakeApiKey}", $output);
+        $this->assertStringContainsString($this->fakeApiKey, $output);
     }
 }
