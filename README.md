@@ -1,4 +1,4 @@
-# Commit - Automate your Conventional Commit messages with AI
+# Commit - Automate Your Conventional Commit Messages With AI
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/ysocode/commit.svg?style=flat)](https://packagist.org/packages/ysocode/commit)
 [![Downloads on Packagist](https://img.shields.io/packagist/dt/ysocode/commit.svg?style=flat)](https://packagist.org/packages/ysocode/commit)
@@ -143,3 +143,4 @@ Enabled languages:
 ## License
 
 Commit is open-sourced software licensed under the [MIT license](LICENSE.md).
+
